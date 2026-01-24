@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import {
     Building2,
     LayoutDashboard,
@@ -12,8 +12,10 @@ import {
     Settings,
     LogOut,
     Menu,
-    X
+    X,
+    ShieldAlert
 } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
 
 const adminNavItems = [
     { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
@@ -28,7 +30,73 @@ export default function AdminLayout({
     children: React.ReactNode;
 }) {
     const pathname = usePathname();
+    const router = useRouter();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const { user, loading, isAdmin, logout } = useAuth();
+
+    // Redirect non-admin users
+    useEffect(() => {
+        if (!loading && (!user || !isAdmin)) {
+            router.push('/');
+        }
+    }, [user, isAdmin, loading, router]);
+
+    // Show loading while checking auth
+    if (loading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="text-center">
+                    <div className="w-12 h-12 border-4 border-neutral-600 border-t-[#10b981] rounded-full animate-spin mx-auto mb-4" />
+                    <p className="text-neutral-400">Verificando acceso...</p>
+                </div>
+            </div>
+        );
+    }
+
+    // Show access denied for non-admins
+    if (!user || !isAdmin) {
+        return (
+            <div className="min-h-screen flex items-center justify-center px-4">
+                <div
+                    className="max-w-md w-full rounded-[2rem] p-8 text-center"
+                    style={{
+                        background: 'rgba(15, 23, 42, 0.8)',
+                        backdropFilter: 'blur(20px)',
+                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                    }}
+                >
+                    <div
+                        className="w-20 h-20 rounded-full mx-auto mb-6 flex items-center justify-center"
+                        style={{
+                            background: 'rgba(239, 68, 68, 0.15)',
+                            border: '1px solid rgba(239, 68, 68, 0.3)',
+                        }}
+                    >
+                        <ShieldAlert className="w-10 h-10 text-red-400" />
+                    </div>
+                    <h1 className="text-2xl font-bold text-white mb-3">Acceso Denegado</h1>
+                    <p className="text-neutral-400 mb-6">
+                        No tienes permisos para acceder al panel de administración.
+                    </p>
+                    <Link
+                        href="/"
+                        className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-white transition-all duration-300 hover:scale-105"
+                        style={{
+                            background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                            boxShadow: '0 4px 20px rgba(16, 185, 129, 0.3)',
+                        }}
+                    >
+                        Volver al Inicio
+                    </Link>
+                </div>
+            </div>
+        );
+    }
+
+    const handleLogout = async () => {
+        await logout();
+        router.push('/');
+    };
 
     return (
         <div className="flex min-h-screen">
@@ -140,15 +208,17 @@ export default function AdminLayout({
 
                     {/* User Info */}
                     <div className="flex items-center gap-4">
-                        <span className="text-sm text-neutral-400 hidden sm:block">Administrador</span>
-                        <div
-                            className="w-10 h-10 rounded-xl flex items-center justify-center"
-                            style={{
-                                background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-                            }}
-                        >
-                            <span className="text-sm font-bold text-white">A</span>
+                        <div className="text-right hidden sm:block">
+                            <span className="text-sm text-white font-medium block">{user.email}</span>
+                            <span className="text-xs text-[#10b981]">Administrador</span>
                         </div>
+                        <button
+                            onClick={handleLogout}
+                            className="w-10 h-10 rounded-xl flex items-center justify-center hover:bg-white/10 transition-colors"
+                            title="Cerrar sesión"
+                        >
+                            <LogOut className="w-5 h-5 text-neutral-400" />
+                        </button>
                     </div>
                 </header>
 

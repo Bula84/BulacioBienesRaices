@@ -20,7 +20,7 @@ export default function Navbar() {
     const router = useRouter();
     const [isScrolled, setIsScrolled] = useState(false);
     const { isMobileMenuOpen, toggleMobileMenu, closeMobileMenu } = useUIStore();
-    const { user, loading, logout } = useAuth();
+    const { user, loading, logout, isAdmin } = useAuth();
 
     useEffect(() => {
         const handleScroll = () => {
@@ -125,12 +125,14 @@ export default function Navbar() {
                                     </span>
                                 </div>
 
-                                <Link
-                                    href="/admin"
-                                    className="px-5 py-2.5 text-sm font-medium text-neutral-300 hover:text-white transition-colors"
-                                >
-                                    Admin
-                                </Link>
+                                {isAdmin && (
+                                    <Link
+                                        href="/admin"
+                                        className="px-5 py-2.5 text-sm font-medium text-neutral-300 hover:text-white transition-colors"
+                                    >
+                                        Admin
+                                    </Link>
+                                )}
 
                                 <button
                                     onClick={handleLogout}
@@ -264,15 +266,17 @@ export default function Navbar() {
                                 <div className="mt-8 pt-8 border-t border-white/10 space-y-3">
                                     {user ? (
                                         <>
-                                            <Link
-                                                href="/admin"
-                                                onClick={closeMobileMenu}
-                                                className="flex items-center gap-3 w-full py-3 px-4 text-neutral-300 hover:text-white rounded-xl transition-colors"
-                                                style={{ background: 'rgba(255, 255, 255, 0.05)' }}
-                                            >
-                                                <User className="w-5 h-5" />
-                                                Panel Admin
-                                            </Link>
+                                            {isAdmin && (
+                                                <Link
+                                                    href="/admin"
+                                                    onClick={closeMobileMenu}
+                                                    className="flex items-center gap-3 w-full py-3 px-4 text-neutral-300 hover:text-white rounded-xl transition-colors"
+                                                    style={{ background: 'rgba(255, 255, 255, 0.05)' }}
+                                                >
+                                                    <User className="w-5 h-5" />
+                                                    Panel Admin
+                                                </Link>
+                                            )}
                                             <button
                                                 onClick={handleLogout}
                                                 className="flex items-center gap-3 w-full py-3 px-4 text-red-400 hover:text-red-300 rounded-xl transition-colors"

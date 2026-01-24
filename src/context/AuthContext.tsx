@@ -4,11 +4,18 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { getSession, onAuthStateChange, signIn, signOut, signUp, isAuthConfigured } from '@/lib/auth';
 
+// Admin emails - Add your admin email(s) here
+const ADMIN_EMAILS = [
+    'admin@bcbienesraices.com',
+    // Add more admin emails as needed
+];
+
 interface AuthContextType {
     user: User | null;
     session: Session | null;
     loading: boolean;
     isConfigured: boolean;
+    isAdmin: boolean;
     login: (email: string, password: string) => Promise<{ error: string | null }>;
     register: (email: string, password: string) => Promise<{ error: string | null }>;
     logout: () => Promise<void>;
@@ -21,6 +28,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [session, setSession] = useState<Session | null>(null);
     const [loading, setLoading] = useState(true);
     const [isConfigured] = useState(isAuthConfigured());
+
+    // Check if current user is an admin
+    const isAdmin = user?.email ? ADMIN_EMAILS.includes(user.email.toLowerCase()) : false;
 
     useEffect(() => {
         // Get initial session
@@ -74,6 +84,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 session,
                 loading,
                 isConfigured,
+                isAdmin,
                 login,
                 register,
                 logout,
@@ -91,3 +102,6 @@ export function useAuth() {
     }
     return context;
 }
+
+// Export admin emails for configuration
+export { ADMIN_EMAILS };
