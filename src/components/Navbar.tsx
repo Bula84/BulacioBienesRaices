@@ -2,9 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, Building2, Home, Users, Newspaper, Wrench } from 'lucide-react';
+import { Menu, X, Building2, Home, Users, Newspaper, Wrench, LogIn, LogOut, User } from 'lucide-react';
 import { useUIStore } from '@/store/propertyStore';
+import { useAuth } from '@/context/AuthContext';
 
 const navLinks = [
     { href: '/', label: 'Inicio', icon: Home },
@@ -15,8 +17,10 @@ const navLinks = [
 ];
 
 export default function Navbar() {
+    const router = useRouter();
     const [isScrolled, setIsScrolled] = useState(false);
     const { isMobileMenuOpen, toggleMobileMenu, closeMobileMenu } = useUIStore();
+    const { user, loading, logout } = useAuth();
 
     useEffect(() => {
         const handleScroll = () => {
@@ -26,6 +30,12 @@ export default function Navbar() {
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
+
+    const handleLogout = async () => {
+        await logout();
+        router.push('/');
+        closeMobileMenu();
+    };
 
     return (
         <>
@@ -93,25 +103,65 @@ export default function Navbar() {
                         ))}
                     </div>
 
-                    {/* CTA Button */}
+                    {/* User/Auth Section */}
                     <div className="hidden lg:flex items-center gap-4">
-                        <Link
-                            href="/admin"
-                            className="px-6 py-2.5 text-sm font-medium text-neutral-300 hover:text-white transition-colors"
-                        >
-                            Admin
-                        </Link>
-                        <Link
-                            href="/propiedades"
-                            className="px-6 py-2.5 text-sm font-semibold rounded-xl transition-all duration-300 hover:scale-105"
-                            style={{
-                                background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-                                color: 'white',
-                                boxShadow: '0 4px 20px rgba(16, 185, 129, 0.3)',
-                            }}
-                        >
-                            Explorar
-                        </Link>
+                        {loading ? (
+                            <div className="w-5 h-5 border-2 border-neutral-600 border-t-[#10b981] rounded-full animate-spin" />
+                        ) : user ? (
+                            <>
+                                {/* User Info */}
+                                <div className="flex items-center gap-3">
+                                    <div
+                                        className="w-9 h-9 rounded-xl flex items-center justify-center"
+                                        style={{
+                                            background: 'rgba(16, 185, 129, 0.15)',
+                                            border: '1px solid rgba(16, 185, 129, 0.3)',
+                                        }}
+                                    >
+                                        <User className="w-4 h-4 text-[#10b981]" />
+                                    </div>
+                                    <span className="text-sm text-neutral-300 max-w-[150px] truncate">
+                                        {user.email}
+                                    </span>
+                                </div>
+
+                                <Link
+                                    href="/admin"
+                                    className="px-5 py-2.5 text-sm font-medium text-neutral-300 hover:text-white transition-colors"
+                                >
+                                    Admin
+                                </Link>
+
+                                <button
+                                    onClick={handleLogout}
+                                    className="flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-neutral-300 hover:text-red-400 transition-colors"
+                                >
+                                    <LogOut className="w-4 h-4" />
+                                    Salir
+                                </button>
+                            </>
+                        ) : (
+                            <>
+                                <Link
+                                    href="/login"
+                                    className="flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-neutral-300 hover:text-white transition-colors"
+                                >
+                                    <LogIn className="w-4 h-4" />
+                                    Iniciar Sesión
+                                </Link>
+                                <Link
+                                    href="/propiedades"
+                                    className="px-6 py-2.5 text-sm font-semibold rounded-xl transition-all duration-300 hover:scale-105"
+                                    style={{
+                                        background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                                        color: 'white',
+                                        boxShadow: '0 4px 20px rgba(16, 185, 129, 0.3)',
+                                    }}
+                                >
+                                    Explorar
+                                </Link>
+                            </>
+                        )}
                     </div>
 
                     {/* Mobile Menu Toggle */}
@@ -159,6 +209,32 @@ export default function Navbar() {
                             }}
                         >
                             <div className="p-6 pt-20">
+                                {/* User Section (Mobile) */}
+                                {user && (
+                                    <div
+                                        className="flex items-center gap-3 p-4 rounded-2xl mb-4"
+                                        style={{
+                                            background: 'rgba(16, 185, 129, 0.1)',
+                                            border: '1px solid rgba(16, 185, 129, 0.2)',
+                                        }}
+                                    >
+                                        <div
+                                            className="w-10 h-10 rounded-xl flex items-center justify-center"
+                                            style={{
+                                                background: 'rgba(16, 185, 129, 0.2)',
+                                            }}
+                                        >
+                                            <User className="w-5 h-5 text-[#10b981]" />
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <p className="text-white text-sm font-medium truncate">
+                                                {user.email}
+                                            </p>
+                                            <p className="text-[#10b981] text-xs">Cuenta activa</p>
+                                        </div>
+                                    </div>
+                                )}
+
                                 <nav className="space-y-2">
                                     {navLinks.map((link, index) => {
                                         const Icon = link.icon;
@@ -185,18 +261,51 @@ export default function Navbar() {
                                     })}
                                 </nav>
 
-                                <div className="mt-8 pt-8 border-t border-white/10">
-                                    <Link
-                                        href="/propiedades"
-                                        onClick={closeMobileMenu}
-                                        className="block w-full py-4 text-center font-semibold rounded-2xl transition-all duration-300"
-                                        style={{
-                                            background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-                                            color: 'white',
-                                        }}
-                                    >
-                                        Explorar Propiedades
-                                    </Link>
+                                <div className="mt-8 pt-8 border-t border-white/10 space-y-3">
+                                    {user ? (
+                                        <>
+                                            <Link
+                                                href="/admin"
+                                                onClick={closeMobileMenu}
+                                                className="flex items-center gap-3 w-full py-3 px-4 text-neutral-300 hover:text-white rounded-xl transition-colors"
+                                                style={{ background: 'rgba(255, 255, 255, 0.05)' }}
+                                            >
+                                                <User className="w-5 h-5" />
+                                                Panel Admin
+                                            </Link>
+                                            <button
+                                                onClick={handleLogout}
+                                                className="flex items-center gap-3 w-full py-3 px-4 text-red-400 hover:text-red-300 rounded-xl transition-colors"
+                                                style={{ background: 'rgba(239, 68, 68, 0.1)' }}
+                                            >
+                                                <LogOut className="w-5 h-5" />
+                                                Cerrar Sesión
+                                            </button>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Link
+                                                href="/login"
+                                                onClick={closeMobileMenu}
+                                                className="flex items-center gap-3 w-full py-3 px-4 text-neutral-300 hover:text-white rounded-xl transition-colors"
+                                                style={{ background: 'rgba(255, 255, 255, 0.05)' }}
+                                            >
+                                                <LogIn className="w-5 h-5" />
+                                                Iniciar Sesión
+                                            </Link>
+                                            <Link
+                                                href="/propiedades"
+                                                onClick={closeMobileMenu}
+                                                className="block w-full py-4 text-center font-semibold rounded-2xl transition-all duration-300"
+                                                style={{
+                                                    background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                                                    color: 'white',
+                                                }}
+                                            >
+                                                Explorar Propiedades
+                                            </Link>
+                                        </>
+                                    )}
                                 </div>
                             </div>
                         </motion.div>

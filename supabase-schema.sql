@@ -25,6 +25,7 @@ CREATE TABLE IF NOT EXISTS propiedades (
   images TEXT[], -- Array of additional image URLs
   address TEXT,
   city TEXT,
+  user_id UUID REFERENCES auth.users(id),
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -32,13 +33,21 @@ CREATE TABLE IF NOT EXISTS propiedades (
 -- Enable RLS
 ALTER TABLE propiedades ENABLE ROW LEVEL SECURITY;
 
--- Allow read access to everyone
+-- Allow read access to everyone (public properties)
 CREATE POLICY "Allow public read access on propiedades" ON propiedades
   FOR SELECT USING (true);
 
--- Allow all operations for authenticated users (admin)
-CREATE POLICY "Allow authenticated users full access on propiedades" ON propiedades
-  FOR ALL USING (true);
+-- Users can insert their own propiedades
+CREATE POLICY "Users can insert own propiedades" ON propiedades
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+-- Users can update their own propiedades
+CREATE POLICY "Users can update own propiedades" ON propiedades
+  FOR UPDATE USING (auth.uid() = user_id);
+
+-- Users can delete their own propiedades
+CREATE POLICY "Users can delete own propiedades" ON propiedades
+  FOR DELETE USING (auth.uid() = user_id);
 
 -- =====================================================
 -- NOTICIAS (News) Table
@@ -50,6 +59,7 @@ CREATE TABLE IF NOT EXISTS noticias (
   excerpt TEXT,
   image_url TEXT,
   author TEXT,
+  user_id UUID REFERENCES auth.users(id),
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -61,9 +71,17 @@ ALTER TABLE noticias ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Allow public read access on noticias" ON noticias
   FOR SELECT USING (true);
 
--- Allow all operations for authenticated users (admin)
-CREATE POLICY "Allow authenticated users full access on noticias" ON noticias
-  FOR ALL USING (true);
+-- Users can insert their own noticias
+CREATE POLICY "Users can insert own noticias" ON noticias
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+-- Users can update their own noticias
+CREATE POLICY "Users can update own noticias" ON noticias
+  FOR UPDATE USING (auth.uid() = user_id);
+
+-- Users can delete their own noticias
+CREATE POLICY "Users can delete own noticias" ON noticias
+  FOR DELETE USING (auth.uid() = user_id);
 
 -- =====================================================
 -- SERVICIOS (Services) Table
@@ -79,6 +97,7 @@ CREATE TABLE IF NOT EXISTS servicios (
   image_url TEXT,
   category TEXT NOT NULL,
   description TEXT,
+  user_id UUID REFERENCES auth.users(id),
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -90,9 +109,25 @@ ALTER TABLE servicios ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Allow public read access on servicios" ON servicios
   FOR SELECT USING (true);
 
--- Allow all operations for authenticated users (admin)
-CREATE POLICY "Allow authenticated users full access on servicios" ON servicios
-  FOR ALL USING (true);
+-- Users can insert their own servicios
+CREATE POLICY "Users can insert own servicios" ON servicios
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+-- Users can update their own servicios
+CREATE POLICY "Users can update own servicios" ON servicios
+  FOR UPDATE USING (auth.uid() = user_id);
+
+-- Users can delete their own servicios
+CREATE POLICY "Users can delete own servicios" ON servicios
+  FOR DELETE USING (auth.uid() = user_id);
+
+-- =====================================================
+-- MIGRATION: Add user_id to existing tables
+-- Run this if tables already exist
+-- =====================================================
+-- ALTER TABLE propiedades ADD COLUMN IF NOT EXISTS user_id UUID REFERENCES auth.users(id);
+-- ALTER TABLE noticias ADD COLUMN IF NOT EXISTS user_id UUID REFERENCES auth.users(id);
+-- ALTER TABLE servicios ADD COLUMN IF NOT EXISTS user_id UUID REFERENCES auth.users(id);
 
 -- =====================================================
 -- SAMPLE DATA (Optional)

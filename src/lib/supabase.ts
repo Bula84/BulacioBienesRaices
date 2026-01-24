@@ -17,6 +17,7 @@ export interface Propiedad {
     images?: string[];
     address?: string;
     city?: string;
+    user_id?: string;
     created_at: string;
 }
 
@@ -27,6 +28,7 @@ export interface Noticia {
     excerpt?: string;
     image_url: string;
     author?: string;
+    user_id?: string;
     created_at: string;
 }
 
@@ -41,6 +43,7 @@ export interface Servicio {
     image_url: string;
     category: string;
     description?: string;
+    user_id?: string;
     created_at: string;
 }
 
@@ -372,3 +375,75 @@ export async function getPropertyTypes(): Promise<string[]> {
     const types = [...new Set(data?.map(item => item.type))];
     return types.filter(Boolean) as string[];
 }
+
+// ===== USER-SCOPED DATA =====
+
+export async function getPropiedadesByUser(userId: string, filters?: {
+    operation?: string;
+    type?: string;
+    minPrice?: number;
+    maxPrice?: number;
+}): Promise<Propiedad[]> {
+    if (!supabase) return [];
+
+    let query = supabase.from('propiedades').select('*').eq('user_id', userId);
+
+    if (filters?.operation) {
+        query = query.eq('operation', filters.operation);
+    }
+    if (filters?.type) {
+        query = query.eq('type', filters.type);
+    }
+    if (filters?.minPrice) {
+        query = query.gte('price', filters.minPrice);
+    }
+    if (filters?.maxPrice) {
+        query = query.lte('price', filters.maxPrice);
+    }
+
+    const { data, error } = await query.order('created_at', { ascending: false });
+
+    if (error) {
+        console.error('Error fetching user propiedades:', error);
+        return [];
+    }
+
+    return data as Propiedad[];
+}
+
+export async function getNoticiasByUser(userId: string): Promise<Noticia[]> {
+    if (!supabase) return [];
+
+    const { data, error } = await supabase
+        .from('noticias')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
+
+    if (error) {
+        console.error('Error fetching user noticias:', error);
+        return [];
+    }
+
+    return data as Noticia[];
+}
+
+export async function getServiciosByUser(userId: string, category?: string): Promise<Servicio[]> {
+    if (!supabase) return [];
+
+    let query = supabase.from('servicios').select('*').eq('user_id', userId);
+
+    if (category) {
+        query = query.eq('category', category);
+    }
+
+    const { data, error } = await query.order('rating', { ascending: false });
+
+    if (error) {
+        console.error('Error fetching user servicios:', error);
+        return [];
+    }
+
+    return data as Servicio[];
+}
+
