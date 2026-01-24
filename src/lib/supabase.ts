@@ -1,0 +1,374 @@
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
+
+// Types for our database tables
+export interface Propiedad {
+    id: string;
+    title: string;
+    description?: string;
+    price: number;
+    operation: 'venta' | 'alquiler';
+    type: string;
+    m2: number;
+    bedrooms?: number;
+    bathrooms?: number;
+    coords_lat: number;
+    coords_lng: number;
+    image_url: string;
+    images?: string[];
+    address?: string;
+    city?: string;
+    created_at: string;
+}
+
+export interface Noticia {
+    id: string;
+    title: string;
+    content: string;
+    excerpt?: string;
+    image_url: string;
+    author?: string;
+    created_at: string;
+}
+
+export interface Servicio {
+    id: string;
+    name: string;
+    skill_tags: string[];
+    contact: string;
+    phone?: string;
+    email?: string;
+    rating: number;
+    image_url: string;
+    category: string;
+    description?: string;
+    created_at: string;
+}
+
+// Initialize Supabase client (handles missing credentials for demo mode)
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+// Create client only if credentials exist
+let supabase: SupabaseClient | null = null;
+
+if (supabaseUrl && supabaseAnonKey) {
+    supabase = createClient(supabaseUrl, supabaseAnonKey);
+}
+
+// Helper to check if Supabase is configured
+export const isSupabaseConfigured = () => !!supabase;
+
+// ===== PROPIEDADES =====
+
+export async function getPropiedades(filters?: {
+    operation?: string;
+    type?: string;
+    minPrice?: number;
+    maxPrice?: number;
+}): Promise<Propiedad[]> {
+    if (!supabase) return [];
+
+    let query = supabase.from('propiedades').select('*');
+
+    if (filters?.operation) {
+        query = query.eq('operation', filters.operation);
+    }
+    if (filters?.type) {
+        query = query.eq('type', filters.type);
+    }
+    if (filters?.minPrice) {
+        query = query.gte('price', filters.minPrice);
+    }
+    if (filters?.maxPrice) {
+        query = query.lte('price', filters.maxPrice);
+    }
+
+    const { data, error } = await query.order('created_at', { ascending: false });
+
+    if (error) {
+        console.error('Error fetching propiedades:', error);
+        return [];
+    }
+
+    return data as Propiedad[];
+}
+
+export async function getPropiedad(id: string): Promise<Propiedad | null> {
+    if (!supabase) return null;
+
+    const { data, error } = await supabase
+        .from('propiedades')
+        .select('*')
+        .eq('id', id)
+        .single();
+
+    if (error) {
+        console.error('Error fetching propiedad:', error);
+        return null;
+    }
+
+    return data as Propiedad;
+}
+
+export async function createPropiedad(propiedad: Omit<Propiedad, 'id' | 'created_at'>): Promise<Propiedad | null> {
+    if (!supabase) return null;
+
+    const { data, error } = await supabase
+        .from('propiedades')
+        .insert(propiedad)
+        .select()
+        .single();
+
+    if (error) {
+        console.error('Error creating propiedad:', error);
+        return null;
+    }
+
+    return data as Propiedad;
+}
+
+export async function updatePropiedad(id: string, propiedad: Partial<Propiedad>): Promise<Propiedad | null> {
+    if (!supabase) return null;
+
+    const { data, error } = await supabase
+        .from('propiedades')
+        .update(propiedad)
+        .eq('id', id)
+        .select()
+        .single();
+
+    if (error) {
+        console.error('Error updating propiedad:', error);
+        return null;
+    }
+
+    return data as Propiedad;
+}
+
+export async function deletePropiedad(id: string): Promise<boolean> {
+    if (!supabase) return false;
+
+    const { error } = await supabase
+        .from('propiedades')
+        .delete()
+        .eq('id', id);
+
+    if (error) {
+        console.error('Error deleting propiedad:', error);
+        return false;
+    }
+
+    return true;
+}
+
+// ===== NOTICIAS =====
+
+export async function getNoticias(): Promise<Noticia[]> {
+    if (!supabase) return [];
+
+    const { data, error } = await supabase
+        .from('noticias')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+    if (error) {
+        console.error('Error fetching noticias:', error);
+        return [];
+    }
+
+    return data as Noticia[];
+}
+
+export async function getNoticia(id: string): Promise<Noticia | null> {
+    if (!supabase) return null;
+
+    const { data, error } = await supabase
+        .from('noticias')
+        .select('*')
+        .eq('id', id)
+        .single();
+
+    if (error) {
+        console.error('Error fetching noticia:', error);
+        return null;
+    }
+
+    return data as Noticia;
+}
+
+export async function createNoticia(noticia: Omit<Noticia, 'id' | 'created_at'>): Promise<Noticia | null> {
+    if (!supabase) return null;
+
+    const { data, error } = await supabase
+        .from('noticias')
+        .insert(noticia)
+        .select()
+        .single();
+
+    if (error) {
+        console.error('Error creating noticia:', error);
+        return null;
+    }
+
+    return data as Noticia;
+}
+
+export async function updateNoticia(id: string, noticia: Partial<Noticia>): Promise<Noticia | null> {
+    if (!supabase) return null;
+
+    const { data, error } = await supabase
+        .from('noticias')
+        .update(noticia)
+        .eq('id', id)
+        .select()
+        .single();
+
+    if (error) {
+        console.error('Error updating noticia:', error);
+        return null;
+    }
+
+    return data as Noticia;
+}
+
+export async function deleteNoticia(id: string): Promise<boolean> {
+    if (!supabase) return false;
+
+    const { error } = await supabase
+        .from('noticias')
+        .delete()
+        .eq('id', id);
+
+    if (error) {
+        console.error('Error deleting noticia:', error);
+        return false;
+    }
+
+    return true;
+}
+
+// ===== SERVICIOS =====
+
+export async function getServicios(category?: string): Promise<Servicio[]> {
+    if (!supabase) return [];
+
+    let query = supabase.from('servicios').select('*');
+
+    if (category) {
+        query = query.eq('category', category);
+    }
+
+    const { data, error } = await query.order('rating', { ascending: false });
+
+    if (error) {
+        console.error('Error fetching servicios:', error);
+        return [];
+    }
+
+    return data as Servicio[];
+}
+
+export async function getServicio(id: string): Promise<Servicio | null> {
+    if (!supabase) return null;
+
+    const { data, error } = await supabase
+        .from('servicios')
+        .select('*')
+        .eq('id', id)
+        .single();
+
+    if (error) {
+        console.error('Error fetching servicio:', error);
+        return null;
+    }
+
+    return data as Servicio;
+}
+
+export async function createServicio(servicio: Omit<Servicio, 'id' | 'created_at'>): Promise<Servicio | null> {
+    if (!supabase) return null;
+
+    const { data, error } = await supabase
+        .from('servicios')
+        .insert(servicio)
+        .select()
+        .single();
+
+    if (error) {
+        console.error('Error creating servicio:', error);
+        return null;
+    }
+
+    return data as Servicio;
+}
+
+export async function updateServicio(id: string, servicio: Partial<Servicio>): Promise<Servicio | null> {
+    if (!supabase) return null;
+
+    const { data, error } = await supabase
+        .from('servicios')
+        .update(servicio)
+        .eq('id', id)
+        .select()
+        .single();
+
+    if (error) {
+        console.error('Error updating servicio:', error);
+        return null;
+    }
+
+    return data as Servicio;
+}
+
+export async function deleteServicio(id: string): Promise<boolean> {
+    if (!supabase) return false;
+
+    const { error } = await supabase
+        .from('servicios')
+        .delete()
+        .eq('id', id);
+
+    if (error) {
+        console.error('Error deleting servicio:', error);
+        return false;
+    }
+
+    return true;
+}
+
+// ===== CATEGORIES =====
+
+export async function getServiceCategories(): Promise<string[]> {
+    if (!supabase) return [];
+
+    const { data, error } = await supabase
+        .from('servicios')
+        .select('category')
+        .order('category');
+
+    if (error) {
+        console.error('Error fetching categories:', error);
+        return [];
+    }
+
+    // Get unique categories
+    const categories = [...new Set(data?.map(item => item.category))];
+    return categories.filter(Boolean) as string[];
+}
+
+export async function getPropertyTypes(): Promise<string[]> {
+    if (!supabase) return [];
+
+    const { data, error } = await supabase
+        .from('propiedades')
+        .select('type')
+        .order('type');
+
+    if (error) {
+        console.error('Error fetching property types:', error);
+        return [];
+    }
+
+    const types = [...new Set(data?.map(item => item.type))];
+    return types.filter(Boolean) as string[];
+}
