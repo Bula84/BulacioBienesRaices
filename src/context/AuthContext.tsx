@@ -7,7 +7,7 @@ import { getSession, onAuthStateChange, signIn, signOut, signUp, isAuthConfigure
 // Admin emails - Add your admin email(s) here
 const ADMIN_EMAILS = [
     'admin@bcbienesraices.com',
-    // Add more admin emails as needed
+    'gerbula84@gmail.com',
 ];
 
 interface AuthContextType {
