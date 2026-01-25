@@ -5,20 +5,46 @@ export interface Propiedad {
     id: string;
     title: string;
     description?: string;
+    full_description?: string; // Extended description for detail page
     price: number;
     operation: 'venta' | 'alquiler';
     type: string;
     m2: number;
+    m2_covered?: number; // Covered area
     bedrooms?: number;
     bathrooms?: number;
+    parking?: number; // Parking spaces
+    floors?: number; // Number of floors
+    year_built?: number;
     coords_lat: number;
     coords_lng: number;
     image_url: string;
-    images?: string[];
+    images?: string[]; // Gallery images
     address?: string;
     city?: string;
+    neighborhood?: string;
+    zip_code?: string;
+    // Amenities
+    has_pool?: boolean;
+    has_garden?: boolean;
+    has_terrace?: boolean;
+    has_balcony?: boolean;
+    has_gym?: boolean;
+    has_security?: boolean;
+    has_elevator?: boolean;
+    has_laundry?: boolean;
+    has_storage?: boolean;
+    has_ac?: boolean;
+    has_heating?: boolean;
+    pets_allowed?: boolean;
+    // Contact
+    contact_phone?: string;
+    contact_whatsapp?: string;
+    contact_email?: string;
+    // Meta
     user_id?: string;
     created_at: string;
+    updated_at?: string;
 }
 
 export interface Noticia {

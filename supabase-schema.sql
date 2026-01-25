@@ -28,24 +28,49 @@ CREATE POLICY "Users can create pending role" ON user_roles
   FOR INSERT WITH CHECK (auth.uid() = user_id AND role = 'pending');
 
 -- =====================================================
--- PROPIEDADES (Properties) Table
+-- PROPIEDADES (Properties) Table - Extended
 -- =====================================================
 CREATE TABLE IF NOT EXISTS propiedades (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   title TEXT NOT NULL,
   description TEXT,
+  full_description TEXT,
   price NUMERIC NOT NULL,
   operation TEXT NOT NULL CHECK (operation IN ('venta', 'alquiler')),
   type TEXT NOT NULL,
   m2 INTEGER,
+  m2_covered INTEGER,
   bedrooms INTEGER,
   bathrooms INTEGER,
+  parking INTEGER,
+  floors INTEGER,
+  year_built INTEGER,
   coords_lat NUMERIC,
   coords_lng NUMERIC,
   image_url TEXT,
   images TEXT[],
   address TEXT,
   city TEXT,
+  neighborhood TEXT,
+  zip_code TEXT,
+  -- Amenities
+  has_pool BOOLEAN DEFAULT FALSE,
+  has_garden BOOLEAN DEFAULT FALSE,
+  has_terrace BOOLEAN DEFAULT FALSE,
+  has_balcony BOOLEAN DEFAULT FALSE,
+  has_gym BOOLEAN DEFAULT FALSE,
+  has_security BOOLEAN DEFAULT FALSE,
+  has_elevator BOOLEAN DEFAULT FALSE,
+  has_laundry BOOLEAN DEFAULT FALSE,
+  has_storage BOOLEAN DEFAULT FALSE,
+  has_ac BOOLEAN DEFAULT FALSE,
+  has_heating BOOLEAN DEFAULT FALSE,
+  pets_allowed BOOLEAN DEFAULT FALSE,
+  -- Contact
+  contact_phone TEXT,
+  contact_whatsapp TEXT,
+  contact_email TEXT,
+  -- Meta
   user_id UUID REFERENCES auth.users(id),
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
