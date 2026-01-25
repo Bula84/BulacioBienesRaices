@@ -33,7 +33,7 @@ CREATE POLICY "SuperAdmins can view all roles" ON user_roles
     )
   );
 
--- SuperAdmins can insert/update/delete roles
+-- SuperAdmins can manage all roles
 CREATE POLICY "SuperAdmins can manage roles" ON user_roles
   FOR ALL USING (
     EXISTS (
@@ -42,7 +42,7 @@ CREATE POLICY "SuperAdmins can manage roles" ON user_roles
     )
   );
 
--- Users can insert their own pending role on registration
+-- Users can create their own pending role on registration
 CREATE POLICY "Users can create pending role" ON user_roles
   FOR INSERT WITH CHECK (auth.uid() = user_id AND role = 'pending');
 
@@ -180,15 +180,7 @@ CREATE POLICY "SuperAdmins full access on servicios" ON servicios
   );
 
 -- =====================================================
--- HELPER FUNCTION: Get user role
--- =====================================================
-CREATE OR REPLACE FUNCTION get_user_role(uid UUID)
-RETURNS TEXT AS $$
-  SELECT role FROM user_roles WHERE user_id = uid;
-$$ LANGUAGE sql SECURITY DEFINER;
-
--- =====================================================
--- TRIGGER: Auto-create pending role on new user
+-- TRIGGER: Auto-create pending role on new user signup
 -- =====================================================
 CREATE OR REPLACE FUNCTION handle_new_user()
 RETURNS TRIGGER AS $$
@@ -199,39 +191,18 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- Create trigger (if not exists)
 DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE FUNCTION handle_new_user();
 
 -- =====================================================
--- INITIAL SUPERADMIN SETUP
--- Run this AFTER creating your superadmin account
+-- SETUP SUPERADMIN
 -- Replace 'gerbula84@gmail.com' with your email
+-- Run this AFTER you have registered your account
 -- =====================================================
--- INSERT INTO user_roles (user_id, email, role)
--- SELECT id, email, 'superadmin' 
--- FROM auth.users 
--- WHERE email = 'gerbula84@gmail.com'
--- ON CONFLICT (user_id) DO UPDATE SET role = 'superadmin';
-
--- =====================================================
--- SAMPLE DATA (Optional - for demo purposes)
--- =====================================================
-
--- Sample Properties (no user_id = public demo data)
-INSERT INTO propiedades (title, description, price, operation, type, m2, bedrooms, bathrooms, coords_lat, coords_lng, image_url, address, city) VALUES
-('Departamento de Lujo en Puerto Madero', 'Espectacular departamento con vista al río.', 450000, 'venta', 'Departamento', 120, 3, 2, -34.6118, -58.3625, 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=800', 'Puerto Madero', 'Buenos Aires'),
-('Casa Moderna en Nordelta', 'Casa de diseño contemporáneo con amplio jardín y pileta.', 8500, 'alquiler', 'Casa', 250, 4, 3, -34.4097, -58.6517, 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800', 'Nordelta', 'Tigre'),
-('Penthouse con Vista al Río', 'Exclusivo penthouse en torre de categoría.', 850000, 'venta', 'Penthouse', 200, 4, 3, -34.6037, -58.3816, 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800', 'Recoleta', 'Buenos Aires');
-
--- Sample News
-INSERT INTO noticias (title, content, excerpt, image_url, author) VALUES
-('El mercado inmobiliario muestra signos de recuperación', 'El mercado inmobiliario argentino está experimentando una notable recuperación...', 'Los expertos señalan un incremento del 15% en las transacciones.', 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800', 'Carlos Rodríguez'),
-('Nuevas tendencias en diseño de interiores para 2026', 'Las tendencias de diseño incluyen materiales naturales y espacios multifuncionales...', 'Descubre las últimas tendencias en decoración.', 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=800', 'María González');
-
--- Sample Services  
-INSERT INTO servicios (name, skill_tags, contact, phone, email, rating, image_url, category, description) VALUES
-('Juan Pérez', ARRAY['Instalaciones eléctricas', 'Reparaciones'], '+54 11 1234-5678', '+541112345678', 'juan.perez@email.com', 4.8, 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400', 'Electricidad', 'Electricista matriculado con más de 15 años de experiencia.'),
-('Roberto Gómez', ARRAY['Plomería general', 'Gas'], '+54 11 2345-6789', '+541123456789', 'roberto@plomeria.com', 4.9, 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400', 'Plomería', 'Gasista matriculado. Trabajos con garantía escrita.');
+INSERT INTO user_roles (user_id, email, role)
+SELECT id, email, 'superadmin' 
+FROM auth.users 
+WHERE email = 'gerbula84@gmail.com'
+ON CONFLICT (user_id) DO UPDATE SET role = 'superadmin';
