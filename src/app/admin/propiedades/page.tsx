@@ -45,6 +45,7 @@ const emptyProperty = {
     coords_lng: -58.3816,
     image_url: '',
     images: [] as string[],
+    video_url: '',
     address: '',
     city: '',
     neighborhood: '',
@@ -138,6 +139,7 @@ export default function AdminPropiedadesPage() {
                 coords_lng: property.coords_lng || -58.3816,
                 image_url: property.image_url || '',
                 images: property.images || [],
+                video_url: property.video_url || '',
                 address: property.address || '',
                 city: property.city || '',
                 neighborhood: property.neighborhood || '',
@@ -475,8 +477,8 @@ export default function AdminPropiedadesPage() {
                                         key={tab.id}
                                         onClick={() => setActiveTab(tab.id as any)}
                                         className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all ${activeTab === tab.id
-                                                ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-                                                : 'text-neutral-400 hover:text-white hover:bg-white/5'
+                                            ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                                            : 'text-neutral-400 hover:text-white hover:bg-white/5'
                                             }`}
                                     >
                                         {tab.label}
@@ -755,8 +757,8 @@ export default function AdminPropiedadesPage() {
                                                 <label
                                                     key={key}
                                                     className={`flex items-center gap-3 p-4 rounded-xl cursor-pointer transition-all ${formData[key as keyof typeof formData]
-                                                            ? 'bg-emerald-500/20 border-emerald-500/50'
-                                                            : 'bg-white/5 border-white/10 hover:bg-white/10'
+                                                        ? 'bg-emerald-500/20 border-emerald-500/50'
+                                                        : 'bg-white/5 border-white/10 hover:bg-white/10'
                                                         } border`}
                                                 >
                                                     <input
@@ -767,8 +769,8 @@ export default function AdminPropiedadesPage() {
                                                     />
                                                     <div
                                                         className={`w-5 h-5 rounded flex items-center justify-center ${formData[key as keyof typeof formData]
-                                                                ? 'bg-emerald-500 text-white'
-                                                                : 'bg-white/10'
+                                                            ? 'bg-emerald-500 text-white'
+                                                            : 'bg-white/10'
                                                             }`}
                                                     >
                                                         {formData[key as keyof typeof formData] && (
@@ -850,6 +852,33 @@ export default function AdminPropiedadesPage() {
                                                     <ImageIcon className="w-10 h-10 text-neutral-600 mx-auto mb-2" />
                                                     <p className="text-neutral-500 text-sm">No hay imágenes en la galería</p>
                                                     <p className="text-neutral-600 text-xs">Agrega URLs de imágenes arriba</p>
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        {/* Video Tour */}
+                                        <div className="pt-4 border-t border-white/10">
+                                            <label className="block text-sm font-medium text-neutral-300 mb-2">
+                                                Video Tour (YouTube, Vimeo o MP4)
+                                            </label>
+                                            <input
+                                                type="url"
+                                                value={formData.video_url}
+                                                onChange={(e) => setFormData({ ...formData, video_url: e.target.value })}
+                                                className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-neutral-500 focus:outline-none focus:border-emerald-500 transition-all"
+                                                placeholder="https://www.youtube.com/watch?v=... o https://vimeo.com/..."
+                                            />
+                                            <p className="text-xs text-neutral-500 mt-2">
+                                                Pegá el link de YouTube, Vimeo o URL directa del video MP4
+                                            </p>
+                                            {formData.video_url && (
+                                                <div className="mt-3 p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+                                                    <p className="text-sm text-emerald-400 flex items-center gap-2">
+                                                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                                        </svg>
+                                                        Video configurado correctamente
+                                                    </p>
                                                 </div>
                                             )}
                                         </div>

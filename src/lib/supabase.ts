@@ -20,6 +20,7 @@ export interface Propiedad {
     coords_lng: number;
     image_url: string;
     images?: string[]; // Gallery images
+    video_url?: string; // Video tour URL (YouTube, Vimeo, or direct MP4)
     address?: string;
     city?: string;
     neighborhood?: string;

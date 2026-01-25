@@ -30,7 +30,8 @@ import {
     Wind,
     Flame,
     PawPrint,
-    Maximize2
+    Maximize2,
+    Play
 } from 'lucide-react';
 import { getPropiedad, Propiedad } from '@/lib/supabase';
 import Navbar from '@/components/Navbar';
@@ -85,6 +86,7 @@ Ubicación privilegiada a pasos de los mejores restaurantes, bares y paseos de P
     contact_phone: '+54 11 1234-5678',
     contact_whatsapp: '5491112345678',
     contact_email: 'info@bcbienesraices.com',
+    video_url: 'https://www.youtube.com/embed/dQw4w9WgXcQ', // Demo video
     created_at: new Date().toISOString(),
 };
 
@@ -289,8 +291,8 @@ export default function PropertyDetailPage() {
                                 <div className="absolute top-4 left-4">
                                     <span
                                         className={`px-4 py-2 rounded-xl text-sm font-semibold ${property.operation === 'venta'
-                                                ? 'bg-emerald-500/90 text-white'
-                                                : 'bg-purple-500/90 text-white'
+                                            ? 'bg-emerald-500/90 text-white'
+                                            : 'bg-purple-500/90 text-white'
                                             }`}
                                     >
                                         {property.operation === 'venta' ? 'En Venta' : 'En Alquiler'}
@@ -323,8 +325,8 @@ export default function PropertyDetailPage() {
                                             key={index}
                                             onClick={() => setCurrentImageIndex(index)}
                                             className={`flex-shrink-0 w-20 h-20 rounded-xl overflow-hidden transition-all ${currentImageIndex === index
-                                                    ? 'ring-2 ring-[#10b981] ring-offset-2 ring-offset-[#0a0a1a]'
-                                                    : 'opacity-60 hover:opacity-100'
+                                                ? 'ring-2 ring-[#10b981] ring-offset-2 ring-offset-[#0a0a1a]'
+                                                : 'opacity-60 hover:opacity-100'
                                                 }`}
                                         >
                                             <img
@@ -334,6 +336,58 @@ export default function PropertyDetailPage() {
                                             />
                                         </button>
                                     ))}
+                                </div>
+                            )}
+
+                            {/* Video Tour */}
+                            {property.video_url && (
+                                <div
+                                    className="p-6 rounded-2xl"
+                                    style={{
+                                        background: 'rgba(255, 255, 255, 0.03)',
+                                        border: '1px solid rgba(255, 255, 255, 0.08)',
+                                    }}
+                                >
+                                    <div className="flex items-center gap-3 mb-4">
+                                        <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-red-500/20">
+                                            <Play className="w-5 h-5 text-red-500" />
+                                        </div>
+                                        <h2 className="text-xl font-bold text-white">Video Tour</h2>
+                                    </div>
+                                    <div className="relative rounded-xl overflow-hidden" style={{ aspectRatio: '16/9' }}>
+                                        {property.video_url.includes('youtube.com') || property.video_url.includes('youtu.be') ? (
+                                            <iframe
+                                                src={property.video_url.includes('embed')
+                                                    ? property.video_url
+                                                    : `https://www.youtube.com/embed/${property.video_url.split('v=')[1]?.split('&')[0] || property.video_url.split('/').pop()}`
+                                                }
+                                                title="Video Tour"
+                                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                                allowFullScreen
+                                                className="absolute inset-0 w-full h-full"
+                                            />
+                                        ) : property.video_url.includes('vimeo.com') ? (
+                                            <iframe
+                                                src={property.video_url.includes('player.vimeo.com')
+                                                    ? property.video_url
+                                                    : `https://player.vimeo.com/video/${property.video_url.split('/').pop()}`
+                                                }
+                                                title="Video Tour"
+                                                allow="autoplay; fullscreen; picture-in-picture"
+                                                allowFullScreen
+                                                className="absolute inset-0 w-full h-full"
+                                            />
+                                        ) : (
+                                            <video
+                                                src={property.video_url}
+                                                controls
+                                                className="absolute inset-0 w-full h-full object-cover"
+                                                poster={property.image_url}
+                                            >
+                                                Tu navegador no soporta el tag de video.
+                                            </video>
+                                        )}
+                                    </div>
                                 </div>
                             )}
 
@@ -449,8 +503,8 @@ export default function PropertyDetailPage() {
                                             <div
                                                 key={key}
                                                 className={`flex items-center gap-3 p-3 rounded-xl ${hasAmenity
-                                                        ? 'bg-[#10b981]/10 text-[#10b981]'
-                                                        : 'bg-white/5 text-neutral-500'
+                                                    ? 'bg-[#10b981]/10 text-[#10b981]'
+                                                    : 'bg-white/5 text-neutral-500'
                                                     }`}
                                             >
                                                 <Icon className="w-5 h-5" />
