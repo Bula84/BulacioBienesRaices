@@ -103,11 +103,11 @@ export async function getPropiedades(filters?: {
     const { data, error } = await query.order('created_at', { ascending: false });
 
     if (error) {
-        console.error('Error fetching propiedades:', error);
+        console.error('Error fetching propiedades:', error.message || error);
         return [];
     }
 
-    return data as Propiedad[];
+    return data || [];
 }
 
 export async function getPropiedad(id: string): Promise<Propiedad | null> {

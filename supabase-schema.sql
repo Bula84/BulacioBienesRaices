@@ -17,30 +17,11 @@ CREATE TABLE IF NOT EXISTS user_roles (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Enable RLS
 ALTER TABLE user_roles ENABLE ROW LEVEL SECURITY;
 
 -- Users can read their own role
 CREATE POLICY "Users can view own role" ON user_roles
   FOR SELECT USING (auth.uid() = user_id);
-
--- SuperAdmins can view all roles
-CREATE POLICY "SuperAdmins can view all roles" ON user_roles
-  FOR SELECT USING (
-    EXISTS (
-      SELECT 1 FROM user_roles 
-      WHERE user_id = auth.uid() AND role = 'superadmin'
-    )
-  );
-
--- SuperAdmins can manage all roles
-CREATE POLICY "SuperAdmins can manage roles" ON user_roles
-  FOR ALL USING (
-    EXISTS (
-      SELECT 1 FROM user_roles 
-      WHERE user_id = auth.uid() AND role = 'superadmin'
-    )
-  );
 
 -- Users can create their own pending role on registration
 CREATE POLICY "Users can create pending role" ON user_roles
@@ -76,47 +57,8 @@ ALTER TABLE propiedades ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Allow public read access on propiedades" ON propiedades
   FOR SELECT USING (true);
 
--- SuperAdmins can do everything
-CREATE POLICY "SuperAdmins full access on propiedades" ON propiedades
-  FOR ALL USING (
-    EXISTS (
-      SELECT 1 FROM user_roles 
-      WHERE user_id = auth.uid() AND role = 'superadmin'
-    )
-  );
-
--- Admins can insert their own properties
-CREATE POLICY "Admins can insert own propiedades" ON propiedades
-  FOR INSERT WITH CHECK (
-    auth.uid() = user_id AND
-    EXISTS (
-      SELECT 1 FROM user_roles 
-      WHERE user_id = auth.uid() AND role IN ('admin', 'superadmin')
-    )
-  );
-
--- Admins can update their own properties
-CREATE POLICY "Admins can update own propiedades" ON propiedades
-  FOR UPDATE USING (
-    auth.uid() = user_id AND
-    EXISTS (
-      SELECT 1 FROM user_roles 
-      WHERE user_id = auth.uid() AND role IN ('admin', 'superadmin')
-    )
-  );
-
--- Admins can delete their own properties
-CREATE POLICY "Admins can delete own propiedades" ON propiedades
-  FOR DELETE USING (
-    auth.uid() = user_id AND
-    EXISTS (
-      SELECT 1 FROM user_roles 
-      WHERE user_id = auth.uid() AND role IN ('admin', 'superadmin')
-    )
-  );
-
 -- =====================================================
--- NOTICIAS (News) Table - SuperAdmin only
+-- NOTICIAS (News) Table
 -- =====================================================
 CREATE TABLE IF NOT EXISTS noticias (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -136,17 +78,8 @@ ALTER TABLE noticias ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Allow public read access on noticias" ON noticias
   FOR SELECT USING (true);
 
--- Only SuperAdmins can manage news
-CREATE POLICY "SuperAdmins full access on noticias" ON noticias
-  FOR ALL USING (
-    EXISTS (
-      SELECT 1 FROM user_roles 
-      WHERE user_id = auth.uid() AND role = 'superadmin'
-    )
-  );
-
 -- =====================================================
--- SERVICIOS (Services) Table - SuperAdmin only
+-- SERVICIOS (Services) Table
 -- =====================================================
 CREATE TABLE IF NOT EXISTS servicios (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -170,15 +103,6 @@ ALTER TABLE servicios ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Allow public read access on servicios" ON servicios
   FOR SELECT USING (true);
 
--- Only SuperAdmins can manage services
-CREATE POLICY "SuperAdmins full access on servicios" ON servicios
-  FOR ALL USING (
-    EXISTS (
-      SELECT 1 FROM user_roles 
-      WHERE user_id = auth.uid() AND role = 'superadmin'
-    )
-  );
-
 -- =====================================================
 -- TRIGGER: Auto-create pending role on new user signup
 -- =====================================================
@@ -197,9 +121,58 @@ CREATE TRIGGER on_auth_user_created
   FOR EACH ROW EXECUTE FUNCTION handle_new_user();
 
 -- =====================================================
--- SETUP SUPERADMIN
--- Replace 'gerbula84@gmail.com' with your email
--- Run this AFTER you have registered your account
+-- HELPER FUNCTION: Get user role (SECURITY DEFINER to avoid RLS recursion)
+-- =====================================================
+CREATE OR REPLACE FUNCTION public.get_my_role()
+RETURNS TEXT AS $$
+  SELECT role FROM public.user_roles WHERE user_id = auth.uid()
+$$ LANGUAGE sql SECURITY DEFINER STABLE;
+
+-- =====================================================
+-- RLS POLICIES WITH SECURITY DEFINER FUNCTION
+-- =====================================================
+
+-- USER_ROLES: SuperAdmins can view all
+CREATE POLICY "SuperAdmins can view all roles" ON user_roles
+  FOR SELECT USING (public.get_my_role() = 'superadmin');
+
+-- USER_ROLES: SuperAdmins can manage all
+CREATE POLICY "SuperAdmins can manage roles" ON user_roles
+  FOR ALL USING (public.get_my_role() = 'superadmin');
+
+-- PROPIEDADES: SuperAdmins full access
+CREATE POLICY "SuperAdmins full access on propiedades" ON propiedades
+  FOR ALL USING (public.get_my_role() = 'superadmin');
+
+-- PROPIEDADES: Admins can insert their own
+CREATE POLICY "Admins can insert own propiedades" ON propiedades
+  FOR INSERT WITH CHECK (
+    auth.uid() = user_id AND public.get_my_role() IN ('admin', 'superadmin')
+  );
+
+-- PROPIEDADES: Admins can update their own
+CREATE POLICY "Admins can update own propiedades" ON propiedades
+  FOR UPDATE USING (
+    auth.uid() = user_id AND public.get_my_role() IN ('admin', 'superadmin')
+  );
+
+-- PROPIEDADES: Admins can delete their own
+CREATE POLICY "Admins can delete own propiedades" ON propiedades
+  FOR DELETE USING (
+    auth.uid() = user_id AND public.get_my_role() IN ('admin', 'superadmin')
+  );
+
+-- NOTICIAS: Only SuperAdmins can manage
+CREATE POLICY "SuperAdmins full access on noticias" ON noticias
+  FOR ALL USING (public.get_my_role() = 'superadmin');
+
+-- SERVICIOS: Only SuperAdmins can manage
+CREATE POLICY "SuperAdmins full access on servicios" ON servicios
+  FOR ALL USING (public.get_my_role() = 'superadmin');
+
+-- =====================================================
+-- SETUP SUPERADMIN (run after registration)
+-- Replace email with your SuperAdmin email
 -- =====================================================
 INSERT INTO user_roles (user_id, email, role)
 SELECT id, email, 'superadmin' 
