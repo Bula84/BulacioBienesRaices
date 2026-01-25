@@ -14,7 +14,8 @@ import {
     Menu,
     X,
     ShieldAlert,
-    Clock
+    Clock,
+    Share2
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 
@@ -23,6 +24,7 @@ const getNavItems = (isSuperAdmin: boolean) => {
     const items = [
         { href: '/admin', label: 'Dashboard', icon: LayoutDashboard, roles: ['admin', 'superadmin'] },
         { href: '/admin/propiedades', label: 'Propiedades', icon: HomeIcon, roles: ['admin', 'superadmin'] },
+        { href: '/admin/publicaciones', label: 'Redes Sociales', icon: Share2, roles: ['admin', 'superadmin'] },
     ];
 
     // Only SuperAdmin can see these

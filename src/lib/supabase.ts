@@ -84,6 +84,48 @@ export interface UserRole {
     created_at: string;
 }
 
+export interface Publicacion {
+    id: string;
+    title: string;
+    content: string;
+    image_url?: string;
+    video_url?: string;
+    propiedad_id?: string;
+    noticia_id?: string;
+    // Facebook
+    facebook_status: 'pending' | 'published' | 'failed' | 'skipped';
+    facebook_post_id?: string;
+    facebook_published_at?: string;
+    facebook_error?: string;
+    // Instagram
+    instagram_status: 'pending' | 'published' | 'failed' | 'skipped';
+    instagram_post_id?: string;
+    instagram_published_at?: string;
+    instagram_error?: string;
+    // TikTok
+    tiktok_status: 'pending' | 'published' | 'failed' | 'skipped';
+    tiktok_post_id?: string;
+    tiktok_published_at?: string;
+    tiktok_error?: string;
+    // Scheduling
+    scheduled_for?: string;
+    user_id?: string;
+    created_at: string;
+    updated_at?: string;
+}
+
+export interface SocialMediaConfig {
+    id: string;
+    platform: 'facebook' | 'instagram' | 'tiktok';
+    access_token?: string;
+    refresh_token?: string;
+    page_id?: string;
+    account_id?: string;
+    expires_at?: string;
+    is_active: boolean;
+    created_at: string;
+}
+
 // Initialize Supabase client (handles missing credentials for demo mode)
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -611,4 +653,109 @@ export async function deleteUserRole(userId: string): Promise<boolean> {
     return true;
 }
 
+// =====================================================
+// PUBLICACIONES (Social Media Posts)
+// =====================================================
 
+export async function getPublicaciones(): Promise<Publicacion[]> {
+    if (!supabase) return [];
+
+    const { data, error } = await supabase
+        .from('publicaciones')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+    if (error) {
+        console.error('Error fetching publicaciones:', error.message || error);
+        return [];
+    }
+
+    return data || [];
+}
+
+export async function getPublicacionesByUser(userId: string): Promise<Publicacion[]> {
+    if (!supabase) return [];
+
+    const { data, error } = await supabase
+        .from('publicaciones')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
+
+    if (error) {
+        console.error('Error fetching publicaciones:', error.message || error);
+        return [];
+    }
+
+    return data || [];
+}
+
+export async function createPublicacion(publicacion: Omit<Publicacion, 'id' | 'created_at'>): Promise<Publicacion | null> {
+    if (!supabase) return null;
+
+    const { data, error } = await supabase
+        .from('publicaciones')
+        .insert(publicacion)
+        .select()
+        .single();
+
+    if (error) {
+        console.error('Error creating publicacion:', error.message || error);
+        return null;
+    }
+
+    return data as Publicacion;
+}
+
+export async function updatePublicacion(id: string, updates: Partial<Publicacion>): Promise<Publicacion | null> {
+    if (!supabase) return null;
+
+    const { data, error } = await supabase
+        .from('publicaciones')
+        .update({ ...updates, updated_at: new Date().toISOString() })
+        .eq('id', id)
+        .select()
+        .single();
+
+    if (error) {
+        console.error('Error updating publicacion:', error.message || error);
+        return null;
+    }
+
+    return data as Publicacion;
+}
+
+export async function deletePublicacion(id: string): Promise<boolean> {
+    if (!supabase) return false;
+
+    const { error } = await supabase
+        .from('publicaciones')
+        .delete()
+        .eq('id', id);
+
+    if (error) {
+        console.error('Error deleting publicacion:', error.message || error);
+        return false;
+    }
+
+    return true;
+}
+
+// Trigger social media publishing via Edge Function
+export async function publishToSocialMedia(publicacionId: string): Promise<{ success: boolean; error?: string }> {
+    if (!supabase) return { success: false, error: 'No database connection' };
+
+    try {
+        const { data, error } = await supabase.functions.invoke('publish-social-media', {
+            body: { publicacion_id: publicacionId }
+        });
+
+        if (error) {
+            return { success: false, error: error.message };
+        }
+
+        return { success: true, ...data };
+    } catch (e) {
+        return { success: false, error: 'Failed to invoke publishing function' };
+    }
+}
