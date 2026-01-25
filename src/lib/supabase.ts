@@ -47,6 +47,16 @@ export interface Servicio {
     created_at: string;
 }
 
+export interface UserRole {
+    id: string;
+    user_id: string;
+    email: string;
+    role: 'pending' | 'admin' | 'superadmin';
+    approved_by?: string;
+    approved_at?: string;
+    created_at: string;
+}
+
 // Initialize Supabase client (handles missing credentials for demo mode)
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -57,6 +67,10 @@ let supabase: SupabaseClient | null = null;
 if (supabaseUrl && supabaseAnonKey) {
     supabase = createClient(supabaseUrl, supabaseAnonKey);
 }
+
+// Export for use in other modules
+export { supabase };
+
 
 // Helper to check if Supabase is configured
 export const isSupabaseConfigured = () => !!supabase;
@@ -446,4 +460,113 @@ export async function getServiciosByUser(userId: string, category?: string): Pro
 
     return data as Servicio[];
 }
+
+// ===== USER ROLES =====
+
+export async function getUserRole(userId: string): Promise<UserRole | null> {
+    if (!supabase) return null;
+
+    const { data, error } = await supabase
+        .from('user_roles')
+        .select('*')
+        .eq('user_id', userId)
+        .single();
+
+    if (error) {
+        console.error('Error fetching user role:', error);
+        return null;
+    }
+
+    return data as UserRole;
+}
+
+export async function getAllUserRoles(): Promise<UserRole[]> {
+    if (!supabase) return [];
+
+    const { data, error } = await supabase
+        .from('user_roles')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+    if (error) {
+        console.error('Error fetching all user roles:', error);
+        return [];
+    }
+
+    return data as UserRole[];
+}
+
+export async function updateUserRole(
+    userId: string,
+    role: 'pending' | 'admin' | 'superadmin',
+    approvedBy?: string
+): Promise<UserRole | null> {
+    if (!supabase) return null;
+
+    const updateData: Record<string, unknown> = {
+        role,
+        updated_at: new Date().toISOString(),
+    };
+
+    if (role !== 'pending' && approvedBy) {
+        updateData.approved_by = approvedBy;
+        updateData.approved_at = new Date().toISOString();
+    }
+
+    const { data, error } = await supabase
+        .from('user_roles')
+        .update(updateData)
+        .eq('user_id', userId)
+        .select()
+        .single();
+
+    if (error) {
+        console.error('Error updating user role:', error);
+        return null;
+    }
+
+    return data as UserRole;
+}
+
+export async function createUserRole(
+    userId: string,
+    email: string,
+    role: 'pending' | 'admin' | 'superadmin' = 'pending'
+): Promise<UserRole | null> {
+    if (!supabase) return null;
+
+    const { data, error } = await supabase
+        .from('user_roles')
+        .insert({
+            user_id: userId,
+            email,
+            role,
+        })
+        .select()
+        .single();
+
+    if (error) {
+        console.error('Error creating user role:', error);
+        return null;
+    }
+
+    return data as UserRole;
+}
+
+export async function deleteUserRole(userId: string): Promise<boolean> {
+    if (!supabase) return false;
+
+    const { error } = await supabase
+        .from('user_roles')
+        .delete()
+        .eq('user_id', userId);
+
+    if (error) {
+        console.error('Error deleting user role:', error);
+        return false;
+    }
+
+    return true;
+}
+
 
