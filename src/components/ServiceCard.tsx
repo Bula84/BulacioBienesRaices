@@ -15,8 +15,12 @@ export default function ServiceCard({ service, index = 0 }: ServiceCardProps) {
         <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
+            whileHover={{
+                y: -12,
+                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 50px rgba(0, 212, 255, 0.15)'
+            }}
             transition={{ duration: 0.4, delay: index * 0.1 }}
-            className="group relative rounded-[2rem] overflow-hidden transition-all duration-300"
+            className="group relative rounded-[2rem] overflow-hidden cursor-pointer"
             style={{
                 background: 'rgba(255, 255, 255, 0.05)',
                 backdropFilter: 'blur(24px)',
@@ -29,10 +33,10 @@ export default function ServiceCard({ service, index = 0 }: ServiceCardProps) {
                 <div className="flex items-start gap-4">
                     {/* Avatar */}
                     <div
-                        className="w-16 h-16 rounded-2xl overflow-hidden flex-shrink-0"
+                        className="w-16 h-16 rounded-2xl overflow-hidden flex-shrink-0 bg-cover bg-center"
                         style={{
-                            background: service.image_url
-                                ? `url(${service.image_url}) center/cover`
+                            backgroundImage: service.image_url
+                                ? `url(${service.image_url})`
                                 : 'linear-gradient(135deg, #00d4ff 0%, #a855f7 100%)',
                         }}
                     >
@@ -162,14 +166,6 @@ export default function ServiceCard({ service, index = 0 }: ServiceCardProps) {
                     background: 'radial-gradient(circle at 50% 0%, rgba(0, 212, 255, 0.1), transparent 60%)',
                 }}
             />
-
-            {/* Levitation Effect */}
-            <style jsx>{`
-        div:hover {
-          transform: translateY(-12px);
-          box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 50px rgba(0, 212, 255, 0.15);
-        }
-      `}</style>
         </motion.div>
     );
 }
