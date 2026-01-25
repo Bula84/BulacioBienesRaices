@@ -140,18 +140,33 @@ export async function getPropiedades(filters?: {
 export async function getPropiedad(id: string): Promise<Propiedad | null> {
     if (!supabase) return null;
 
-    const { data, error } = await supabase
-        .from('propiedades')
-        .select('*')
-        .eq('id', id)
-        .single();
-
-    if (error) {
-        console.error('Error fetching propiedad:', error);
+    // Validate UUID format
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(id)) {
+        // Not a valid UUID, return null silently (will show demo data)
         return null;
     }
 
-    return data as Propiedad;
+    try {
+        const { data, error } = await supabase
+            .from('propiedades')
+            .select('*')
+            .eq('id', id)
+            .single();
+
+        if (error) {
+            // Don't log for single row not found errors
+            if (error.code !== 'PGRST116') {
+                console.error('Error fetching propiedad:', error.message || error);
+            }
+            return null;
+        }
+
+        return data as Propiedad;
+    } catch (e) {
+        console.error('Error in getPropiedad:', e);
+        return null;
+    }
 }
 
 export async function createPropiedad(propiedad: Omit<Propiedad, 'id' | 'created_at'>): Promise<Propiedad | null> {
