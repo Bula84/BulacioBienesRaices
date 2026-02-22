@@ -11,12 +11,24 @@ import { useAuth } from '@/context/AuthContext';
 const navLinks = [
     { href: '/', label: 'Inicio', icon: Home },
     { href: '/propiedades', label: 'Propiedades', icon: Building2 },
-    { href: '/emprendimientos', label: 'Emprendimientos', icon: Building2 }, // Using Building2 for now, or maybe default to something else if imported
+    { href: '/emprendimientos', label: 'Emprendimientos', icon: Building2 },
     { href: '/tasaciones', label: 'Tasaciones', icon: DollarSign },
     { href: '/fondos-de-comercio', label: 'Fondos de Comercio', icon: Store },
     { href: '/nosotros', label: 'Nosotros', icon: Users },
     { href: '/servicios', label: 'Servicios', icon: Wrench },
     { href: '/oportunidades', label: 'Oportunidades', icon: ShoppingBag },
+    { href: '/contacto', label: 'Contacto', icon: Users },
+];
+
+// Links shown in the top desktop bar (condensed set to avoid overflow)
+const desktopLinks = [
+    { href: '/propiedades', label: 'Propiedades' },
+    { href: '/emprendimientos', label: 'Emprendimientos' },
+    { href: '/tasaciones', label: 'Tasaciones' },
+    { href: '/servicios', label: 'Servicios' },
+    { href: '/oportunidades', label: 'Oportunidades' },
+    { href: '/nosotros', label: 'Nosotros' },
+    { href: '/contacto', label: 'Contacto' },
 ];
 
 export default function Navbar() {
@@ -47,74 +59,67 @@ export default function Navbar() {
                 animate={{ y: 0 }}
                 transition={{ duration: 0.5, ease: 'easeOut' }}
                 className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled
-                    ? 'py-3 shadow-md'
-                    : 'py-5'
+                    ? 'py-2 shadow-md'
+                    : 'py-4'
                     }`}
                 style={{
                     background: isScrolled
-                        ? 'rgba(255, 255, 255, 0.95)'
+                        ? 'rgba(255, 255, 255, 0.97)'
                         : 'transparent',
                     backdropFilter: isScrolled ? 'blur(20px)' : 'none',
                     borderBottom: isScrolled ? '1px solid var(--border-subtle)' : 'none',
                 }}
             >
-                <div className="container mx-auto px-6 flex items-center justify-between">
+                <div className="container mx-auto px-4 lg:px-6 flex items-center justify-between">
                     {/* Logo */}
-                    <Link href="/" className="flex items-center gap-3 group">
+                    <Link href="/" className="flex items-center gap-2.5 group flex-shrink-0">
                         <div className="relative">
                             <div
-                                className="w-12 h-12 rounded-2xl flex items-center justify-center transition-transform group-hover:scale-105"
+                                className="w-10 h-10 rounded-xl flex items-center justify-center transition-transform group-hover:scale-105"
                                 style={{
                                     background: 'linear-gradient(135deg, var(--primary-blue) 0%, #0f766e 100%)',
                                     boxShadow: '0 4px 20px rgba(13, 148, 136, 0.3)',
                                 }}
                             >
-                                <Building2 className="w-6 h-6 text-white" />
+                                <Building2 className="w-5 h-5 text-white" />
                             </div>
                         </div>
                         <div className="hidden sm:block">
-                            <span className="text-xl font-bold text-gradient block" style={{ fontFamily: 'var(--font-heading)' }}>
+                            <span className="text-lg font-bold text-gradient block leading-tight" style={{ fontFamily: 'var(--font-heading)' }}>
                                 BC BienesRaices
                             </span>
-                            <span className="text-sm text-[var(--text-secondary)] block -mt-1 font-medium">Tu hogar, tu refugio</span>
+                            <span className="text-xs text-[var(--text-secondary)] block -mt-0.5 font-medium">Tu hogar, tu refugio</span>
                         </div>
                     </Link>
 
                     {/* Desktop Navigation */}
-                    <div className="hidden lg:flex items-center gap-0.5 xl:gap-2">
-                        {navLinks.map((link) => (
+                    <div className="hidden xl:flex items-center gap-1">
+                        {desktopLinks.map((link) => (
                             <Link
                                 key={link.href}
                                 href={link.href}
-                                className="relative px-1.5 xl:px-3 py-2 text-[var(--text-main)] hover:text-[var(--primary-blue)] font-medium transition-colors duration-200 group"
+                                className="relative px-2.5 py-2 text-[var(--text-main)] hover:text-[var(--primary-blue)] font-semibold transition-colors duration-200 group rounded-lg hover:bg-teal-50/50"
                                 style={{
-                                    fontFamily: 'var(--font-body)',
+                                    fontSize: '0.72rem',
+                                    letterSpacing: '0.3px',
                                     textTransform: 'uppercase',
-                                    fontSize: '0.7rem',
-                                    letterSpacing: '0.5px'
                                 }}
                             >
                                 <span className="relative z-10 whitespace-nowrap">{link.label}</span>
-                                <div
-                                    className="absolute inset-0 rounded-lg opacity-0 group-hover:opacity-10 transition-opacity duration-200"
-                                    style={{
-                                        background: 'rgba(13, 148, 136, 0.05)',
-                                    }}
-                                />
                             </Link>
                         ))}
                     </div>
 
                     {/* User/Auth Section */}
-                    <div className="hidden lg:flex items-center gap-4">
+                    <div className="hidden xl:flex items-center gap-2 flex-shrink-0">
                         {loading ? (
                             <div className="w-5 h-5 border-2 border-neutral-300 border-t-[var(--primary-blue)] rounded-full animate-spin" />
                         ) : user ? (
                             <>
                                 {/* User Info */}
-                                <div className="flex items-center gap-3">
+                                <div className="flex items-center gap-2">
                                     <div
-                                        className="w-9 h-9 rounded-xl flex items-center justify-center"
+                                        className="w-8 h-8 rounded-lg flex items-center justify-center"
                                         style={{
                                             background: 'rgba(13, 148, 136, 0.1)',
                                             border: '1px solid rgba(13, 148, 136, 0.2)',
@@ -122,7 +127,7 @@ export default function Navbar() {
                                     >
                                         <User className="w-4 h-4 text-[var(--primary-blue)]" />
                                     </div>
-                                    <span className="hidden xl:block text-sm text-[var(--text-secondary)] max-w-[150px] truncate">
+                                    <span className="hidden 2xl:block text-xs text-[var(--text-secondary)] max-w-[130px] truncate">
                                         {user.email}
                                     </span>
                                 </div>
@@ -130,7 +135,7 @@ export default function Navbar() {
                                 {isAdmin && (
                                     <Link
                                         href="/admin"
-                                        className="px-3 xl:px-5 py-2.5 text-sm font-medium text-[var(--text-main)] hover:text-[var(--primary-blue)] transition-colors"
+                                        className="px-3 py-2 text-xs font-bold text-white bg-[var(--primary-blue)] rounded-lg hover:bg-[#0f766e] transition-colors uppercase tracking-wide"
                                     >
                                         Admin
                                     </Link>
@@ -138,25 +143,25 @@ export default function Navbar() {
 
                                 <button
                                     onClick={handleLogout}
-                                    className="flex items-center gap-2 px-3 xl:px-5 py-2.5 text-sm font-medium text-[var(--text-secondary)] hover:text-red-500 transition-colors"
+                                    className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-[var(--text-secondary)] hover:text-red-500 transition-colors rounded-lg hover:bg-red-50"
                                 >
-                                    <LogOut className="w-4 h-4" />
-                                    <span className="hidden xl:inline">Salir</span>
+                                    <LogOut className="w-3.5 h-3.5" />
+                                    <span className="hidden 2xl:inline">Salir</span>
                                 </button>
                             </>
                         ) : (
                             <>
                                 <Link
                                     href="/login"
-                                    className="flex items-center gap-2 px-3 xl:px-5 py-2.5 text-sm font-medium text-[var(--text-main)] hover:text-[var(--primary-blue)] transition-colors uppercase tracking-wide text-xs whitespace-nowrap"
+                                    className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-[var(--text-main)] hover:text-[var(--primary-blue)] transition-colors uppercase tracking-wide rounded-lg hover:bg-gray-50"
                                 >
                                     <LogIn className="w-4 h-4" />
-                                    <span className="hidden xl:inline">Iniciar Sesión</span>
+                                    Ingresar
                                 </Link>
                                 <Link
                                     href="/propiedades"
                                     className="btn-primary"
-                                    style={{ padding: '0.5rem 1rem', fontSize: '0.75rem' }}
+                                    style={{ padding: '0.45rem 1rem', fontSize: '0.72rem' }}
                                 >
                                     Explorar
                                 </Link>
@@ -167,7 +172,7 @@ export default function Navbar() {
                     {/* Mobile Menu Toggle */}
                     <button
                         onClick={toggleMobileMenu}
-                        className="lg:hidden p-2 rounded-xl transition-all duration-200"
+                        className="xl:hidden p-2 rounded-xl transition-all duration-200"
                         style={{
                             background: 'rgba(0, 0, 0, 0.05)',
                         }}
@@ -191,7 +196,7 @@ export default function Navbar() {
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
-                            className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40 lg:hidden"
+                            className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40 xl:hidden"
                             onClick={closeMobileMenu}
                         />
 
@@ -201,7 +206,7 @@ export default function Navbar() {
                             animate={{ x: 0 }}
                             exit={{ x: '100%' }}
                             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                            className="fixed top-0 right-0 bottom-0 w-[300px] z-50 lg:hidden"
+                            className="fixed top-0 right-0 bottom-0 w-[300px] z-50 xl:hidden"
                             style={{
                                 background: 'white',
                                 boxShadow: '-10px 0 30px rgba(0,0,0,0.1)',

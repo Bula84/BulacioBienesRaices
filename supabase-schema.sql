@@ -218,6 +218,59 @@ CREATE POLICY "SuperAdmins full access on servicios" ON servicios
   FOR ALL USING (public.get_my_role() = 'superadmin');
 
 -- =====================================================
+-- SITE CONFIG (Admin-configurable contact info)
+-- =====================================================
+CREATE TABLE IF NOT EXISTS site_config (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  key TEXT UNIQUE NOT NULL,
+  value JSONB NOT NULL DEFAULT '{}',
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_by UUID REFERENCES auth.users(id)
+);
+
+ALTER TABLE site_config ENABLE ROW LEVEL SECURITY;
+
+-- Anyone can read site config
+CREATE POLICY "Public can read site_config" ON site_config
+  FOR SELECT USING (true);
+
+-- Only admins can manage
+CREATE POLICY "Admins can manage site_config" ON site_config
+  FOR ALL USING (public.get_my_role() IN ('admin', 'superadmin'));
+
+-- Insert default contact config
+INSERT INTO site_config (key, value) VALUES (
+  'contact_info',
+  '{"phone": "+54 11 1234-5678", "email": "contacto@bcbienesraices.com", "whatsapp": "+5411123456789", "address": "Buenos Aires, Argentina", "business_hours": "Lunes a Viernes 9:00 - 18:00"}'::jsonb
+) ON CONFLICT (key) DO NOTHING;
+
+-- =====================================================
+-- CONTACT MESSAGES (Form submissions)
+-- =====================================================
+CREATE TABLE IF NOT EXISTS contact_messages (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  name TEXT NOT NULL,
+  email TEXT NOT NULL,
+  phone TEXT,
+  company TEXT,
+  subject TEXT NOT NULL,
+  message TEXT NOT NULL,
+  source TEXT DEFAULT 'contacto',
+  is_read BOOLEAN DEFAULT false,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE contact_messages ENABLE ROW LEVEL SECURITY;
+
+-- Anyone can insert (submit form)
+CREATE POLICY "Anyone can submit contact" ON contact_messages
+  FOR INSERT WITH CHECK (true);
+
+-- Only admins can read/manage
+CREATE POLICY "Admins can manage contact_messages" ON contact_messages
+  FOR ALL USING (public.get_my_role() IN ('admin', 'superadmin'));
+
+-- =====================================================
 -- SETUP SUPERADMIN (run after registration)
 -- Replace email with your SuperAdmin email
 -- =====================================================

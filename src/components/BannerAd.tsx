@@ -12,6 +12,12 @@ interface BannerAdProps {
 }
 
 export default function BannerAd({ imageUrl, linkUrl, title, description, ctaText = 'Mas información' }: BannerAdProps) {
+    const isInternal = linkUrl.startsWith('/');
+    const Wrapper = isInternal ? Link : 'a';
+    const wrapperProps = isInternal
+        ? { href: linkUrl }
+        : { href: linkUrl, target: '_blank' as const, rel: 'noopener noreferrer' };
+
     return (
         <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
@@ -21,7 +27,7 @@ export default function BannerAd({ imageUrl, linkUrl, title, description, ctaTex
             transition={{ duration: 0.4 }}
             className="w-full relative rounded-3xl overflow-hidden shadow-xl my-12"
         >
-            <a href={linkUrl} target="_blank" rel="noopener noreferrer" className="block relative h-[250px] md:h-[300px] group">
+            <Wrapper {...wrapperProps} className="block relative h-[250px] md:h-[300px] group">
                 {/* Background Image */}
                 <div
                     className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
@@ -42,14 +48,14 @@ export default function BannerAd({ imageUrl, linkUrl, title, description, ctaTex
                     <p className="!text-white text-lg mb-8 font-medium max-w-lg text-balance drop-shadow-md opacity-90">
                         {description}
                     </p>
-                    <div className="flex items-center gap-2 !text-white font-bold bg-[var(--primary-blue)] hover:bg-blue-600 transition-colors w-fit px-6 py-3 rounded-xl shadow-lg border border-white/10">
+                    <div className="flex items-center gap-2 !text-white font-bold bg-[var(--primary-blue)] hover:bg-[#0f766e] transition-colors w-fit px-6 py-3 rounded-xl shadow-lg border border-white/10">
                         {ctaText}
                         <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                         </svg>
                     </div>
                 </div>
-            </a>
+            </Wrapper>
         </motion.div>
     );
 }

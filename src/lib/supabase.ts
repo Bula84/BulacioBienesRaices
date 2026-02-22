@@ -1015,3 +1015,119 @@ export async function publishToSocialMedia(publicacionId: string): Promise<{ suc
         return { success: false, error: 'Failed to invoke publishing function' };
     }
 }
+
+// ===== SITE CONFIG =====
+
+export interface ContactInfo {
+    phone: string;
+    email: string;
+    whatsapp: string;
+    address: string;
+    business_hours: string;
+}
+
+export async function getContactInfo(): Promise<ContactInfo> {
+    const defaults: ContactInfo = {
+        phone: '+54 11 1234-5678',
+        email: 'contacto@bcbienesraices.com',
+        whatsapp: '+5411123456789',
+        address: 'Buenos Aires, Argentina',
+        business_hours: 'Lunes a Viernes 9:00 - 18:00',
+    };
+    if (!supabase) return defaults;
+
+    const { data, error } = await supabase
+        .from('site_config')
+        .select('value')
+        .eq('key', 'contact_info')
+        .single();
+
+    if (error || !data) return defaults;
+    return { ...defaults, ...(data.value as ContactInfo) };
+}
+
+export async function updateContactInfo(info: ContactInfo): Promise<boolean> {
+    if (!supabase) return false;
+
+    const { error } = await supabase
+        .from('site_config')
+        .upsert({
+            key: 'contact_info',
+            value: info,
+            updated_at: new Date().toISOString(),
+        }, { onConflict: 'key' });
+
+    if (error) {
+        console.error('Error actualizando configuración:', error);
+        return false;
+    }
+    return true;
+}
+
+// ===== MENSAJES DE CONTACTO =====
+
+export interface ContactMessage {
+    id: string;
+    name: string;
+    email: string;
+    phone?: string;
+    company?: string;
+    subject: string;
+    message: string;
+    source: string;
+    is_read: boolean;
+    created_at: string;
+}
+
+export async function submitContactMessage(msg: Omit<ContactMessage, 'id' | 'is_read' | 'created_at'>): Promise<boolean> {
+    if (!supabase) return false;
+
+    const { error } = await supabase
+        .from('contact_messages')
+        .insert(msg);
+
+    if (error) {
+        console.error('Error enviando mensaje:', error);
+        return false;
+    }
+    return true;
+}
+
+export async function getContactMessages(): Promise<ContactMessage[]> {
+    if (!supabase) return [];
+
+    const { data, error } = await supabase
+        .from('contact_messages')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+    if (error) {
+        console.error('Error obteniendo mensajes:', error);
+        return [];
+    }
+    return data as ContactMessage[];
+}
+
+export async function markMessageRead(id: string, is_read: boolean): Promise<boolean> {
+    if (!supabase) return false;
+
+    const { error } = await supabase
+        .from('contact_messages')
+        .update({ is_read })
+        .eq('id', id);
+
+    if (error) return false;
+    return true;
+}
+
+export async function deleteContactMessage(id: string): Promise<boolean> {
+    if (!supabase) return false;
+
+    const { error } = await supabase
+        .from('contact_messages')
+        .delete()
+        .eq('id', id);
+
+    if (error) return false;
+    return true;
+}
