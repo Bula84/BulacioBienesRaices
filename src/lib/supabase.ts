@@ -271,6 +271,57 @@ export async function getOportunidad(id: string): Promise<Oportunidad | null> {
     return data as Oportunidad;
 }
 
+export async function createOportunidad(oportunidad: Omit<Oportunidad, 'id' | 'created_at'>): Promise<Oportunidad | null> {
+    if (!supabase) return null;
+
+    const { data, error } = await supabase
+        .from('oportunidades')
+        .insert(oportunidad)
+        .select()
+        .single();
+
+    if (error) {
+        console.error('Error creating oportunidad:', error);
+        return null;
+    }
+
+    return data as Oportunidad;
+}
+
+export async function updateOportunidad(id: string, oportunidad: Partial<Oportunidad>): Promise<Oportunidad | null> {
+    if (!supabase) return null;
+
+    const { data, error } = await supabase
+        .from('oportunidades')
+        .update(oportunidad)
+        .eq('id', id)
+        .select()
+        .single();
+
+    if (error) {
+        console.error('Error updating oportunidad:', error);
+        return null;
+    }
+
+    return data as Oportunidad;
+}
+
+export async function deleteOportunidad(id: string): Promise<boolean> {
+    if (!supabase) return false;
+
+    const { error } = await supabase
+        .from('oportunidades')
+        .delete()
+        .eq('id', id);
+
+    if (error) {
+        console.error('Error deleting oportunidad:', error);
+        return false;
+    }
+
+    return true;
+}
+
 export async function getPropiedad(id: string): Promise<Propiedad | null> {
     if (!supabase) return null;
 
