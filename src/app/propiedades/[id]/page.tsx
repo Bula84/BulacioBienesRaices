@@ -35,6 +35,7 @@ import {
 } from 'lucide-react';
 import { getPropiedad, Propiedad } from '@/lib/supabase';
 import Navbar from '@/components/Navbar';
+import PropertyChat from '@/components/PropertyChat';
 import dynamic from 'next/dynamic';
 
 const PropertyMap = dynamic(() => import('@/components/PropertyMap'), {
@@ -778,6 +779,11 @@ export default function PropertyDetailPage() {
                     </motion.div>
                 )}
             </AnimatePresence>
+
+            {/* AI Chat Agent */}
+            {property && (
+                <PropertyChat property={property} />
+            )}
         </>
     );
 }

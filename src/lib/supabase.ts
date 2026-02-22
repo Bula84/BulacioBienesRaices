@@ -42,6 +42,11 @@ export interface Propiedad {
     contact_phone?: string;
     contact_whatsapp?: string;
     contact_email?: string;
+    // Agent / AI
+    expensas?: number;
+    requisitos?: string;
+    calendar_id?: string;
+    agent_enabled?: boolean;
     // Meta
     user_id?: string;
     created_at: string;
@@ -1130,4 +1135,94 @@ export async function deleteContactMessage(id: string): Promise<boolean> {
 
     if (error) return false;
     return true;
+}
+
+// ===== AGENTE IA - CHAT =====
+
+export interface ChatMessage {
+    role: 'user' | 'assistant';
+    content: string;
+    timestamp: string;
+}
+
+export interface ChatConversation {
+    id: string;
+    property_id: string;
+    visitor_name?: string;
+    visitor_phone?: string;
+    visitor_email?: string;
+    is_qualified: boolean;
+    visit_scheduled: boolean;
+    messages: ChatMessage[];
+    created_at: string;
+    updated_at: string;
+}
+
+export async function createChatConversation(propertyId: string): Promise<ChatConversation | null> {
+    if (!supabase) return null;
+
+    const { data, error } = await supabase
+        .from('chat_conversations')
+        .insert({ property_id: propertyId, messages: [] })
+        .select()
+        .single();
+
+    if (error) {
+        console.error('Error creando conversación:', error);
+        return null;
+    }
+    return data as ChatConversation;
+}
+
+export async function updateChatConversation(id: string, updates: Partial<ChatConversation>): Promise<boolean> {
+    if (!supabase) return false;
+
+    const { error } = await supabase
+        .from('chat_conversations')
+        .update({ ...updates, updated_at: new Date().toISOString() })
+        .eq('id', id);
+
+    if (error) return false;
+    return true;
+}
+
+export async function getChatConversations(propertyId?: string): Promise<ChatConversation[]> {
+    if (!supabase) return [];
+
+    let query = supabase.from('chat_conversations').select('*').order('updated_at', { ascending: false });
+    if (propertyId) query = query.eq('property_id', propertyId);
+
+    const { data, error } = await query;
+    if (error) return [];
+    return data as ChatConversation[];
+}
+
+export async function sendAgentMessage(
+    conversationId: string,
+    propertyId: string,
+    message: string,
+    history: ChatMessage[]
+): Promise<{ reply: string; qualified?: boolean; visitScheduled?: boolean } | null> {
+    if (!supabase) return null;
+
+    try {
+        const { data, error } = await supabase.functions.invoke('property-agent', {
+            body: {
+                conversation_id: conversationId,
+                property_id: propertyId,
+                message,
+                history,
+            },
+        });
+
+        if (error) {
+            console.error('Error agente:', error);
+            return null;
+        }
+
+        return data;
+    } catch (e) {
+        console.error('Error invocando agente:', e);
+        return null;
+    }
 }

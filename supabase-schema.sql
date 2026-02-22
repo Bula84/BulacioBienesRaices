@@ -70,6 +70,11 @@ CREATE TABLE IF NOT EXISTS propiedades (
   contact_phone TEXT,
   contact_whatsapp TEXT,
   contact_email TEXT,
+  -- Agent / AI
+  expensas NUMERIC,
+  requisitos TEXT,
+  calendar_id TEXT,
+  agent_enabled BOOLEAN DEFAULT FALSE,
   -- Meta
   user_id UUID REFERENCES auth.users(id),
   created_at TIMESTAMPTZ DEFAULT NOW(),

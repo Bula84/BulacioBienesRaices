@@ -68,6 +68,11 @@ const emptyProperty = {
     contact_whatsapp: '',
     contact_email: '',
     is_featured: false,
+    // Agent / AI
+    expensas: 0,
+    requisitos: '',
+    calendar_id: '',
+    agent_enabled: false,
 };
 
 export default function AdminPropiedadesPage() {
@@ -161,6 +166,10 @@ export default function AdminPropiedadesPage() {
                 contact_whatsapp: property.contact_whatsapp || '',
                 contact_email: property.contact_email || '',
                 is_featured: property.is_featured || false,
+                expensas: property.expensas || 0,
+                requisitos: property.requisitos || '',
+                calendar_id: property.calendar_id || '',
+                agent_enabled: property.agent_enabled || false,
             });
         } else {
             setEditingProperty(null);
@@ -921,6 +930,52 @@ export default function AdminPropiedadesPage() {
                                                     className="w-full pl-10 pr-4 py-3 rounded-xl bg-gray-50 border border-gray-200 text-[var(--text-main)] focus:outline-none focus:border-[#0d9488] focus:ring-2 focus:ring-teal-100 transition-all font-medium"
                                                     placeholder="contacto@inmobiliaria.com"
                                                 />
+                                            </div>
+                                        </div>
+
+                                        {/* Separator */}
+                                        <div className="border-t border-gray-100 pt-5 mt-5">
+                                            <h4 className="text-sm font-bold text-[var(--text-main)] mb-4 flex items-center gap-2">
+                                                🤖 Agente IA
+                                            </h4>
+                                            <div className="space-y-4">
+                                                <div className="flex items-center justify-between p-4 rounded-xl bg-teal-50 border border-teal-100">
+                                                    <div>
+                                                        <p className="text-sm font-bold text-[var(--text-main)]">Habilitar Chat IA</p>
+                                                        <p className="text-xs text-[var(--text-secondary)]">Botón flotante de chat en la página de la propiedad</p>
+                                                    </div>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setFormData({ ...formData, agent_enabled: !formData.agent_enabled })}
+                                                        className={`relative w-12 h-7 rounded-full transition-colors ${formData.agent_enabled ? 'bg-[#0d9488]' : 'bg-gray-300'}`}
+                                                    >
+                                                        <span className={`absolute top-1 left-1 w-5 h-5 rounded-full bg-white shadow transition-transform ${formData.agent_enabled ? 'translate-x-5' : ''}`} />
+                                                    </button>
+                                                </div>
+                                                <div>
+                                                    <label className="block text-sm font-bold text-[var(--text-main)] mb-2">
+                                                        Expensas ($/mes)
+                                                    </label>
+                                                    <input
+                                                        type="number"
+                                                        value={formData.expensas || ''}
+                                                        onChange={(e) => setFormData({ ...formData, expensas: Number(e.target.value) })}
+                                                        className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 text-[var(--text-main)] focus:outline-none focus:border-[#0d9488] focus:ring-2 focus:ring-teal-100 transition-all font-medium"
+                                                        placeholder="Ej: 45000"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-sm font-bold text-[var(--text-main)] mb-2">
+                                                        Requisitos (garantías aceptadas)
+                                                    </label>
+                                                    <textarea
+                                                        value={formData.requisitos}
+                                                        onChange={(e) => setFormData({ ...formData, requisitos: e.target.value })}
+                                                        className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 text-[var(--text-main)] focus:outline-none focus:border-[#0d9488] focus:ring-2 focus:ring-teal-100 transition-all font-medium resize-none"
+                                                        rows={2}
+                                                        placeholder="Ej: Garantía propietaria CABA/GBA o Seguro de caución (Finaer, Porto)"
+                                                    />
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
