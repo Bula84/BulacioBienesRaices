@@ -61,9 +61,9 @@ const teamMembers = [
 
 export default function NosotrosPage() {
     return (
-        <div className="py-12">
+        <div className="py-12 bg-white">
             {/* Hero Section */}
-            <section className="container mx-auto px-6 mb-20">
+            <section className="container mx-auto px-6 mb-20 pt-10">
                 <div className="grid lg:grid-cols-2 gap-12 items-center">
                     <motion.div
                         initial={{ opacity: 0, x: -30 }}
@@ -71,24 +71,23 @@ export default function NosotrosPage() {
                         transition={{ duration: 0.6 }}
                     >
                         <span
-                            className="inline-block px-4 py-2 rounded-full text-sm font-medium mb-6"
+                            className="inline-block px-4 py-2 rounded-full text-sm font-bold mb-6 uppercase tracking-wider"
                             style={{
-                                background: 'rgba(0, 212, 255, 0.1)',
-                                color: '#00d4ff',
-                                border: '1px solid rgba(0, 212, 255, 0.3)',
+                                background: 'rgba(33, 148, 207, 0.1)',
+                                color: 'var(--primary-blue)',
                             }}
                         >
                             Sobre Nosotros
                         </span>
 
-                        <h1 className="text-4xl md:text-5xl font-bold text-white mb-6 leading-tight">
+                        <h1 className="text-4xl md:text-6xl font-extrabold !text-slate-900 mb-6 leading-tight font-headings">
                             Transformando el{' '}
-                            <span className="bg-gradient-to-r from-[#00d4ff] to-[#a855f7] bg-clip-text text-transparent">
+                            <span className="text-[var(--primary-blue)]">
                                 mercado inmobiliario
                             </span>
                         </h1>
 
-                        <p className="text-lg text-neutral-400 leading-relaxed mb-8">
+                        <p className="text-lg md:text-xl !text-slate-700 font-medium leading-relaxed mb-8">
                             En Antigravity Enterprise, combinamos más de 15 años de experiencia en el sector
                             inmobiliario con tecnología de vanguardia para ofrecer una experiencia única.
                             Nuestro compromiso es hacer que encontrar tu hogar ideal sea tan emocionante como
@@ -99,14 +98,10 @@ export default function NosotrosPage() {
                             {achievements.map((item) => (
                                 <div
                                     key={item.label}
-                                    className="px-5 py-3 rounded-2xl"
-                                    style={{
-                                        background: 'rgba(255, 255, 255, 0.05)',
-                                        border: '1px solid rgba(255, 255, 255, 0.1)',
-                                    }}
+                                    className="px-6 py-4 rounded-2xl bg-gray-50 border border-gray-100"
                                 >
-                                    <p className="text-2xl font-bold text-[#00d4ff]">{item.value}</p>
-                                    <p className="text-sm text-neutral-400">{item.label}</p>
+                                    <p className="text-3xl font-bold text-[var(--primary-blue)] mb-1">{item.value}</p>
+                                    <p className="text-sm text-[var(--text-secondary)] font-medium uppercase tracking-wide">{item.label}</p>
                                 </div>
                             ))}
                         </div>
@@ -119,10 +114,7 @@ export default function NosotrosPage() {
                         className="relative"
                     >
                         <div
-                            className="rounded-[2.5rem] overflow-hidden aspect-[4/3]"
-                            style={{
-                                boxShadow: '0 30px 60px -15px rgba(0, 0, 0, 0.4)',
-                            }}
+                            className="rounded-[2.5rem] overflow-hidden aspect-[4/3] shadow-2xl"
                         >
                             <img
                                 src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800"
@@ -133,24 +125,17 @@ export default function NosotrosPage() {
 
                         {/* Floating Card */}
                         <div
-                            className="absolute -bottom-6 -left-6 p-6 rounded-2xl max-w-[240px]"
-                            style={{
-                                background: 'rgba(10, 10, 26, 0.95)',
-                                backdropFilter: 'blur(20px)',
-                                border: '1px solid rgba(255, 255, 255, 0.1)',
-                                boxShadow: '0 20px 40px rgba(0, 0, 0, 0.3)',
-                            }}
+                            className="absolute -bottom-6 -left-6 p-6 rounded-2xl max-w-[240px] bg-white shadow-xl border border-gray-100"
                         >
                             <div className="flex items-center gap-3 mb-3">
                                 <div
-                                    className="w-10 h-10 rounded-xl flex items-center justify-center"
-                                    style={{ background: 'linear-gradient(135deg, #00d4ff 0%, #3b82f6 100%)' }}
+                                    className="w-10 h-10 rounded-xl flex items-center justify-center bg-blue-50"
                                 >
-                                    <CheckCircle2 className="w-5 h-5 text-[#0a0a1a]" />
+                                    <CheckCircle2 className="w-6 h-6 text-[var(--primary-blue)]" />
                                 </div>
-                                <span className="text-white font-semibold">Certificados</span>
+                                <span className="!text-slate-900 font-extrabold text-lg tracking-wide">Certificados</span>
                             </div>
-                            <p className="text-sm text-neutral-400">
+                            <p className="text-sm font-medium !text-slate-700 leading-relaxed">
                                 Empresa certificada por las principales cámaras inmobiliarias del país.
                             </p>
                         </div>
@@ -159,7 +144,7 @@ export default function NosotrosPage() {
             </section>
 
             {/* Mission & Vision */}
-            <section className="py-20" style={{ background: 'rgba(0, 0, 0, 0.3)' }}>
+            <section className="py-24 bg-gray-50">
                 <div className="container mx-auto px-6">
                     <div className="grid md:grid-cols-2 gap-8">
                         {/* Mission */}
@@ -167,24 +152,15 @@ export default function NosotrosPage() {
                             initial={{ opacity: 0, y: 30 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
-                            className="p-8 rounded-[2rem]"
-                            style={{
-                                background: 'rgba(255, 255, 255, 0.03)',
-                                backdropFilter: 'blur(20px)',
-                                border: '1px solid rgba(255, 255, 255, 0.08)',
-                            }}
+                            className="p-10 rounded-[2rem] bg-white shadow-sm border border-gray-100"
                         >
                             <div
-                                className="w-14 h-14 rounded-2xl flex items-center justify-center mb-6"
-                                style={{
-                                    background: 'linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(59, 130, 246, 0.2))',
-                                    border: '1px solid rgba(0, 212, 255, 0.3)',
-                                }}
+                                className="w-14 h-14 rounded-2xl flex items-center justify-center mb-6 bg-blue-50 text-[var(--primary-blue)]"
                             >
-                                <Target className="w-7 h-7 text-[#00d4ff]" />
+                                <Target className="w-7 h-7" />
                             </div>
-                            <h2 className="text-2xl font-bold text-white mb-4">Nuestra Misión</h2>
-                            <p className="text-neutral-400 leading-relaxed">
+                            <h2 className="text-2xl font-extrabold !text-slate-900 mb-4 font-headings">Nuestra Misión</h2>
+                            <p className="text-lg font-medium !text-slate-700 leading-relaxed">
                                 Facilitar el acceso a propiedades de calidad mediante una plataforma
                                 innovadora que combina tecnología avanzada, asesoramiento experto y un
                                 compromiso inquebrantable con la satisfacción del cliente. Buscamos
@@ -199,24 +175,15 @@ export default function NosotrosPage() {
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             transition={{ delay: 0.1 }}
-                            className="p-8 rounded-[2rem]"
-                            style={{
-                                background: 'rgba(255, 255, 255, 0.03)',
-                                backdropFilter: 'blur(20px)',
-                                border: '1px solid rgba(255, 255, 255, 0.08)',
-                            }}
+                            className="p-10 rounded-[2rem] bg-white shadow-sm border border-gray-100"
                         >
                             <div
-                                className="w-14 h-14 rounded-2xl flex items-center justify-center mb-6"
-                                style={{
-                                    background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.2), rgba(236, 72, 153, 0.2))',
-                                    border: '1px solid rgba(168, 85, 247, 0.3)',
-                                }}
+                                className="w-14 h-14 rounded-2xl flex items-center justify-center mb-6 bg-teal-50 text-teal-600"
                             >
-                                <Eye className="w-7 h-7 text-[#a855f7]" />
+                                <Eye className="w-7 h-7" />
                             </div>
-                            <h2 className="text-2xl font-bold text-white mb-4">Nuestra Visión</h2>
-                            <p className="text-neutral-400 leading-relaxed">
+                            <h2 className="text-2xl font-extrabold !text-slate-900 mb-4 font-headings">Nuestra Visión</h2>
+                            <p className="text-lg font-medium !text-slate-700 leading-relaxed">
                                 Ser la plataforma inmobiliaria líder en América Latina, reconocida por
                                 nuestra innovación tecnológica, excelencia en el servicio y compromiso
                                 con la creación de comunidades más conectadas y prósperas. Aspiramos a
@@ -228,7 +195,7 @@ export default function NosotrosPage() {
             </section>
 
             {/* Values */}
-            <section className="py-20">
+            <section className="py-24 bg-white">
                 <div className="container mx-auto px-6">
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
@@ -236,15 +203,15 @@ export default function NosotrosPage() {
                         viewport={{ once: true }}
                         className="text-center mb-16"
                     >
-                        <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+                        <h2 className="text-3xl md:text-5xl font-extrabold !text-slate-900 mb-4 font-headings tracking-tight">
                             Nuestros Valores
                         </h2>
-                        <p className="text-neutral-400 max-w-2xl mx-auto">
+                        <p className="font-medium !text-slate-700 max-w-2xl mx-auto text-lg md:text-xl">
                             Los principios que guían cada decisión y acción de nuestro equipo.
                         </p>
                     </motion.div>
 
-                    <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
                         {values.map((value, index) => {
                             const Icon = value.icon;
                             return (
@@ -254,24 +221,15 @@ export default function NosotrosPage() {
                                     whileInView={{ opacity: 1, y: 0 }}
                                     viewport={{ once: true }}
                                     transition={{ delay: index * 0.1 }}
-                                    className="group p-6 rounded-[2rem] text-center transition-all duration-300 hover:-translate-y-3"
-                                    style={{
-                                        background: 'rgba(255, 255, 255, 0.03)',
-                                        backdropFilter: 'blur(20px)',
-                                        border: '1px solid rgba(255, 255, 255, 0.08)',
-                                    }}
+                                    className="group p-8 rounded-[2rem] text-center transition-all duration-300 hover:-translate-y-2 hover:shadow-xl bg-white border border-gray-100"
                                 >
                                     <div
-                                        className="w-14 h-14 mx-auto mb-5 rounded-2xl flex items-center justify-center transition-transform duration-300 group-hover:scale-110"
-                                        style={{
-                                            background: 'linear-gradient(135deg, rgba(0, 212, 255, 0.15), rgba(168, 85, 247, 0.15))',
-                                            border: '1px solid rgba(0, 212, 255, 0.2)',
-                                        }}
+                                        className="w-14 h-14 mx-auto mb-6 rounded-2xl flex items-center justify-center transition-transform duration-300 group-hover:scale-110 bg-blue-50 text-[var(--primary-blue)]"
                                     >
-                                        <Icon className="w-7 h-7 text-[#00d4ff]" />
+                                        <Icon className="w-7 h-7" />
                                     </div>
-                                    <h3 className="text-lg font-semibold text-white mb-3">{value.title}</h3>
-                                    <p className="text-neutral-400 text-sm leading-relaxed">{value.description}</p>
+                                    <h3 className="text-xl font-extrabold !text-slate-900 mb-3 font-headings">{value.title}</h3>
+                                    <p className="font-medium !text-slate-700 text-sm leading-relaxed">{value.description}</p>
                                 </motion.div>
                             );
                         })}
@@ -280,7 +238,7 @@ export default function NosotrosPage() {
             </section>
 
             {/* Team Section */}
-            <section className="py-20" style={{ background: 'rgba(0, 0, 0, 0.3)' }}>
+            <section className="py-24 bg-gray-50">
                 <div className="container mx-auto px-6">
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
@@ -288,15 +246,15 @@ export default function NosotrosPage() {
                         viewport={{ once: true }}
                         className="text-center mb-16"
                     >
-                        <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+                        <h2 className="text-3xl md:text-5xl font-extrabold !text-slate-900 mb-4 font-headings tracking-tight">
                             Nuestro Equipo
                         </h2>
-                        <p className="text-neutral-400 max-w-2xl mx-auto">
+                        <p className="font-medium !text-slate-700 max-w-2xl mx-auto text-lg md:text-xl">
                             Profesionales apasionados dedicados a brindarte la mejor experiencia.
                         </p>
                     </motion.div>
 
-                    <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+                    <div className="grid md:grid-cols-3 gap-10 max-w-5xl mx-auto">
                         {teamMembers.map((member, index) => (
                             <motion.div
                                 key={member.name}
@@ -307,10 +265,7 @@ export default function NosotrosPage() {
                                 className="group text-center"
                             >
                                 <div
-                                    className="relative mb-6 rounded-[2rem] overflow-hidden aspect-square mx-auto max-w-[250px] transition-all duration-300 group-hover:-translate-y-3"
-                                    style={{
-                                        boxShadow: '0 20px 40px rgba(0, 0, 0, 0.3)',
-                                    }}
+                                    className="relative mb-6 rounded-[2rem] overflow-hidden aspect-square mx-auto max-w-[280px] transition-all duration-300 shadow-lg group-hover:shadow-2xl"
                                 >
                                     <img
                                         src={member.image}
@@ -318,14 +273,11 @@ export default function NosotrosPage() {
                                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                                     />
                                     <div
-                                        className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                                        style={{
-                                            background: 'linear-gradient(180deg, transparent 50%, rgba(0, 212, 255, 0.3) 100%)',
-                                        }}
+                                        className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-gradient-to-t from-black/50 to-transparent"
                                     />
                                 </div>
-                                <h3 className="text-xl font-semibold text-white mb-1">{member.name}</h3>
-                                <p className="text-[#00d4ff] text-sm">{member.role}</p>
+                                <h3 className="text-2xl font-extrabold !text-slate-900 mb-1 font-headings">{member.name}</h3>
+                                <p className="text-[var(--primary-blue)] font-bold uppercase tracking-wider text-sm">{member.role}</p>
                             </motion.div>
                         ))}
                     </div>

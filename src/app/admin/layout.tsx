@@ -7,7 +7,6 @@ import {
     Building2,
     LayoutDashboard,
     Home as HomeIcon,
-    Newspaper,
     Wrench,
     Users,
     LogOut,
@@ -24,13 +23,13 @@ const getNavItems = (isSuperAdmin: boolean) => {
     const items = [
         { href: '/admin', label: 'Dashboard', icon: LayoutDashboard, roles: ['admin', 'superadmin'] },
         { href: '/admin/propiedades', label: 'Propiedades', icon: HomeIcon, roles: ['admin', 'superadmin'] },
+        { href: '/admin/emprendimientos', label: 'Emprendimientos', icon: Building2, roles: ['admin', 'superadmin'] },
         { href: '/admin/publicaciones', label: 'Redes Sociales', icon: Share2, roles: ['admin', 'superadmin'] },
     ];
 
     // Only SuperAdmin can see these
     if (isSuperAdmin) {
         items.push(
-            { href: '/admin/noticias', label: 'Noticias', icon: Newspaper, roles: ['superadmin'] },
             { href: '/admin/servicios', label: 'Servicios', icon: Wrench, roles: ['superadmin'] },
             { href: '/admin/usuarios', label: 'Usuarios', icon: Users, roles: ['superadmin'] },
         );
@@ -61,10 +60,10 @@ export default function AdminLayout({
     // Show loading while checking auth
     if (loading) {
         return (
-            <div className="min-h-screen flex items-center justify-center">
+            <div className="min-h-screen flex items-center justify-center bg-gray-50">
                 <div className="text-center">
-                    <div className="w-12 h-12 border-4 border-neutral-600 border-t-[#10b981] rounded-full animate-spin mx-auto mb-4" />
-                    <p className="text-neutral-400">Verificando acceso...</p>
+                    <div className="w-12 h-12 border-4 border-gray-200 border-t-[var(--primary-blue)] rounded-full animate-spin mx-auto mb-4" />
+                    <p className="text-[var(--text-secondary)] font-medium">Verificando acceso...</p>
                 </div>
             </div>
         );
@@ -73,41 +72,30 @@ export default function AdminLayout({
     // Show pending approval message
     if (isPending) {
         return (
-            <div className="min-h-screen flex items-center justify-center px-4">
+            <div className="min-h-screen flex items-center justify-center px-4 bg-gray-50">
                 <div
-                    className="max-w-md w-full rounded-[2rem] p-8 text-center"
-                    style={{
-                        background: 'rgba(15, 23, 42, 0.8)',
-                        backdropFilter: 'blur(20px)',
-                        border: '1px solid rgba(255, 255, 255, 0.1)',
-                    }}
+                    className="max-w-md w-full rounded-[2rem] p-8 text-center bg-white border border-gray-100 shadow-xl"
                 >
                     <div
-                        className="w-20 h-20 rounded-full mx-auto mb-6 flex items-center justify-center"
-                        style={{
-                            background: 'rgba(251, 191, 36, 0.15)',
-                            border: '1px solid rgba(251, 191, 36, 0.3)',
-                        }}
+                        className="w-20 h-20 rounded-full mx-auto mb-6 flex items-center justify-center bg-amber-50 border border-amber-100"
                     >
-                        <Clock className="w-10 h-10 text-amber-400" />
+                        <Clock className="w-10 h-10 text-amber-500" />
                     </div>
-                    <h1 className="text-2xl font-bold text-white mb-3">Aprobación Pendiente</h1>
-                    <p className="text-neutral-400 mb-6">
+                    <h1 className="text-2xl font-bold text-[var(--text-main)] mb-3 font-headings">Aprobación Pendiente</h1>
+                    <p className="text-[var(--text-secondary)] mb-6 font-medium">
                         Tu cuenta está pendiente de aprobación por un administrador.
                         Recibirás acceso una vez que sea aprobada.
                     </p>
                     <div className="flex gap-3 justify-center">
                         <Link
                             href="/"
-                            className="px-6 py-3 rounded-xl font-medium text-neutral-300 hover:text-white transition-colors"
-                            style={{ background: 'rgba(255, 255, 255, 0.1)' }}
+                            className="px-6 py-3 rounded-xl font-bold text-[var(--text-secondary)] hover:text-[var(--text-main)] transition-colors bg-gray-50 hover:bg-gray-100"
                         >
                             Volver al Inicio
                         </Link>
                         <button
                             onClick={logout}
-                            className="px-6 py-3 rounded-xl font-medium text-red-400 hover:text-red-300 transition-colors"
-                            style={{ background: 'rgba(239, 68, 68, 0.1)' }}
+                            className="px-6 py-3 rounded-xl font-bold text-red-500 hover:text-red-600 transition-colors bg-red-50 hover:bg-red-100"
                         >
                             Cerrar Sesión
                         </button>
@@ -120,34 +108,25 @@ export default function AdminLayout({
     // Show access denied for non-admins (no role or invalid role)
     if (!isAdmin) {
         return (
-            <div className="min-h-screen flex items-center justify-center px-4">
+            <div className="min-h-screen flex items-center justify-center px-4 bg-gray-50">
                 <div
-                    className="max-w-md w-full rounded-[2rem] p-8 text-center"
-                    style={{
-                        background: 'rgba(15, 23, 42, 0.8)',
-                        backdropFilter: 'blur(20px)',
-                        border: '1px solid rgba(255, 255, 255, 0.1)',
-                    }}
+                    className="max-w-md w-full rounded-[2rem] p-8 text-center bg-white border border-gray-100 shadow-xl"
                 >
                     <div
-                        className="w-20 h-20 rounded-full mx-auto mb-6 flex items-center justify-center"
-                        style={{
-                            background: 'rgba(239, 68, 68, 0.15)',
-                            border: '1px solid rgba(239, 68, 68, 0.3)',
-                        }}
+                        className="w-20 h-20 rounded-full mx-auto mb-6 flex items-center justify-center bg-red-50 border border-red-100"
                     >
-                        <ShieldAlert className="w-10 h-10 text-red-400" />
+                        <ShieldAlert className="w-10 h-10 text-red-500" />
                     </div>
-                    <h1 className="text-2xl font-bold text-white mb-3">Acceso Denegado</h1>
-                    <p className="text-neutral-400 mb-6">
+                    <h1 className="text-2xl font-bold text-[var(--text-main)] mb-3 font-headings">Acceso Denegado</h1>
+                    <p className="text-[var(--text-secondary)] mb-6 font-medium">
                         No tienes permisos para acceder al panel de administración.
                     </p>
                     <Link
                         href="/"
-                        className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-white transition-all duration-300 hover:scale-105"
+                        className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-white transition-all duration-300 hover:scale-105"
                         style={{
-                            background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-                            boxShadow: '0 4px 20px rgba(16, 185, 129, 0.3)',
+                            background: 'var(--primary-blue)',
+                            boxShadow: '0 4px 20px rgba(33, 148, 207, 0.3)',
                         }}
                     >
                         Volver al Inicio
@@ -163,35 +142,31 @@ export default function AdminLayout({
     };
 
     return (
-        <div className="flex min-h-screen">
+        <div className="flex min-h-screen bg-gray-50">
             {/* Sidebar */}
             <aside
                 className={`fixed lg:static inset-y-0 left-0 z-50 w-64 transform transition-transform duration-300 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
-                    }`}
-                style={{
-                    background: 'rgba(26, 31, 38, 0.98)',
-                    borderRight: '1px solid rgba(255, 255, 255, 0.1)',
-                }}
+                    } bg-white border-r border-gray-100`}
             >
                 <div className="flex flex-col h-full">
                     {/* Logo */}
-                    <div className="p-6 border-b border-white/10">
+                    <div className="p-6 border-b border-gray-100">
                         <Link href="/admin" className="flex items-center gap-3">
                             <div
                                 className="w-10 h-10 rounded-xl flex items-center justify-center"
                                 style={{
                                     background: isSuperAdmin
-                                        ? 'linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%)'
-                                        : 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                                        ? 'linear-gradient(135deg, #0d9488 0%, #059669 100%)'
+                                        : 'linear-gradient(135deg, #0d9488 0%, #0f766e 100%)',
                                 }}
                             >
                                 <Building2 className="w-5 h-5 text-white" />
                             </div>
                             <div>
-                                <span className="text-lg font-bold text-white">
+                                <span className="text-lg font-bold text-[var(--text-main)] font-headings">
                                     {isSuperAdmin ? 'SuperAdmin' : 'Admin'}
                                 </span>
-                                <span className="text-xs text-neutral-500 block">Panel de Control</span>
+                                <span className="text-xs text-[var(--text-secondary)] block font-medium">Panel de Control</span>
                             </div>
                         </Link>
                     </div>
@@ -207,18 +182,10 @@ export default function AdminLayout({
                                     key={item.href}
                                     href={item.href}
                                     onClick={() => setIsSidebarOpen(false)}
-                                    className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${isActive
-                                        ? isSuperAdmin ? 'text-[#8b5cf6]' : 'text-[#10b981]'
-                                        : 'text-neutral-400 hover:text-white hover:bg-white/5'
+                                    className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all duration-200 ${isActive
+                                        ? 'text-[#0d9488] bg-teal-50'
+                                        : 'text-[var(--text-secondary)] hover:text-[var(--text-main)] hover:bg-gray-50'
                                         }`}
-                                    style={{
-                                        background: isActive
-                                            ? isSuperAdmin ? 'rgba(139, 92, 246, 0.1)' : 'rgba(16, 185, 129, 0.1)'
-                                            : 'transparent',
-                                        border: isActive
-                                            ? isSuperAdmin ? '1px solid rgba(139, 92, 246, 0.2)' : '1px solid rgba(16, 185, 129, 0.2)'
-                                            : '1px solid transparent',
-                                    }}
                                 >
                                     <Icon className="w-5 h-5" />
                                     {item.label}
@@ -228,10 +195,10 @@ export default function AdminLayout({
                     </nav>
 
                     {/* Footer */}
-                    <div className="p-4 border-t border-white/10 space-y-2">
+                    <div className="p-4 border-t border-gray-100 space-y-2">
                         <Link
                             href="/"
-                            className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-neutral-400 hover:text-white hover:bg-white/5 transition-all duration-200"
+                            className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-[var(--text-secondary)] hover:text-[var(--text-main)] hover:bg-gray-50 transition-all duration-200"
                         >
                             <LogOut className="w-5 h-5" />
                             Volver al Sitio
@@ -243,7 +210,7 @@ export default function AdminLayout({
             {/* Mobile Sidebar Overlay */}
             {isSidebarOpen && (
                 <div
-                    className="fixed inset-0 bg-black/60 z-40 lg:hidden"
+                    className="fixed inset-0 bg-black/20 z-40 lg:hidden backdrop-blur-sm"
                     onClick={() => setIsSidebarOpen(false)}
                 />
             )}
@@ -252,42 +219,37 @@ export default function AdminLayout({
             <main className="flex-1 min-w-0">
                 {/* Top Bar */}
                 <header
-                    className="sticky top-0 z-30 px-6 py-4 flex items-center justify-between lg:justify-end"
-                    style={{
-                        background: 'rgba(15, 20, 25, 0.95)',
-                        backdropFilter: 'blur(20px)',
-                        borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
-                    }}
+                    className="sticky top-0 z-30 px-6 py-4 flex items-center justify-between lg:justify-end bg-white/80 backdrop-blur-xl border-b border-gray-100"
                 >
                     {/* Mobile Menu Toggle */}
                     <button
                         onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                        className="lg:hidden p-2 rounded-xl hover:bg-white/10 transition-colors"
+                        className="lg:hidden p-2 rounded-xl hover:bg-gray-50 transition-colors text-[var(--text-main)]"
                     >
                         {isSidebarOpen ? (
-                            <X className="w-6 h-6 text-white" />
+                            <X className="w-6 h-6" />
                         ) : (
-                            <Menu className="w-6 h-6 text-white" />
+                            <Menu className="w-6 h-6" />
                         )}
                     </button>
 
                     {/* User Info */}
                     <div className="flex items-center gap-4">
                         <div className="text-right hidden sm:block">
-                            <span className="text-sm text-white font-medium block">{user?.email}</span>
+                            <span className="text-sm text-[var(--text-main)] font-bold block">{user?.email}</span>
                             <span
-                                className="text-xs"
-                                style={{ color: isSuperAdmin ? '#8b5cf6' : '#10b981' }}
+                                className="text-xs font-bold"
+                                style={{ color: '#0d9488' }}
                             >
                                 {isSuperAdmin ? 'Super Administrador' : 'Administrador'}
                             </span>
                         </div>
                         <button
                             onClick={handleLogout}
-                            className="w-10 h-10 rounded-xl flex items-center justify-center hover:bg-white/10 transition-colors"
+                            className="w-10 h-10 rounded-xl flex items-center justify-center hover:bg-gray-50 transition-colors"
                             title="Cerrar sesión"
                         >
-                            <LogOut className="w-5 h-5 text-neutral-400" />
+                            <LogOut className="w-5 h-5 text-[var(--text-secondary)]" />
                         </button>
                     </div>
                 </header>

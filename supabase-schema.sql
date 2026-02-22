@@ -129,6 +129,28 @@ CREATE POLICY "Allow public read access on servicios" ON servicios
   FOR SELECT USING (true);
 
 -- =====================================================
+-- SOCIAL MEDIA CONFIG Table
+-- =====================================================
+CREATE TABLE IF NOT EXISTS social_media_config (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  platform TEXT NOT NULL CHECK (platform IN ('facebook', 'instagram', 'twitter', 'linkedin')),
+  access_token TEXT,
+  page_id TEXT,
+  account_id TEXT,
+  is_active BOOLEAN DEFAULT TRUE,
+  user_id UUID REFERENCES auth.users(id),
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(platform, user_id)
+);
+
+ALTER TABLE social_media_config ENABLE ROW LEVEL SECURITY;
+
+-- Only SuperAdmins can manage social media configs
+CREATE POLICY "SuperAdmins full access on social_media_config" ON social_media_config
+  FOR ALL USING (public.get_my_role() = 'superadmin');
+
+-- =====================================================
 -- TRIGGER: Auto-create pending role on new user signup
 -- =====================================================
 CREATE OR REPLACE FUNCTION handle_new_user()

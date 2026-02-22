@@ -1,4 +1,4 @@
-import { Star, StarHalf } from 'lucide-react';
+import { Star } from 'lucide-react';
 
 interface StarRatingProps {
     rating: number;
@@ -39,7 +39,7 @@ export default function StarRating({
                 {/* Half Star */}
                 {hasHalfStar && (
                     <div className="relative">
-                        <Star className={`${starClass} text-neutral-600`} />
+                        <Star className={`${starClass} text-gray-200`} />
                         <div className="absolute inset-0 overflow-hidden w-1/2">
                             <Star className={`${starClass} fill-amber-400 text-amber-400`} />
                         </div>
@@ -50,14 +50,14 @@ export default function StarRating({
                 {Array.from({ length: emptyStars }).map((_, i) => (
                     <Star
                         key={`empty-${i}`}
-                        className={`${starClass} text-neutral-600`}
+                        className={`${starClass} text-gray-200 fill-gray-100/50`}
                     />
                 ))}
             </div>
 
             {/* Rating Value */}
             {showValue && (
-                <span className="text-neutral-300 text-sm font-medium ml-1">
+                <span className="text-gray-600 text-sm font-bold ml-1">
                     {rating.toFixed(1)}
                 </span>
             )}

@@ -32,7 +32,7 @@ export default function PropertyMap({ properties }: PropertyMapProps) {
 
         map.current = new mapboxgl.Map({
             container: mapContainer.current,
-            style: 'mapbox://styles/mapbox/dark-v11',
+            style: 'mapbox://styles/mapbox/light-v11', // Changed to light
             center: [-58.3816, -34.6037], // Buenos Aires
             zoom: 11,
             pitch: 45,
@@ -58,10 +58,10 @@ export default function PropertyMap({ properties }: PropertyMapProps) {
                     type: 'fill-extrusion',
                     minzoom: 15,
                     paint: {
-                        'fill-extrusion-color': '#1a1a3e',
+                        'fill-extrusion-color': '#e5e7eb', // Light gray buildings
                         'fill-extrusion-height': ['get', 'height'],
                         'fill-extrusion-base': ['get', 'min_height'],
-                        'fill-extrusion-opacity': 0.6,
+                        'fill-extrusion-opacity': 0.8,
                     },
                 },
                 labelLayerId
@@ -92,16 +92,18 @@ export default function PropertyMap({ properties }: PropertyMapProps) {
             // Create custom marker element
             const el = document.createElement('div');
             el.className = 'custom-marker';
+            // Teal for Venta, Emerald for Alquiler (matching global theme)
+            const color1 = property.operation === 'venta' ? '#0D9488' : '#10B981'; // Teal 600
+            const color2 = property.operation === 'venta' ? '#0F766E' : '#059669'; // Teal 700
+
             el.style.cssText = `
         width: 40px;
         height: 40px;
-        background: ${property.operation === 'venta'
-                    ? 'linear-gradient(135deg, #00d4ff 0%, #3b82f6 100%)'
-                    : 'linear-gradient(135deg, #a855f7 0%, #ec4899 100%)'};
+        background: linear-gradient(135deg, ${color1} 0%, ${color2} 100%);
         border-radius: 50% 50% 50% 0;
         transform: rotate(-45deg);
         border: 3px solid white;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         cursor: pointer;
         transition: all 0.3s ease;
       `;
@@ -109,13 +111,13 @@ export default function PropertyMap({ properties }: PropertyMapProps) {
             el.addEventListener('mouseenter', () => {
                 setHoveredProperty(property.id);
                 el.style.transform = 'rotate(-45deg) scale(1.2)';
-                el.style.boxShadow = '0 8px 30px rgba(0, 212, 255, 0.5)';
+                el.style.zIndex = '10';
             });
 
             el.addEventListener('mouseleave', () => {
                 setHoveredProperty(null);
                 el.style.transform = 'rotate(-45deg) scale(1)';
-                el.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.3)';
+                el.style.zIndex = '1';
             });
 
             el.addEventListener('click', () => {
@@ -127,9 +129,9 @@ export default function PropertyMap({ properties }: PropertyMapProps) {
                 .setPopup(
                     new mapboxgl.Popup({ offset: 25, closeButton: false })
                         .setHTML(`
-              <div style="padding: 8px;">
-                <h4 style="margin: 0 0 4px; font-weight: 600; font-size: 14px;">${property.title}</h4>
-                <p style="margin: 0; color: #00d4ff; font-weight: 700; font-size: 16px;">
+              <div style="padding: 4px;">
+                <h4 style="margin: 0 0 4px; font-weight: 700; font-size: 14px; color: #1f2937; font-family: 'Poppins', sans-serif;">${property.title}</h4>
+                <p style="margin: 0; color: #0D9488; font-weight: 700; font-size: 16px; font-family: 'Poppins', sans-serif;">
                   $${property.price.toLocaleString('es-AR')}
                 </p>
               </div>
@@ -176,54 +178,45 @@ export default function PropertyMap({ properties }: PropertyMapProps) {
         <div className="relative w-full h-full">
             <div
                 ref={mapContainer}
-                className="w-full h-full rounded-[2rem] overflow-hidden"
+                className="w-full h-full rounded-[20px] overflow-hidden bg-gray-100" // Reduced radius to match cards
                 style={{
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
-                    boxShadow: '0 4px 30px rgba(0, 0, 0, 0.3)',
+                    border: '1px solid #e5e7eb',
+                    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.05)',
                 }}
             />
 
             {/* Loading State */}
             {!isMapLoaded && (
                 <div
-                    className="absolute inset-0 flex items-center justify-center rounded-[2rem]"
-                    style={{
-                        background: 'rgba(10, 10, 26, 0.9)',
-                        backdropFilter: 'blur(20px)',
-                    }}
+                    className="absolute inset-0 flex items-center justify-center rounded-[20px] bg-gray-50/80 backdrop-blur-sm"
                 >
                     <div className="text-center">
                         <div
-                            className="w-12 h-12 rounded-full border-4 border-t-[#00d4ff] border-r-[#00d4ff] border-b-transparent border-l-transparent animate-spin mx-auto mb-4"
+                            className="w-12 h-12 rounded-full border-4 border-t-[#0D9488] border-r-[#0D9488] border-b-transparent border-l-transparent animate-spin mx-auto mb-4"
                         />
-                        <p className="text-neutral-400">Cargando mapa...</p>
+                        <p className="text-gray-500 font-medium">Cargando mapa...</p>
                     </div>
                 </div>
             )}
 
             {/* Map Legend */}
             <div
-                className="absolute bottom-4 left-4 p-4 rounded-2xl"
-                style={{
-                    background: 'rgba(10, 10, 26, 0.9)',
-                    backdropFilter: 'blur(20px)',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
-                }}
+                className="absolute bottom-4 left-4 p-4 rounded-xl bg-white/90 backdrop-blur-sm shadow-lg border border-gray-100"
             >
-                <div className="flex items-center gap-4 text-sm">
+                <div className="flex items-center gap-4 text-sm font-medium">
                     <div className="flex items-center gap-2">
                         <div
-                            className="w-4 h-4 rounded-full"
-                            style={{ background: 'linear-gradient(135deg, #00d4ff 0%, #3b82f6 100%)' }}
+                            className="w-3 h-3 rounded-full"
+                            style={{ background: '#0D9488' }}
                         />
-                        <span className="text-neutral-300">Venta</span>
+                        <span className="text-gray-700">Venta</span>
                     </div>
                     <div className="flex items-center gap-2">
                         <div
-                            className="w-4 h-4 rounded-full"
-                            style={{ background: 'linear-gradient(135deg, #a855f7 0%, #ec4899 100%)' }}
+                            className="w-3 h-3 rounded-full"
+                            style={{ background: '#10B981' }}
                         />
-                        <span className="text-neutral-300">Alquiler</span>
+                        <span className="text-gray-700">Alquiler</span>
                     </div>
                 </div>
             </div>

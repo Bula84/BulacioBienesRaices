@@ -46,6 +46,22 @@ export interface Propiedad {
     user_id?: string;
     created_at: string;
     updated_at?: string;
+    is_featured?: boolean;
+}
+
+export interface Emprendimiento {
+    id: string;
+    title: string;
+    location: string;
+    status: string;
+    delivery?: string;
+    price_start?: number;
+    description?: string;
+    image_url?: string;
+    features?: string[];
+    user_id?: string;
+    created_at: string;
+    updated_at?: string;
 }
 
 export interface Noticia {
@@ -68,8 +84,14 @@ export interface Servicio {
     email?: string;
     rating: number;
     image_url: string;
+    images?: string[]; // Gallery of past jobs/projects
+    video_url?: string; // Video presentation
     category: string;
     description?: string;
+    full_description?: string; // Long description for detail page
+    budget_info?: string; // Information on how budgets are offered
+    techniques?: string[]; // Techniques managed
+    certifications?: string[]; // Certifications and courses
     user_id?: string;
     created_at: string;
 }
@@ -81,6 +103,24 @@ export interface UserRole {
     role: 'pending' | 'admin' | 'superadmin';
     approved_by?: string;
     approved_at?: string;
+    created_at: string;
+}
+
+export interface Oportunidad {
+    id: string;
+    title: string;
+    description: string;
+    full_description?: string;
+    price?: number;
+    discount?: number; // Porcentaje de descuento o monto
+    image_url: string;
+    images?: string[];
+    category: string; // Ej: Materiales, Herramientas, Maquinaria, etc.
+    seller_name: string;
+    contact_phone?: string;
+    contact_email?: string;
+    location?: string;
+    is_featured: boolean;
     created_at: string;
 }
 
@@ -151,6 +191,7 @@ export async function getPropiedades(filters?: {
     type?: string;
     minPrice?: number;
     maxPrice?: number;
+    isFeatured?: boolean;
 }): Promise<Propiedad[]> {
     if (!supabase) return [];
 
@@ -168,6 +209,9 @@ export async function getPropiedades(filters?: {
     if (filters?.maxPrice) {
         query = query.lte('price', filters.maxPrice);
     }
+    if (filters?.isFeatured) {
+        query = query.eq('is_featured', true);
+    }
 
     const { data, error } = await query.order('created_at', { ascending: false });
 
@@ -177,6 +221,54 @@ export async function getPropiedades(filters?: {
     }
 
     return data || [];
+}
+
+export async function getOportunidades(filters?: {
+    category?: string;
+    isFeatured?: boolean;
+}): Promise<Oportunidad[]> {
+    if (!supabase) return [];
+
+    let query = supabase.from('oportunidades').select('*');
+
+    if (filters?.category) {
+        query = query.eq('category', filters.category);
+    }
+    if (filters?.isFeatured) {
+        query = query.eq('is_featured', true);
+    }
+
+    const { data, error } = await query.order('created_at', { ascending: false });
+
+    if (error) {
+        console.error('Error fetching oportunidades:', error.message || error);
+        return [];
+    }
+
+    return data as Oportunidad[] || [];
+}
+
+export async function getOportunidad(id: string): Promise<Oportunidad | null> {
+    if (!supabase) return null;
+
+    // Validate UUID format
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(id)) {
+        return null;
+    }
+
+    const { data, error } = await supabase
+        .from('oportunidades')
+        .select('*')
+        .eq('id', id)
+        .single();
+
+    if (error) {
+        console.error('Error fetching oportunidad:', error.message || error);
+        return null;
+    }
+
+    return data as Oportunidad;
 }
 
 export async function getPropiedad(id: string): Promise<Propiedad | null> {
@@ -371,6 +463,12 @@ export async function getServicios(category?: string): Promise<Servicio[]> {
 
 export async function getServicio(id: string): Promise<Servicio | null> {
     if (!supabase) return null;
+
+    // Validate UUID format
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(id)) {
+        return null;
+    }
 
     const { data, error } = await supabase
         .from('servicios')
@@ -735,6 +833,113 @@ export async function deletePublicacion(id: string): Promise<boolean> {
 
     if (error) {
         console.error('Error deleting publicacion:', error.message || error);
+        return false;
+    }
+
+    return true;
+}
+
+
+
+// =====================================================
+// EMPRENDIMIENTOS
+// =====================================================
+
+export async function getEmprendimientos(): Promise<Emprendimiento[]> {
+    if (!supabase) return [];
+
+    const { data, error } = await supabase
+        .from('emprendimientos')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+    if (error) {
+        console.error('Error fetching emprendimientos:', error.message || error);
+        return [];
+    }
+
+    return data as Emprendimiento[] || [];
+}
+
+export async function getEmprendimiento(id: string): Promise<Emprendimiento | null> {
+    if (!supabase) return null;
+
+    const { data, error } = await supabase
+        .from('emprendimientos')
+        .select('*')
+        .eq('id', id)
+        .single();
+
+    if (error) {
+        console.error('Error fetching emprendimiento:', error.message || error);
+        return null;
+    }
+
+    return data as Emprendimiento;
+}
+
+export async function getEmprendimientosByUser(userId: string): Promise<Emprendimiento[]> {
+    if (!supabase) return [];
+
+    const { data, error } = await supabase
+        .from('emprendimientos')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
+
+    if (error) {
+        console.error('Error fetching user emprendimientos:', error.message || error);
+        return [];
+    }
+
+    return data as Emprendimiento[] || [];
+}
+
+export async function createEmprendimiento(emprendimiento: Omit<Emprendimiento, 'id' | 'created_at'>): Promise<Emprendimiento | null> {
+    if (!supabase) return null;
+
+    const { data, error } = await supabase
+        .from('emprendimientos')
+        .insert(emprendimiento)
+        .select()
+        .single();
+
+    if (error) {
+        console.error('Error creating emprendimiento:', error.message || error);
+        return null;
+    }
+
+    return data as Emprendimiento;
+}
+
+export async function updateEmprendimiento(id: string, updates: Partial<Emprendimiento>): Promise<Emprendimiento | null> {
+    if (!supabase) return null;
+
+    const { data, error } = await supabase
+        .from('emprendimientos')
+        .update({ ...updates, updated_at: new Date().toISOString() })
+        .eq('id', id)
+        .select()
+        .single();
+
+    if (error) {
+        console.error('Error updating emprendimiento:', error.message || error);
+        return null;
+    }
+
+    return data as Emprendimiento;
+}
+
+export async function deleteEmprendimiento(id: string): Promise<boolean> {
+    if (!supabase) return false;
+
+    const { error } = await supabase
+        .from('emprendimientos')
+        .delete()
+        .eq('id', id);
+
+    if (error) {
+        console.error('Error deleting emprendimiento:', error.message || error);
         return false;
     }
 

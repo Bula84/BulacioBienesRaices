@@ -88,7 +88,7 @@ export default function UsuariosPage() {
         switch (role) {
             case 'superadmin':
                 return (
-                    <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-purple-500/20 text-purple-400 border border-purple-500/30">
+                    <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-teal-500/20 text-teal-400 border border-teal-500/30">
                         <Crown className="w-3 h-3" />
                         SuperAdmin
                     </span>
@@ -190,7 +190,7 @@ export default function UsuariosPage() {
                     </div>
                 </div>
                 <div
-                    className="p-4 rounded-2xl cursor-pointer hover:bg-purple-500/10 transition-colors"
+                    className="p-4 rounded-2xl cursor-pointer hover:bg-teal-500/10 transition-colors"
                     style={{
                         background: filter === 'superadmin' ? 'rgba(139, 92, 246, 0.1)' : 'rgba(255, 255, 255, 0.05)',
                         border: filter === 'superadmin' ? '1px solid rgba(139, 92, 246, 0.3)' : '1px solid rgba(255, 255, 255, 0.1)',
@@ -198,11 +198,11 @@ export default function UsuariosPage() {
                     onClick={() => setFilter(filter === 'superadmin' ? 'all' : 'superadmin')}
                 >
                     <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-purple-500/20">
-                            <Crown className="w-5 h-5 text-purple-400" />
+                        <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-teal-500/20">
+                            <Crown className="w-5 h-5 text-teal-400" />
                         </div>
                         <div>
-                            <p className="text-2xl font-bold text-purple-400">{superadminCount}</p>
+                            <p className="text-2xl font-bold text-teal-400">{superadminCount}</p>
                             <p className="text-sm text-neutral-400">SuperAdmins</p>
                         </div>
                     </div>
@@ -211,13 +211,12 @@ export default function UsuariosPage() {
 
             {/* Search */}
             <div className="relative">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-500" />
                 <input
                     type="text"
                     placeholder="Buscar por email..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-12 pr-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-neutral-500 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all"
+                    className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-neutral-500 focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 transition-all"
                 />
             </div>
 
@@ -231,7 +230,7 @@ export default function UsuariosPage() {
             >
                 {loading ? (
                     <div className="p-12 text-center">
-                        <div className="w-8 h-8 border-2 border-neutral-600 border-t-purple-500 rounded-full animate-spin mx-auto mb-4" />
+                        <div className="w-8 h-8 border-2 border-neutral-600 border-t-teal-500 rounded-full animate-spin mx-auto mb-4" />
                         <p className="text-neutral-400">Cargando usuarios...</p>
                     </div>
                 ) : filteredUsers.length === 0 ? (
@@ -262,7 +261,7 @@ export default function UsuariosPage() {
                                         <td className="py-4 px-6">
                                             <span className="text-white font-medium">{userRole.email}</span>
                                             {userRole.user_id === user?.id && (
-                                                <span className="ml-2 text-xs text-purple-400">(Tú)</span>
+                                                <span className="ml-2 text-xs text-teal-400">(Tú)</span>
                                             )}
                                         </td>
                                         <td className="py-4 px-6">
@@ -289,7 +288,7 @@ export default function UsuariosPage() {
                                                         </button>
                                                         <button
                                                             onClick={() => handleApprove(userRole.user_id, 'superadmin')}
-                                                            className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium bg-purple-500/20 text-purple-400 hover:bg-purple-500/30 transition-colors"
+                                                            className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium bg-teal-500/20 text-teal-400 hover:bg-teal-500/30 transition-colors"
                                                             title="Aprobar como SuperAdmin"
                                                         >
                                                             <Crown className="w-3 h-3" />
@@ -308,7 +307,7 @@ export default function UsuariosPage() {
                                                         {userRole.role === 'admin' && (
                                                             <button
                                                                 onClick={() => handleApprove(userRole.user_id, 'superadmin')}
-                                                                className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium bg-purple-500/20 text-purple-400 hover:bg-purple-500/30 transition-colors"
+                                                                className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium bg-teal-500/20 text-teal-400 hover:bg-teal-500/30 transition-colors"
                                                                 title="Promover a SuperAdmin"
                                                             >
                                                                 <Crown className="w-3 h-3" />

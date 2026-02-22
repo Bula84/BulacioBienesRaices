@@ -56,12 +56,11 @@ export default function RegistroPage() {
 
     if (success) {
         return (
-            <div className="min-h-screen flex items-center justify-center px-4 py-12 relative overflow-hidden">
+            <div className="min-h-screen flex items-center justify-center px-4 py-12 relative overflow-hidden bg-[var(--bg-page)]">
                 {/* Background Effects */}
                 <div className="absolute inset-0">
                     <div
-                        className="absolute top-1/4 -left-32 w-96 h-96 rounded-full blur-[120px] opacity-20"
-                        style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)' }}
+                        className="absolute top-1/4 -left-32 w-96 h-96 rounded-full blur-[120px] opacity-20 bg-green-400"
                     />
                 </div>
 
@@ -72,34 +71,24 @@ export default function RegistroPage() {
                     className="w-full max-w-md relative z-10"
                 >
                     <div
-                        className="rounded-[2rem] p-8 md:p-10 text-center"
-                        style={{
-                            background: 'rgba(15, 23, 42, 0.8)',
-                            backdropFilter: 'blur(20px)',
-                            border: '1px solid rgba(255, 255, 255, 0.1)',
-                        }}
+                        className="rounded-[2rem] p-8 md:p-10 text-center bg-white border border-gray-100 shadow-xl"
                     >
                         <div
-                            className="w-20 h-20 rounded-full mx-auto mb-6 flex items-center justify-center"
-                            style={{
-                                background: 'rgba(16, 185, 129, 0.15)',
-                                border: '1px solid rgba(16, 185, 129, 0.3)',
-                            }}
+                            className="w-20 h-20 rounded-full mx-auto mb-6 flex items-center justify-center bg-green-50 border border-green-100"
                         >
-                            <CheckCircle2 className="w-10 h-10 text-[#10b981]" />
+                            <CheckCircle2 className="w-10 h-10 text-green-500" />
                         </div>
 
-                        <h1 className="text-2xl font-bold text-white mb-3">¡Registro Exitoso!</h1>
-                        <p className="text-neutral-400 mb-6">
+                        <h1 className="text-2xl font-bold text-[var(--text-main)] mb-3 font-headings">¡Registro Exitoso!</h1>
+                        <p className="text-[var(--text-secondary)] mb-6 font-medium">
                             Revisa tu correo electrónico para confirmar tu cuenta. Una vez confirmada, podrás iniciar sesión.
                         </p>
 
                         <Link
                             href="/login"
-                            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-white transition-all duration-300 hover:scale-105"
+                            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-white transition-all duration-300 hover:scale-105 shadow-lg shadow-green-500/30"
                             style={{
-                                background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-                                boxShadow: '0 4px 20px rgba(16, 185, 129, 0.3)',
+                                background: '#10b981',
                             }}
                         >
                             Ir a Iniciar Sesión
@@ -111,16 +100,14 @@ export default function RegistroPage() {
     }
 
     return (
-        <div className="min-h-screen flex items-center justify-center px-4 py-12 relative overflow-hidden">
+        <div className="min-h-screen flex items-center justify-center px-4 py-12 relative overflow-hidden bg-[var(--bg-page)]">
             {/* Background Effects */}
             <div className="absolute inset-0">
                 <div
-                    className="absolute top-1/4 -left-32 w-96 h-96 rounded-full blur-[120px] opacity-20"
-                    style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)' }}
+                    className="absolute top-1/4 -left-32 w-96 h-96 rounded-full blur-[120px] opacity-20 bg-blue-400"
                 />
                 <div
-                    className="absolute bottom-1/4 -right-32 w-96 h-96 rounded-full blur-[120px] opacity-15"
-                    style={{ background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)' }}
+                    className="absolute bottom-1/4 -right-32 w-96 h-96 rounded-full blur-[120px] opacity-15 bg-[var(--primary-blue)]"
                 />
             </div>
 
@@ -132,28 +119,19 @@ export default function RegistroPage() {
             >
                 {/* Card */}
                 <div
-                    className="rounded-[2rem] p-8 md:p-10"
-                    style={{
-                        background: 'rgba(15, 23, 42, 0.8)',
-                        backdropFilter: 'blur(20px)',
-                        border: '1px solid rgba(255, 255, 255, 0.1)',
-                    }}
+                    className="rounded-[2rem] p-8 md:p-10 bg-white border border-gray-100 shadow-xl"
                 >
                     {/* Header */}
                     <div className="text-center mb-8">
                         <div
-                            className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-6"
-                            style={{
-                                background: 'rgba(16, 185, 129, 0.1)',
-                                border: '1px solid rgba(16, 185, 129, 0.3)',
-                            }}
+                            className="inline-flex items-center gap-2 px-4 py-2 rounded-full mb-6 bg-blue-50 border border-blue-100"
                         >
-                            <Sparkles className="w-4 h-4 text-[#10b981]" />
-                            <span className="text-sm text-[#10b981] font-medium">Únete a nosotros</span>
+                            <Sparkles className="w-4 h-4 text-[var(--primary-blue)]" />
+                            <span className="text-sm text-[var(--primary-blue)] font-bold">Únete a nosotros</span>
                         </div>
 
-                        <h1 className="text-3xl font-bold text-white mb-2">Crear Cuenta</h1>
-                        <p className="text-neutral-400">
+                        <h1 className="text-3xl font-bold text-[var(--text-main)] mb-2 font-headings">Crear Cuenta</h1>
+                        <p className="text-[var(--text-secondary)]">
                             Regístrate para comenzar a gestionar tus propiedades
                         </p>
                     </div>
@@ -161,16 +139,12 @@ export default function RegistroPage() {
                     {/* Demo Warning */}
                     {!isConfigured && (
                         <div
-                            className="flex items-start gap-3 p-4 rounded-xl mb-6"
-                            style={{
-                                background: 'rgba(251, 191, 36, 0.1)',
-                                border: '1px solid rgba(251, 191, 36, 0.3)',
-                            }}
+                            className="flex items-start gap-3 p-4 rounded-xl mb-6 bg-amber-50 border border-amber-200"
                         >
-                            <AlertCircle className="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" />
+                            <AlertCircle className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
                             <div>
-                                <p className="text-amber-400 text-sm font-medium">Modo Demo</p>
-                                <p className="text-amber-400/70 text-sm">
+                                <p className="text-amber-700 text-sm font-bold">Modo Demo</p>
+                                <p className="text-amber-600/80 text-sm">
                                     Supabase no está configurado. Configura las variables de entorno para habilitar registro.
                                 </p>
                             </div>
@@ -182,14 +156,10 @@ export default function RegistroPage() {
                         <motion.div
                             initial={{ opacity: 0, y: -10 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className="flex items-center gap-3 p-4 rounded-xl mb-6"
-                            style={{
-                                background: 'rgba(239, 68, 68, 0.1)',
-                                border: '1px solid rgba(239, 68, 68, 0.3)',
-                            }}
+                            className="flex items-center gap-3 p-4 rounded-xl mb-6 bg-red-50 border border-red-200"
                         >
-                            <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0" />
-                            <p className="text-red-400 text-sm">{error}</p>
+                            <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
+                            <p className="text-red-500 text-sm font-medium">{error}</p>
                         </motion.div>
                     )}
 
@@ -197,18 +167,18 @@ export default function RegistroPage() {
                     <form onSubmit={handleSubmit} className="space-y-5">
                         {/* Email */}
                         <div>
-                            <label htmlFor="email" className="block text-sm font-medium text-neutral-300 mb-2">
+                            <label htmlFor="email" className="block text-sm font-bold text-[var(--text-main)] mb-2">
                                 Correo Electrónico
                             </label>
                             <div className="relative">
-                                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-500" />
+                                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                                 <input
                                     id="email"
                                     type="email"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                     placeholder="tu@email.com"
-                                    className="w-full pl-12 pr-4 py-4 rounded-xl bg-white/5 border border-white/10 text-white placeholder-neutral-500 focus:outline-none focus:border-[#10b981] focus:ring-1 focus:ring-[#10b981] transition-all"
+                                    className="w-full pl-12 pr-4 py-4 rounded-xl bg-gray-50 border border-gray-200 text-[var(--text-main)] placeholder-gray-400 focus:outline-none focus:border-[var(--primary-blue)] focus:ring-2 focus:ring-blue-100 transition-all font-medium"
                                     disabled={isLoading || !isConfigured}
                                 />
                             </div>
@@ -216,24 +186,24 @@ export default function RegistroPage() {
 
                         {/* Password */}
                         <div>
-                            <label htmlFor="password" className="block text-sm font-medium text-neutral-300 mb-2">
+                            <label htmlFor="password" className="block text-sm font-bold text-[var(--text-main)] mb-2">
                                 Contraseña
                             </label>
                             <div className="relative">
-                                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-500" />
+                                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                                 <input
                                     id="password"
                                     type={showPassword ? 'text' : 'password'}
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                     placeholder="Mínimo 6 caracteres"
-                                    className="w-full pl-12 pr-12 py-4 rounded-xl bg-white/5 border border-white/10 text-white placeholder-neutral-500 focus:outline-none focus:border-[#10b981] focus:ring-1 focus:ring-[#10b981] transition-all"
+                                    className="w-full pl-12 pr-12 py-4 rounded-xl bg-gray-50 border border-gray-200 text-[var(--text-main)] placeholder-gray-400 focus:outline-none focus:border-[var(--primary-blue)] focus:ring-2 focus:ring-blue-100 transition-all font-medium"
                                     disabled={isLoading || !isConfigured}
                                 />
                                 <button
                                     type="button"
                                     onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-neutral-500 hover:text-white transition-colors"
+                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[var(--primary-blue)] transition-colors"
                                 >
                                     {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                                 </button>
@@ -242,18 +212,18 @@ export default function RegistroPage() {
 
                         {/* Confirm Password */}
                         <div>
-                            <label htmlFor="confirmPassword" className="block text-sm font-medium text-neutral-300 mb-2">
+                            <label htmlFor="confirmPassword" className="block text-sm font-bold text-[var(--text-main)] mb-2">
                                 Confirmar Contraseña
                             </label>
                             <div className="relative">
-                                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-500" />
+                                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                                 <input
                                     id="confirmPassword"
                                     type={showPassword ? 'text' : 'password'}
                                     value={confirmPassword}
                                     onChange={(e) => setConfirmPassword(e.target.value)}
                                     placeholder="Repite tu contraseña"
-                                    className="w-full pl-12 pr-4 py-4 rounded-xl bg-white/5 border border-white/10 text-white placeholder-neutral-500 focus:outline-none focus:border-[#10b981] focus:ring-1 focus:ring-[#10b981] transition-all"
+                                    className="w-full pl-12 pr-4 py-4 rounded-xl bg-gray-50 border border-gray-200 text-[var(--text-main)] placeholder-gray-400 focus:outline-none focus:border-[var(--primary-blue)] focus:ring-2 focus:ring-blue-100 transition-all font-medium"
                                     disabled={isLoading || !isConfigured}
                                 />
                             </div>
@@ -263,10 +233,9 @@ export default function RegistroPage() {
                         <button
                             type="submit"
                             disabled={isLoading || !isConfigured}
-                            className="w-full py-4 rounded-xl font-semibold text-white transition-all duration-300 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-2"
+                            className="w-full py-4 rounded-xl font-bold text-white transition-all duration-300 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-2 shadow-lg shadow-blue-500/30"
                             style={{
-                                background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-                                boxShadow: '0 4px 20px rgba(16, 185, 129, 0.3)',
+                                background: 'var(--primary-blue)',
                             }}
                         >
                             {isLoading ? (
@@ -282,11 +251,11 @@ export default function RegistroPage() {
 
                     {/* Login Link */}
                     <div className="mt-6 text-center">
-                        <p className="text-neutral-400">
+                        <p className="text-[var(--text-secondary)] font-medium">
                             ¿Ya tienes cuenta?{' '}
                             <Link
                                 href="/login"
-                                className="text-[#10b981] hover:text-[#34d399] font-medium transition-colors"
+                                className="text-[var(--primary-blue)] hover:underline font-bold transition-colors"
                             >
                                 Iniciar sesión
                             </Link>

@@ -207,13 +207,12 @@ export default function AdminServiciosPage() {
 
             {/* Search */}
             <div className="relative max-w-md">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-500" />
                 <input
                     type="text"
                     placeholder="Buscar profesionales..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="input-glass w-full pl-12"
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-neutral-500 focus:outline-none focus:border-[#a855f7]/50 focus:ring-2 focus:ring-[#a855f7]/20 transition-all"
                 />
             </div>
 

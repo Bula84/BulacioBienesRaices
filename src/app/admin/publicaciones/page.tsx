@@ -241,13 +241,12 @@ export default function AdminPublicacionesPage() {
 
             {/* Search */}
             <div className="relative max-w-md">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-500" />
                 <input
                     type="text"
                     placeholder="Buscar publicaciones..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-12 pr-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-neutral-500 focus:outline-none focus:border-blue-500 transition-all"
+                    className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-neutral-500 focus:outline-none focus:border-blue-500 transition-all"
                 />
             </div>
 
@@ -322,7 +321,7 @@ export default function AdminPublicacionesPage() {
                                             <button
                                                 onClick={() => handlePublish(pub.id)}
                                                 disabled={isPublishing === pub.id}
-                                                className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium bg-gradient-to-r from-blue-500 to-pink-500 text-white hover:opacity-90 transition-all disabled:opacity-50"
+                                                className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium bg-gradient-to-r from-blue-500 to-teal-500 text-white hover:opacity-90 transition-all disabled:opacity-50"
                                             >
                                                 {isPublishing === pub.id ? (
                                                     <div className="w-3 h-3 border border-white border-t-transparent rounded-full animate-spin" />
@@ -471,8 +470,8 @@ export default function AdminPublicacionesPage() {
                                     <div className="flex flex-wrap gap-3">
                                         <label
                                             className={`flex items-center gap-2 px-4 py-2 rounded-xl cursor-pointer transition-all ${formData.publish_to_facebook
-                                                    ? 'bg-[#1877F2]/20 border-[#1877F2]/50 text-[#1877F2]'
-                                                    : 'bg-white/5 border-white/10 text-neutral-400'
+                                                ? 'bg-[#1877F2]/20 border-[#1877F2]/50 text-[#1877F2]'
+                                                : 'bg-white/5 border-white/10 text-neutral-400'
                                                 } border`}
                                         >
                                             <input
@@ -486,8 +485,8 @@ export default function AdminPublicacionesPage() {
                                         </label>
                                         <label
                                             className={`flex items-center gap-2 px-4 py-2 rounded-xl cursor-pointer transition-all ${formData.publish_to_instagram
-                                                    ? 'bg-[#E4405F]/20 border-[#E4405F]/50 text-[#E4405F]'
-                                                    : 'bg-white/5 border-white/10 text-neutral-400'
+                                                ? 'bg-[#E4405F]/20 border-[#E4405F]/50 text-[#E4405F]'
+                                                : 'bg-white/5 border-white/10 text-neutral-400'
                                                 } border`}
                                         >
                                             <input
@@ -501,8 +500,8 @@ export default function AdminPublicacionesPage() {
                                         </label>
                                         <label
                                             className={`flex items-center gap-2 px-4 py-2 rounded-xl cursor-pointer transition-all ${formData.publish_to_tiktok
-                                                    ? 'bg-white/20 border-white/50 text-white'
-                                                    : 'bg-white/5 border-white/10 text-neutral-400'
+                                                ? 'bg-white/20 border-white/50 text-white'
+                                                : 'bg-white/5 border-white/10 text-neutral-400'
                                                 } border`}
                                         >
                                             <input

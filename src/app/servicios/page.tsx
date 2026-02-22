@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Wrench, Search } from 'lucide-react';
 import ServiceCard from '@/components/ServiceCard';
+import BannerAd from '@/components/BannerAd';
 import { Servicio, getServicios } from '@/lib/supabase';
 
 // Mock categories
@@ -148,8 +149,8 @@ export default function ServiciosPage() {
     }, [activeCategory, searchQuery, services]);
 
     return (
-        <div className="py-12">
-            <div className="container mx-auto px-6">
+        <div className="py-12 bg-[var(--bg-page)]">
+            <div className="container mx-auto px-6 pt-10">
                 {/* Header */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -157,24 +158,23 @@ export default function ServiciosPage() {
                     className="text-center mb-12"
                 >
                     <span
-                        className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium mb-6"
+                        className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold mb-6 uppercase tracking-wider"
                         style={{
-                            background: 'rgba(168, 85, 247, 0.1)',
-                            color: '#a855f7',
-                            border: '1px solid rgba(168, 85, 247, 0.3)',
+                            background: 'rgba(33, 148, 207, 0.1)',
+                            color: 'var(--primary-blue)',
                         }}
                     >
                         <Wrench className="w-4 h-4" />
                         Directorio de Profesionales
                     </span>
 
-                    <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
+                    <h1 className="text-4xl md:text-6xl font-extrabold !text-slate-900 mb-4 font-headings tracking-tight">
                         Servicios de{' '}
-                        <span className="bg-gradient-to-r from-[#a855f7] to-[#ec4899] bg-clip-text text-transparent">
+                        <span className="text-[var(--primary-blue)]">
                             Mantenimiento
                         </span>
                     </h1>
-                    <p className="text-neutral-400 max-w-2xl mx-auto text-lg">
+                    <p className="font-medium !text-slate-700 max-w-2xl mx-auto text-lg md:text-xl">
                         Encuentra profesionales confiables para el mantenimiento y reparación de tu propiedad.
                         Todos verificados y con calificaciones de nuestros clientes.
                     </p>
@@ -191,13 +191,13 @@ export default function ServiciosPage() {
                     <div
                         className="relative max-w-xl mx-auto mb-8"
                     >
-                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-500" />
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                         <input
                             type="text"
                             placeholder="Buscar por nombre, habilidad o servicio..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="input-glass w-full pl-12 py-4"
+                            className="w-full pl-14 py-4 rounded-xl border border-gray-200 focus:border-[var(--primary-blue)] focus:ring-2 focus:ring-blue-100 outline-none transition-all"
                         />
                     </div>
 
@@ -208,16 +208,13 @@ export default function ServiciosPage() {
                                 key={category}
                                 onClick={() => setActiveCategory(category)}
                                 className={`px-5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${activeCategory === category
-                                        ? 'text-[#0a0a1a]'
-                                        : 'text-neutral-300 hover:text-white hover:bg-white/10'
+                                    ? 'text-white shadow-md'
+                                    : 'text-[var(--text-secondary)] hover:text-[var(--text-main)] hover:bg-white bg-gray-50'
                                     }`}
                                 style={{
                                     background: activeCategory === category
-                                        ? 'linear-gradient(135deg, #a855f7 0%, #ec4899 100%)'
-                                        : 'rgba(255, 255, 255, 0.05)',
-                                    border: activeCategory === category
-                                        ? 'none'
-                                        : '1px solid rgba(255, 255, 255, 0.1)',
+                                        ? 'var(--primary-blue)'
+                                        : undefined,
                                 }}
                             >
                                 {category}
@@ -228,7 +225,7 @@ export default function ServiciosPage() {
 
                 {/* Results Count */}
                 <div className="mb-6">
-                    <p className="text-neutral-400">
+                    <p className="font-medium !text-slate-700">
                         {filteredServices.length} {filteredServices.length === 1 ? 'profesional encontrado' : 'profesionales encontrados'}
                     </p>
                 </div>
@@ -239,8 +236,7 @@ export default function ServiciosPage() {
                         {Array.from({ length: 6 }).map((_, i) => (
                             <div
                                 key={i}
-                                className="h-80 rounded-[2rem] animate-pulse"
-                                style={{ background: 'rgba(255, 255, 255, 0.05)' }}
+                                className="h-80 rounded-[2rem] animate-pulse bg-gray-200"
                             />
                         ))}
                     </div>
@@ -258,50 +254,54 @@ export default function ServiciosPage() {
                         className="text-center py-20"
                     >
                         <div
-                            className="w-20 h-20 mx-auto mb-6 rounded-2xl flex items-center justify-center"
-                            style={{
-                                background: 'rgba(255, 255, 255, 0.05)',
-                            }}
+                            className="w-20 h-20 mx-auto mb-6 rounded-2xl flex items-center justify-center bg-white shadow-sm border border-gray-100"
                         >
-                            <Wrench className="w-10 h-10 text-neutral-500" />
+                            <Wrench className="w-10 h-10 text-gray-400" />
                         </div>
-                        <h3 className="text-xl font-semibold text-white mb-2">
+                        <h3 className="text-2xl font-extrabold !text-slate-900 mb-2">
                             No se encontraron profesionales
                         </h3>
-                        <p className="text-neutral-400">
+                        <p className="font-medium !text-slate-700 text-lg">
                             Intenta ajustar los filtros o la búsqueda
                         </p>
                     </motion.div>
                 )}
+
+                {/* Banner Advertising */}
+                <BannerAd
+                    title="Descuento en herramientas para matriculados"
+                    description="Si formas parte de nuestra red de servicios adheridos, conseguí un 20% de descuento en las herramientas seleccionadas de nuestro corralón asociado."
+                    imageUrl="https://images.unsplash.com/photo-1581147036324-c10842f9b86f?w=1200"
+                    linkUrl="/oportunidades"
+                    ctaText="Ver Promoción"
+                />
 
                 {/* Become a Pro CTA */}
                 <motion.div
                     initial={{ opacity: 0, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    className="mt-20 relative overflow-hidden rounded-[2.5rem] p-10 md:p-14 text-center"
-                    style={{
-                        background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.15) 0%, rgba(236, 72, 153, 0.15) 100%)',
-                        border: '1px solid rgba(168, 85, 247, 0.3)',
-                    }}
+                    className="mt-20 relative overflow-hidden rounded-[2.5rem] p-10 md:p-14 text-center bg-white border border-gray-100 shadow-lg"
                 >
-                    <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">
+                    <h2 className="text-2xl md:text-4xl font-extrabold !text-slate-900 mb-4 font-headings tracking-tight">
                         ¿Eres un profesional?
                     </h2>
-                    <p className="text-neutral-300 mb-8 max-w-xl mx-auto">
+                    <p className="font-medium !text-slate-700 mb-8 max-w-xl mx-auto text-lg md:text-xl">
                         Únete a nuestro directorio y conecta con miles de clientes potenciales
                         que buscan servicios de calidad.
                     </p>
                     <button
-                        className="px-8 py-3 rounded-xl font-semibold transition-all duration-300 hover:scale-105"
+                        className="px-8 py-3 rounded-xl font-bold transition-all duration-300 hover:scale-105 text-white shadow-lg shadow-blue-500/30"
                         style={{
-                            background: 'linear-gradient(135deg, #a855f7 0%, #ec4899 100%)',
-                            color: 'white',
-                            boxShadow: '0 4px 20px rgba(168, 85, 247, 0.4)',
+                            background: 'var(--primary-blue)',
                         }}
                     >
                         Registrarme como Profesional
                     </button>
+
+                    {/* Decorative elements */}
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-blue-50/50 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 -z-10" />
+                    <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-50/50 rounded-full blur-3xl translate-y-1/2 -translate-x-1/3 -z-10" />
                 </motion.div>
             </div>
         </div>

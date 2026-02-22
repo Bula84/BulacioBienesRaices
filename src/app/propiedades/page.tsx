@@ -9,24 +9,7 @@ import PropertyFilters from '@/components/PropertyFilters';
 import { usePropertyStore, useUIStore } from '@/store/propertyStore';
 import { Propiedad } from '@/lib/supabase';
 
-// Dynamic import for map to avoid SSR issues
-const PropertyMap = dynamic(() => import('@/components/PropertyMap'), {
-    ssr: false,
-    loading: () => (
-        <div
-            className="w-full h-full rounded-[2rem] flex items-center justify-center"
-            style={{
-                background: 'rgba(10, 10, 26, 0.9)',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
-            }}
-        >
-            <div className="text-center">
-                <div className="w-12 h-12 rounded-full border-4 border-t-[#00d4ff] border-r-[#00d4ff] border-b-transparent border-l-transparent animate-spin mx-auto mb-4" />
-                <p className="text-neutral-400">Cargando mapa...</p>
-            </div>
-        </div>
-    ),
-});
+
 
 // Mock data for demo
 const mockProperties: Propiedad[] = [
@@ -148,48 +131,44 @@ export default function PropiedadesPage() {
         loadData();
     }, [fetchProperties]);
 
-    const displayProperties = useMockData ? mockProperties : filteredProperties;
+    const displayProperties = filteredProperties;
 
     return (
-        <div className="min-h-screen">
+        <div className="min-h-screen bg-[var(--bg-page)] pt-4">
             {/* Header */}
-            <div className="container mx-auto px-6 py-8">
+            <div className="container mx-auto px-6 py-6 border-b border-gray-200">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     className="mb-6"
                 >
-                    <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
+                    <h1 className="text-3xl md:text-5xl font-extrabold !text-slate-900 mb-2 font-headings tracking-tight">
                         Explorador de Propiedades
                     </h1>
-                    <p className="text-neutral-400">
+                    <p className="text-lg font-medium !text-slate-700">
                         Encuentra tu próximo hogar con nuestro explorador inmersivo
                     </p>
                 </motion.div>
             </div>
 
             {/* Main Content - Split View */}
-            <div className="flex h-[calc(100vh-200px)] gap-0">
-                {/* Filters - 20% */}
-                <div className="hidden lg:block w-[20%] min-w-[280px]">
-                    <PropertyFilters />
+            <div className="flex flex-col lg:flex-row min-h-screen gap-0 relative">
+                {/* Filters - Sticky Sidebar */}
+                <div className="hidden lg:block w-[280px] border-r border-gray-200 bg-[var(--bg-surface)]">
+                    <div className="sticky top-24 max-h-[calc(100vh-120px)] overflow-y-auto custom-scrollbar">
+                        <PropertyFilters />
+                    </div>
                 </div>
 
-                {/* Properties List - 40% */}
-                <div
-                    className={`${isMapExpanded ? 'hidden lg:block' : ''} w-full lg:w-[40%] overflow-y-auto px-4`}
-                    style={{
-                        background: 'rgba(10, 10, 26, 0.5)',
-                    }}
-                >
-                    <div className="py-4 space-y-4">
+                {/* Properties List - Natural Scroll */}
+                <div className="w-full lg:flex-1 px-6 pb-20 bg-[var(--bg-page)]">
+                    <div className="py-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {isLoading ? (
                             // Loading State
-                            Array.from({ length: 4 }).map((_, i) => (
+                            Array.from({ length: 6 }).map((_, i) => (
                                 <div
                                     key={i}
-                                    className="h-72 rounded-[2rem] animate-pulse"
-                                    style={{ background: 'rgba(255, 255, 255, 0.05)' }}
+                                    className="h-[400px] rounded-[2rem] animate-pulse bg-gray-200"
                                 />
                             ))
                         ) : displayProperties.length > 0 ? (
@@ -198,47 +177,25 @@ export default function PropiedadesPage() {
                             ))
                         ) : (
                             // Empty State
-                            <div className="text-center py-20">
+                            <div className="col-span-full text-center py-20">
                                 <div
-                                    className="w-20 h-20 mx-auto mb-6 rounded-2xl flex items-center justify-center"
-                                    style={{
-                                        background: 'rgba(255, 255, 255, 0.05)',
-                                    }}
+                                    className="w-20 h-20 mx-auto mb-6 rounded-2xl flex items-center justify-center bg-[var(--bg-surface)] shadow-sm border border-gray-100"
                                 >
-                                    <Map className="w-10 h-10 text-neutral-500" />
+                                    <Map className="w-10 h-10 text-[var(--text-muted)]" />
                                 </div>
-                                <h3 className="text-xl font-semibold text-white mb-2">
+                                <h3 className="text-2xl font-bold !text-slate-900 mb-2">
                                     No se encontraron propiedades
                                 </h3>
-                                <p className="text-neutral-400">
+                                <p className="text-lg font-medium !text-slate-700">
                                     Intenta ajustar los filtros para ver más resultados
                                 </p>
                             </div>
                         )}
                     </div>
                 </div>
-
-                {/* Map - 40% */}
-                <div
-                    className={`${isMapExpanded ? 'w-full' : 'hidden lg:block lg:w-[40%]'} p-4`}
-                >
-                    <PropertyMap properties={displayProperties} />
-                </div>
             </div>
 
-            {/* Mobile Map Toggle Button */}
-            <button
-                onClick={toggleMapExpanded}
-                className="fixed bottom-6 right-6 lg:hidden z-40 flex items-center gap-2 px-6 py-3 rounded-full font-medium transition-all duration-300 hover:scale-105"
-                style={{
-                    background: 'linear-gradient(135deg, #00d4ff 0%, #3b82f6 100%)',
-                    color: '#0a0a1a',
-                    boxShadow: '0 4px 30px rgba(0, 212, 255, 0.4)',
-                }}
-            >
-                <Map className="w-5 h-5" />
-                {isMapExpanded ? 'Ver Lista' : 'Ver Mapa'}
-            </button>
+
         </div>
     );
 }

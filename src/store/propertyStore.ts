@@ -49,7 +49,10 @@ export const usePropertyStore = create<PropertyStore>((set, get) => ({
         set({ isLoading: true, error: null });
 
         try {
-            const properties = await getPropiedades();
+            const allProperties = await getPropiedades();
+
+            // Filtrar los fondos de comercio para que no aparezcan en la grilla principal
+            const properties = allProperties.filter(p => p.type !== 'fondo_comercio');
 
             // Extract unique property types
             const types = [...new Set(properties.map(p => p.type))].filter(Boolean);

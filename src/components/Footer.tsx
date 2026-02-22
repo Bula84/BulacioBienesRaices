@@ -4,8 +4,9 @@ import { Building2, Mail, Phone, MapPin, Facebook, Instagram, Linkedin, Twitter 
 const footerLinks = {
     company: [
         { label: 'Nosotros', href: '/nosotros' },
-        { label: 'Noticias', href: '/noticias' },
+        { label: 'Tasaciones', href: '/tasaciones' },
         { label: 'Servicios', href: '/servicios' },
+        { label: 'Oportunidades', href: '/oportunidades' },
         { label: 'Contacto', href: '/contacto' },
     ],
     properties: [
@@ -13,6 +14,8 @@ const footerLinks = {
         { label: 'Alquiler', href: '/propiedades?operation=alquiler' },
         { label: 'Casas', href: '/propiedades?type=casa' },
         { label: 'Departamentos', href: '/propiedades?type=departamento' },
+        { label: 'Emprendimientos', href: '/emprendimientos' },
+        { label: 'Fondos de Comercio', href: '/fondos-de-comercio' },
     ],
     legal: [
         { label: 'Términos y Condiciones', href: '/legal/terminos' },
@@ -32,64 +35,55 @@ export default function Footer() {
     const currentYear = new Date().getFullYear();
 
     return (
-        <footer className="relative mt-20">
-            {/* Gradient line */}
+        <footer className="relative mt-20 bg-[var(--bg-page)] border-t border-gray-100">
+            {/* Top Border Line */}
             <div
-                className="h-px w-full"
+                className="h-1 w-full"
                 style={{
-                    background: 'linear-gradient(90deg, transparent, rgba(16, 185, 129, 0.5), rgba(99, 102, 241, 0.3), transparent)',
+                    background: 'linear-gradient(90deg, var(--primary-blue), #0f766e)',
                 }}
             />
 
-            <div
-                className="py-16"
-                style={{
-                    background: 'rgba(15, 20, 25, 0.95)',
-                    backdropFilter: 'blur(20px)',
-                }}
-            >
+            <div className="py-16">
                 <div className="container mx-auto px-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12">
                         {/* Brand Column */}
                         <div className="lg:col-span-2">
                             <Link href="/" className="flex items-center gap-3 mb-6">
                                 <div
-                                    className="w-12 h-12 rounded-2xl flex items-center justify-center"
-                                    style={{
-                                        background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-                                    }}
+                                    className="w-12 h-12 rounded-2xl flex items-center justify-center bg-white shadow-sm border border-gray-100"
                                 >
-                                    <Building2 className="w-6 h-6 text-white" />
+                                    <Building2 className="w-6 h-6 text-[var(--primary-blue)]" />
                                 </div>
                                 <div>
-                                    <span className="text-xl font-bold bg-gradient-to-r from-[#10b981] to-[#059669] bg-clip-text text-transparent">
+                                    <span className="text-xl font-bold text-[var(--text-main)] block font-headings">
                                         BC BienesRaices
                                     </span>
-                                    <span className="text-sm text-neutral-400 block -mt-1">Tu hogar es tu refugio</span>
+                                    <span className="text-sm text-[var(--text-secondary)] block -mt-1 font-medium">Tu hogar es tu refugio</span>
                                 </div>
                             </Link>
 
-                            <p className="text-neutral-400 mb-6 max-w-sm leading-relaxed">
+                            <p className="text-[var(--text-secondary)] mb-6 max-w-sm leading-relaxed font-medium">
                                 Profesionalismo y experiencia al servicio de tu próxima inversión inmobiliaria.
                             </p>
 
                             {/* Contact Info */}
-                            <div className="space-y-3">
+                            <div className="space-y-4">
                                 <a
                                     href="mailto:info@bcbienesraices.com"
-                                    className="flex items-center gap-3 text-neutral-400 hover:text-[#10b981] transition-colors"
+                                    className="flex items-center gap-3 text-[var(--text-secondary)] hover:text-[var(--primary-blue)] transition-colors font-medium"
                                 >
                                     <Mail className="w-5 h-5" />
                                     <span>info@bcbienesraices.com</span>
                                 </a>
                                 <a
                                     href="tel:+541112345678"
-                                    className="flex items-center gap-3 text-neutral-400 hover:text-[#10b981] transition-colors"
+                                    className="flex items-center gap-3 text-[var(--text-secondary)] hover:text-[var(--primary-blue)] transition-colors font-medium"
                                 >
                                     <Phone className="w-5 h-5" />
                                     <span>+54 11 1234-5678</span>
                                 </a>
-                                <div className="flex items-center gap-3 text-neutral-400">
+                                <div className="flex items-center gap-3 text-[var(--text-secondary)] font-medium">
                                     <MapPin className="w-5 h-5" />
                                     <span>Buenos Aires, Argentina</span>
                                 </div>
@@ -98,13 +92,13 @@ export default function Footer() {
 
                         {/* Company Links */}
                         <div>
-                            <h4 className="text-white font-semibold mb-4">Empresa</h4>
+                            <h4 className="text-[var(--text-main)] font-bold mb-6 font-headings">Empresa</h4>
                             <ul className="space-y-3">
                                 {footerLinks.company.map((link) => (
                                     <li key={link.href}>
                                         <Link
                                             href={link.href}
-                                            className="text-neutral-400 hover:text-[#10b981] transition-colors"
+                                            className="text-[var(--text-secondary)] hover:text-[var(--primary-blue)] transition-colors hover:translate-x-1 block duration-200 font-medium"
                                         >
                                             {link.label}
                                         </Link>
@@ -115,13 +109,13 @@ export default function Footer() {
 
                         {/* Properties Links */}
                         <div>
-                            <h4 className="text-white font-semibold mb-4">Propiedades</h4>
+                            <h4 className="text-[var(--text-main)] font-bold mb-6 font-headings">Propiedades</h4>
                             <ul className="space-y-3">
                                 {footerLinks.properties.map((link) => (
                                     <li key={link.href}>
                                         <Link
                                             href={link.href}
-                                            className="text-neutral-400 hover:text-[#10b981] transition-colors"
+                                            className="text-[var(--text-secondary)] hover:text-[var(--primary-blue)] transition-colors hover:translate-x-1 block duration-200 font-medium"
                                         >
                                             {link.label}
                                         </Link>
@@ -132,13 +126,13 @@ export default function Footer() {
 
                         {/* Legal Links */}
                         <div>
-                            <h4 className="text-white font-semibold mb-4">Legal</h4>
+                            <h4 className="text-[var(--text-main)] font-bold mb-6 font-headings">Legal</h4>
                             <ul className="space-y-3">
                                 {footerLinks.legal.map((link) => (
                                     <li key={link.href}>
                                         <Link
                                             href={link.href}
-                                            className="text-neutral-400 hover:text-[#10b981] transition-colors"
+                                            className="text-[var(--text-secondary)] hover:text-[var(--primary-blue)] transition-colors hover:translate-x-1 block duration-200 font-medium"
                                         >
                                             {link.label}
                                         </Link>
@@ -149,8 +143,8 @@ export default function Footer() {
                     </div>
 
                     {/* Bottom Bar */}
-                    <div className="mt-12 pt-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-4">
-                        <p className="text-neutral-500 text-sm">
+                    <div className="mt-16 pt-8 border-t border-gray-200 flex flex-col md:flex-row items-center justify-between gap-6">
+                        <p className="text-[var(--text-secondary)] text-sm font-medium">
                             © {currentYear} BC BienesRaices. Todos los derechos reservados.
                         </p>
 
@@ -165,10 +159,7 @@ export default function Footer() {
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         aria-label={social.label}
-                                        className="w-10 h-10 rounded-xl flex items-center justify-center text-neutral-400 hover:text-[#10b981] transition-all duration-200 hover:scale-110"
-                                        style={{
-                                            background: 'rgba(255, 255, 255, 0.05)',
-                                        }}
+                                        className="w-10 h-10 rounded-full flex items-center justify-center bg-white border border-gray-100 text-[var(--text-secondary)] hover:bg-[var(--primary-blue)] hover:text-white hover:border-[var(--primary-blue)] transition-all duration-300 shadow-sm"
                                     >
                                         <Icon className="w-5 h-5" />
                                     </a>

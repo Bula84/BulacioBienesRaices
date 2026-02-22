@@ -35,6 +35,16 @@ import {
 } from 'lucide-react';
 import { getPropiedad, Propiedad } from '@/lib/supabase';
 import Navbar from '@/components/Navbar';
+import dynamic from 'next/dynamic';
+
+const PropertyMap = dynamic(() => import('@/components/PropertyMap'), {
+    ssr: false,
+    loading: () => (
+        <div className="w-full h-64 lg:h-96 rounded-2xl bg-gray-100 animate-pulse flex items-center justify-center text-gray-400">
+            Cargando mapa...
+        </div>
+    ),
+});
 
 // Mock data for demo when property not found
 const mockProperty: Propiedad = {
@@ -90,6 +100,58 @@ Ubicación privilegiada a pasos de los mejores restaurantes, bares y paseos de P
     created_at: new Date().toISOString(),
 };
 
+const mockFondos: Propiedad[] = [
+    {
+        id: 'f1',
+        title: 'Cafetería de Especialidad en Palermo',
+        price: 45000,
+        operation: 'venta',
+        type: 'fondo_comercio',
+        m2: 80,
+        coords_lat: -34.582,
+        coords_lng: -58.431,
+        image_url: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=1200',
+        images: [
+            'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=1200',
+            'https://images.unsplash.com/photo-1497935586351-b67a49e012bf?w=1200',
+        ],
+        description: 'Excelente oportunidad de cafetería funcionando a pleno.',
+        full_description: 'Ubicación privilegiada con cartera de clientes habituales. Equipamiento completo lista para trabajar. Se traspasa con mobiliario importado, máquinas y permisos correspondientes.',
+        address: 'Palermo, Buenos Aires',
+        created_at: new Date().toISOString(),
+    },
+    {
+        id: 'f2',
+        title: 'Minimercado y Kiosco',
+        price: 25000,
+        operation: 'venta',
+        type: 'fondo_comercio',
+        m2: 60,
+        coords_lat: -34.612,
+        coords_lng: -58.401,
+        image_url: 'https://images.unsplash.com/photo-1578916171728-46686eac8d58?w=1200',
+        description: 'Kiosco y minimercado sobre avenida...',
+        full_description: 'Local sobre importante avenida de alto tránsito. Mostradores, heladeras exhibidoras y gondolas en perfecto estado.',
+        address: 'Balvanera, Buenos Aires',
+        created_at: new Date().toISOString(),
+    },
+    {
+        id: 'f3',
+        title: 'Restaurante Equipado',
+        price: 120000,
+        operation: 'venta',
+        type: 'fondo_comercio',
+        m2: 150,
+        coords_lat: -34.603,
+        coords_lng: -58.381,
+        image_url: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1200',
+        description: 'Restaurante de primer nivel listo para continuar operando.',
+        full_description: 'Instalaciones que contemplan cocina industrial doble, cámaras frigoríficas, salón finamente decorado. Con habilitaciones comerciales al día y excelente facturación mensual comprobable.',
+        address: 'Centro, Buenos Aires',
+        created_at: new Date().toISOString(),
+    },
+];
+
 export default function PropertyDetailPage() {
     const params = useParams();
     const router = useRouter();
@@ -115,7 +177,12 @@ export default function PropertyDetailPage() {
                 setProperty(data);
             } else {
                 // Use mock data for demo
-                setProperty(mockProperty);
+                const isFondoMock = mockFondos.find((f) => f.id === params.id);
+                if (isFondoMock) {
+                    setProperty(isFondoMock);
+                } else {
+                    setProperty(mockProperty);
+                }
             }
             setLoading(false);
         };
@@ -183,10 +250,10 @@ export default function PropertyDetailPage() {
 
     if (loading) {
         return (
-            <div className="min-h-screen flex items-center justify-center">
+            <div className="min-h-screen flex items-center justify-center bg-[var(--bg-page)]">
                 <div className="text-center">
-                    <div className="w-12 h-12 border-4 border-neutral-600 border-t-[#10b981] rounded-full animate-spin mx-auto mb-4" />
-                    <p className="text-neutral-400">Cargando propiedad...</p>
+                    <div className="w-12 h-12 border-4 border-gray-300 border-t-[var(--primary-blue)] rounded-full animate-spin mx-auto mb-4" />
+                    <p className="text-gray-500">Cargando propiedad...</p>
                 </div>
             </div>
         );
@@ -194,17 +261,14 @@ export default function PropertyDetailPage() {
 
     if (!property) {
         return (
-            <div className="min-h-screen flex items-center justify-center">
+            <div className="min-h-screen flex items-center justify-center bg-[var(--bg-page)]">
                 <div className="text-center">
-                    <Home className="w-16 h-16 text-neutral-600 mx-auto mb-4" />
-                    <h1 className="text-2xl font-bold text-white mb-2">Propiedad no encontrada</h1>
-                    <p className="text-neutral-400 mb-6">La propiedad que buscas no existe o fue eliminada.</p>
+                    <Home className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                    <h1 className="text-2xl font-extrabold !text-slate-900 mb-2">Propiedad no encontrada</h1>
+                    <p className="font-medium !text-slate-700 mb-6 text-lg">La propiedad que buscas no existe o fue eliminada.</p>
                     <Link
                         href="/propiedades"
-                        className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-medium text-white transition-all hover:scale-105"
-                        style={{
-                            background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-                        }}
+                        className="btn-primary flex items-center gap-2"
                     >
                         <ArrowLeft className="w-4 h-4" />
                         Ver todas las propiedades
@@ -218,21 +282,21 @@ export default function PropertyDetailPage() {
         <>
             <Navbar />
 
-            <main className="min-h-screen pt-24 pb-12">
+            <main className="min-h-screen pt-24 pb-12 bg-[var(--bg-page)]">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     {/* Breadcrumb */}
-                    <nav className="flex items-center gap-2 text-sm text-neutral-400 mb-6">
-                        <Link href="/" className="hover:text-white transition-colors">Inicio</Link>
+                    <nav className="flex items-center gap-2 text-sm font-semibold !text-slate-600 mb-6">
+                        <Link href="/" className="hover:!text-[var(--primary-blue)] transition-colors">Inicio</Link>
                         <span>/</span>
-                        <Link href="/propiedades" className="hover:text-white transition-colors">Propiedades</Link>
+                        <Link href="/propiedades" className="hover:!text-[var(--primary-blue)] transition-colors">Propiedades</Link>
                         <span>/</span>
-                        <span className="text-white">{property.type}</span>
+                        <span className="text-[var(--primary-blue)] font-bold">{property.type}</span>
                     </nav>
 
                     {/* Back button */}
                     <button
                         onClick={() => router.back()}
-                        className="flex items-center gap-2 text-neutral-400 hover:text-white transition-colors mb-6"
+                        className="flex items-center gap-2 font-semibold !text-slate-600 hover:!text-[var(--primary-blue)] transition-colors mb-6"
                     >
                         <ArrowLeft className="w-4 h-4" />
                         Volver
@@ -240,10 +304,10 @@ export default function PropertyDetailPage() {
 
                     <div className="grid lg:grid-cols-3 gap-8">
                         {/* Left Column - Images and Details */}
-                        <div className="lg:col-span-2 space-y-6">
+                        <div className="lg:col-span-2 space-y-8">
                             {/* Main Image Gallery */}
                             <div
-                                className="relative rounded-2xl overflow-hidden group"
+                                className="relative rounded-[2rem] overflow-hidden group shadow-lg"
                                 style={{ aspectRatio: '16/10' }}
                             >
                                 <motion.img
@@ -261,13 +325,13 @@ export default function PropertyDetailPage() {
                                     <>
                                         <button
                                             onClick={prevImage}
-                                            className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/70"
+                                            className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-all hover:bg-white/20 border border-white/20"
                                         >
                                             <ChevronLeft className="w-6 h-6" />
                                         </button>
                                         <button
                                             onClick={nextImage}
-                                            className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/70"
+                                            className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-all hover:bg-white/20 border border-white/20"
                                         >
                                             <ChevronRight className="w-6 h-6" />
                                         </button>
@@ -276,12 +340,12 @@ export default function PropertyDetailPage() {
 
                                 {/* Image Counter & Fullscreen */}
                                 <div className="absolute bottom-4 right-4 flex items-center gap-2">
-                                    <span className="px-3 py-1.5 rounded-lg bg-black/50 backdrop-blur-sm text-white text-sm">
+                                    <span className="px-3 py-1.5 rounded-lg bg-black/40 backdrop-blur-md text-white text-sm font-medium border border-white/10">
                                         {currentImageIndex + 1} / {images.length} Fotos
                                     </span>
                                     <button
                                         onClick={() => setIsGalleryOpen(true)}
-                                        className="p-2 rounded-lg bg-black/50 backdrop-blur-sm text-white hover:bg-black/70 transition-colors"
+                                        className="p-2 rounded-lg bg-black/40 backdrop-blur-md text-white hover:bg-black/60 transition-colors border border-white/10"
                                     >
                                         <Maximize2 className="w-5 h-5" />
                                     </button>
@@ -290,9 +354,9 @@ export default function PropertyDetailPage() {
                                 {/* Operation Badge */}
                                 <div className="absolute top-4 left-4">
                                     <span
-                                        className={`px-4 py-2 rounded-xl text-sm font-semibold ${property.operation === 'venta'
-                                            ? 'bg-emerald-500/90 text-white'
-                                            : 'bg-purple-500/90 text-white'
+                                        className={`px-4 py-2 rounded-full text-sm font-bold uppercase tracking-wider shadow-sm ${property.operation === 'venta'
+                                            ? 'bg-[var(--primary-blue)] text-white'
+                                            : 'bg-[var(--status-rent)] text-white'
                                             }`}
                                     >
                                         {property.operation === 'venta' ? 'En Venta' : 'En Alquiler'}
@@ -303,14 +367,14 @@ export default function PropertyDetailPage() {
                                 <div className="absolute top-4 right-4 flex gap-2">
                                     <button
                                         onClick={() => setIsFavorite(!isFavorite)}
-                                        className={`p-2 rounded-lg backdrop-blur-sm transition-colors ${isFavorite ? 'bg-red-500 text-white' : 'bg-black/50 text-white hover:bg-black/70'
+                                        className={`p-2 rounded-full backdrop-blur-md transition-colors border border-white/10 shadow-sm ${isFavorite ? 'bg-red-500 text-white' : 'bg-black/20 text-white hover:bg-black/40'
                                             }`}
                                     >
                                         <Heart className={`w-5 h-5 ${isFavorite ? 'fill-current' : ''}`} />
                                     </button>
                                     <button
                                         onClick={shareProperty}
-                                        className="p-2 rounded-lg bg-black/50 backdrop-blur-sm text-white hover:bg-black/70 transition-colors"
+                                        className="p-2 rounded-full bg-black/20 backdrop-blur-md text-white hover:bg-black/40 transition-colors border border-white/10 shadow-sm"
                                     >
                                         <Share2 className="w-5 h-5" />
                                     </button>
@@ -319,14 +383,14 @@ export default function PropertyDetailPage() {
 
                             {/* Thumbnail Gallery */}
                             {images.length > 1 && (
-                                <div className="flex gap-3 overflow-x-auto pb-2">
+                                <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-none">
                                     {images.map((img, index) => (
                                         <button
                                             key={index}
                                             onClick={() => setCurrentImageIndex(index)}
-                                            className={`flex-shrink-0 w-20 h-20 rounded-xl overflow-hidden transition-all ${currentImageIndex === index
-                                                ? 'ring-2 ring-[#10b981] ring-offset-2 ring-offset-[#0a0a1a]'
-                                                : 'opacity-60 hover:opacity-100'
+                                            className={`flex-shrink-0 w-24 h-24 rounded-xl overflow-hidden transition-all ${currentImageIndex === index
+                                                ? 'ring-2 ring-[var(--primary-blue)] ring-offset-2'
+                                                : 'opacity-70 hover:opacity-100'
                                                 }`}
                                         >
                                             <img
@@ -341,20 +405,14 @@ export default function PropertyDetailPage() {
 
                             {/* Video Tour */}
                             {property.video_url && (
-                                <div
-                                    className="p-6 rounded-2xl"
-                                    style={{
-                                        background: 'rgba(255, 255, 255, 0.03)',
-                                        border: '1px solid rgba(255, 255, 255, 0.08)',
-                                    }}
-                                >
-                                    <div className="flex items-center gap-3 mb-4">
-                                        <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-red-500/20">
-                                            <Play className="w-5 h-5 text-red-500" />
+                                <div className="card p-8 bg-white border border-gray-100">
+                                    <div className="flex items-center gap-3 mb-6">
+                                        <div className="w-12 h-12 rounded-full flex items-center justify-center bg-red-50">
+                                            <Play className="w-6 h-6 text-red-500 fill-current" />
                                         </div>
-                                        <h2 className="text-xl font-bold text-white">Video Tour</h2>
+                                        <h2 className="text-2xl font-bold text-[var(--text-main)] font-headings">Video Tour</h2>
                                     </div>
-                                    <div className="relative rounded-xl overflow-hidden" style={{ aspectRatio: '16/9' }}>
+                                    <div className="relative rounded-2xl overflow-hidden shadow-sm" style={{ aspectRatio: '16/9' }}>
                                         {property.video_url.includes('youtube.com') || property.video_url.includes('youtu.be') ? (
                                             <iframe
                                                 src={property.video_url.includes('embed')
@@ -392,79 +450,73 @@ export default function PropertyDetailPage() {
                             )}
 
                             {/* Title and Price */}
-                            <div
-                                className="p-6 rounded-2xl"
-                                style={{
-                                    background: 'rgba(255, 255, 255, 0.03)',
-                                    border: '1px solid rgba(255, 255, 255, 0.08)',
-                                }}
-                            >
-                                <div className="flex flex-wrap items-start justify-between gap-4 mb-4">
+                            <div className="card p-8 bg-white border border-gray-100">
+                                <div className="flex flex-wrap items-start justify-between gap-6 mb-8">
                                     <div>
-                                        <h1 className="text-2xl md:text-3xl font-bold text-white mb-2">
+                                        <h1 className="text-3xl md:text-5xl font-extrabold !text-slate-900 mb-3 font-headings tracking-tight">
                                             {property.title}
                                         </h1>
-                                        <div className="flex items-center gap-2 text-neutral-400">
-                                            <MapPin className="w-4 h-4" />
-                                            <span>
+                                        <div className="flex items-center gap-2 font-medium !text-slate-700">
+                                            <MapPin className="w-5 h-5 text-[var(--primary-blue)]" />
+                                            <span className="text-lg font-medium">
                                                 {property.address && `${property.address}, `}
                                                 {property.neighborhood && `${property.neighborhood}, `}
                                                 {property.city}
                                             </span>
                                         </div>
                                     </div>
-                                    <div className="text-right">
-                                        <p className="text-sm text-neutral-400">Precio</p>
-                                        <p className="text-3xl font-bold text-[#10b981]">
+                                    <div className="text-right bg-blue-50/50 p-4 rounded-2xl">
+                                        <p className="text-sm font-bold !text-slate-700 uppercase tracking-wide">Precio</p>
+                                        <p className="text-3xl font-extrabold text-[var(--primary-blue)] font-headings">
                                             USD {property.price.toLocaleString('es-AR')}
                                         </p>
                                         {property.operation === 'alquiler' && (
-                                            <p className="text-sm text-neutral-400">/mes</p>
+                                            <p className="text-sm font-medium !text-slate-700">/mes</p>
                                         )}
                                     </div>
                                 </div>
 
                                 {/* Quick Stats */}
-                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4 border-t border-white/10">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-[#10b981]/10">
-                                            <Square className="w-5 h-5 text-[#10b981]" />
+                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 pt-6 border-t border-gray-100">
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-12 h-12 rounded-full flex items-center justify-center bg-gray-50 text-[var(--primary-blue)]">
+                                            <Square className="w-6 h-6" />
                                         </div>
                                         <div>
-                                            <p className="text-white font-semibold">{property.m2} m²</p>
-                                            <p className="text-xs text-neutral-400">Superficie</p>
+                                            <p className="!text-slate-900 font-extrabold text-lg">{property.m2} m²</p>
+                                            <p className="text-xs font-bold !text-slate-600 uppercase tracking-wide">Superficie</p>
                                         </div>
                                     </div>
                                     {property.bedrooms && (
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-[#10b981]/10">
-                                                <Bed className="w-5 h-5 text-[#10b981]" />
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-12 h-12 rounded-full flex items-center justify-center bg-gray-50 text-[var(--primary-blue)]">
+                                                <Bed className="w-6 h-6" />
                                             </div>
                                             <div>
-                                                <p className="text-white font-semibold">{property.bedrooms}</p>
-                                                <p className="text-xs text-neutral-400">Dormitorios</p>
+                                                <p className="!text-slate-900 font-extrabold text-lg">{property.bedrooms}</p>
+                                                <p className="text-xs font-bold !text-slate-600 uppercase tracking-wide">Dormitorios</p>
                                             </div>
                                         </div>
                                     )}
                                     {property.bathrooms && (
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-[#10b981]/10">
-                                                <Bath className="w-5 h-5 text-[#10b981]" />
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-12 h-12 rounded-full flex items-center justify-center bg-gray-50 text-[var(--primary-blue)]">
+                                                <Bath className="w-6 h-6" />
                                             </div>
                                             <div>
-                                                <p className="text-white font-semibold">{property.bathrooms}</p>
-                                                <p className="text-xs text-neutral-400">Baños</p>
+                                                <p className="!text-slate-900 font-extrabold text-lg">{property.bathrooms}</p>
+                                                <p className="text-xs font-bold !text-slate-600 uppercase tracking-wide">Baños</p>
                                             </div>
                                         </div>
                                     )}
                                     {property.parking && (
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-[#10b981]/10">
-                                                <Car className="w-5 h-5 text-[#10b981]" />
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-12 h-12 rounded-full flex items-center justify-center bg-gray-50 text-[var(--primary-blue)]">
+                                                <Car className="w-6 h-6" />
                                             </div>
                                             <div>
-                                                <p className="text-white font-semibold">{property.parking}</p>
-                                                <p className="text-xs text-neutral-400">Cocheras</p>
+                                                <p className="!text-slate-900 font-extrabold text-lg">{property.parking}</p>
+                                                <p className="text-xs font-bold !text-slate-600 uppercase tracking-wide">Cocheras</p>
                                             </div>
                                         </div>
                                     )}
@@ -472,28 +524,16 @@ export default function PropertyDetailPage() {
                             </div>
 
                             {/* Description */}
-                            <div
-                                className="p-6 rounded-2xl"
-                                style={{
-                                    background: 'rgba(255, 255, 255, 0.03)',
-                                    border: '1px solid rgba(255, 255, 255, 0.08)',
-                                }}
-                            >
-                                <h2 className="text-xl font-bold text-white mb-4">Descripción</h2>
-                                <div className="text-neutral-300 leading-relaxed whitespace-pre-line">
+                            <div className="card p-8 bg-white border border-gray-100">
+                                <h2 className="text-2xl font-extrabold !text-slate-900 mb-6 font-headings">Descripción</h2>
+                                <div className="font-medium !text-slate-700 leading-relaxed whitespace-pre-line text-lg">
                                     {property.full_description || property.description || 'Sin descripción disponible.'}
                                 </div>
                             </div>
 
                             {/* Amenities */}
-                            <div
-                                className="p-6 rounded-2xl"
-                                style={{
-                                    background: 'rgba(255, 255, 255, 0.03)',
-                                    border: '1px solid rgba(255, 255, 255, 0.08)',
-                                }}
-                            >
-                                <h2 className="text-xl font-bold text-white mb-4">Características y Amenities</h2>
+                            <div className="card p-8 bg-white border border-gray-100">
+                                <h2 className="text-2xl font-extrabold !text-slate-900 mb-6 font-headings">Características y Amenities</h2>
                                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                                     {amenities.map(({ key, label, icon: Icon }) => {
                                         const hasAmenity = property[key as keyof Propiedad];
@@ -502,13 +542,13 @@ export default function PropertyDetailPage() {
                                         return (
                                             <div
                                                 key={key}
-                                                className={`flex items-center gap-3 p-3 rounded-xl ${hasAmenity
-                                                    ? 'bg-[#10b981]/10 text-[#10b981]'
-                                                    : 'bg-white/5 text-neutral-500'
+                                                className={`flex items-center gap-3 p-4 rounded-xl border transition-colors ${hasAmenity
+                                                    ? 'bg-blue-50/30 border-blue-100 text-[var(--primary-blue)]'
+                                                    : 'bg-gray-50 border-gray-100 text-gray-400 opacity-60'
                                                     }`}
                                             >
                                                 <Icon className="w-5 h-5" />
-                                                <span className="text-sm font-medium">{label}</span>
+                                                <span className="text-sm font-semibold">{label}</span>
                                                 {hasAmenity ? (
                                                     <Check className="w-4 h-4 ml-auto" />
                                                 ) : (
@@ -520,43 +560,45 @@ export default function PropertyDetailPage() {
                                 </div>
                             </div>
 
+                            {/* Location */}
+                            <div className="card p-8 bg-white border border-gray-100">
+                                <h2 className="text-2xl font-extrabold !text-slate-900 mb-6 font-headings">Ubicación</h2>
+                                <div className="h-80 lg:h-96 rounded-2xl overflow-hidden shadow-sm border border-gray-100 relative">
+                                    <PropertyMap properties={[property]} />
+                                </div>
+                            </div>
+
                             {/* Additional Details */}
-                            <div
-                                className="p-6 rounded-2xl"
-                                style={{
-                                    background: 'rgba(255, 255, 255, 0.03)',
-                                    border: '1px solid rgba(255, 255, 255, 0.08)',
-                                }}
-                            >
-                                <h2 className="text-xl font-bold text-white mb-4">Detalles</h2>
-                                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                                    <div className="p-4 rounded-xl bg-white/5">
-                                        <p className="text-neutral-400 text-sm">Tipo</p>
-                                        <p className="text-white font-medium">{property.type}</p>
+                            <div className="card p-8 bg-white border border-gray-100">
+                                <h2 className="text-2xl font-extrabold !text-slate-900 mb-6 font-headings">Detalles Adicionales</h2>
+                                <div className="grid grid-cols-2 sm:grid-cols-3 gap-6">
+                                    <div className="p-4 rounded-xl bg-gray-50 border border-gray-100">
+                                        <p className="font-bold !text-slate-600 text-xs uppercase tracking-wide mb-1">Tipo</p>
+                                        <p className="!text-slate-900 font-bold">{property.type}</p>
                                     </div>
-                                    <div className="p-4 rounded-xl bg-white/5">
-                                        <p className="text-neutral-400 text-sm">Superficie Total</p>
-                                        <p className="text-white font-medium">{property.m2} m²</p>
+                                    <div className="p-4 rounded-xl bg-gray-50 border border-gray-100">
+                                        <p className="font-bold !text-slate-600 text-xs uppercase tracking-wide mb-1">Superficie Total</p>
+                                        <p className="!text-slate-900 font-bold">{property.m2} m²</p>
                                     </div>
                                     {property.m2_covered && (
-                                        <div className="p-4 rounded-xl bg-white/5">
-                                            <p className="text-neutral-400 text-sm">Superficie Cubierta</p>
-                                            <p className="text-white font-medium">{property.m2_covered} m²</p>
+                                        <div className="p-4 rounded-xl bg-gray-50 border border-gray-100">
+                                            <p className="font-bold !text-slate-600 text-xs uppercase tracking-wide mb-1">Superficie Cubierta</p>
+                                            <p className="!text-slate-900 font-bold">{property.m2_covered} m²</p>
                                         </div>
                                     )}
                                     {property.year_built && (
-                                        <div className="p-4 rounded-xl bg-white/5">
-                                            <p className="text-neutral-400 text-sm">Año de Construcción</p>
-                                            <p className="text-white font-medium">{property.year_built}</p>
+                                        <div className="p-4 rounded-xl bg-gray-50 border border-gray-100">
+                                            <p className="font-bold !text-slate-600 text-xs uppercase tracking-wide mb-1">Año Construcción</p>
+                                            <p className="!text-slate-900 font-bold">{property.year_built}</p>
                                         </div>
                                     )}
-                                    <div className="p-4 rounded-xl bg-white/5">
-                                        <p className="text-neutral-400 text-sm">ID Propiedad</p>
-                                        <p className="text-white font-medium">{property.id.slice(0, 8).toUpperCase()}</p>
+                                    <div className="p-4 rounded-xl bg-gray-50 border border-gray-100">
+                                        <p className="font-bold !text-slate-600 text-xs uppercase tracking-wide mb-1">ID Propiedad</p>
+                                        <p className="!text-slate-900 font-bold">{property.id.slice(0, 8).toUpperCase()}</p>
                                     </div>
-                                    <div className="p-4 rounded-xl bg-white/5">
-                                        <p className="text-neutral-400 text-sm">Publicado</p>
-                                        <p className="text-white font-medium">
+                                    <div className="p-4 rounded-xl bg-gray-50 border border-gray-100">
+                                        <p className="font-bold !text-slate-600 text-xs uppercase tracking-wide mb-1">Publicado</p>
+                                        <p className="!text-slate-900 font-bold">
                                             {new Date(property.created_at).toLocaleDateString('es-AR')}
                                         </p>
                                     </div>
@@ -566,21 +608,15 @@ export default function PropertyDetailPage() {
 
                         {/* Right Column - Contact Form */}
                         <div className="lg:col-span-1">
-                            <div
-                                className="sticky top-28 p-6 rounded-2xl"
-                                style={{
-                                    background: 'rgba(255, 255, 255, 0.03)',
-                                    border: '1px solid rgba(255, 255, 255, 0.08)',
-                                }}
-                            >
-                                <h2 className="text-xl font-bold text-white mb-2">¿Te interesa esta propiedad?</h2>
-                                <p className="text-neutral-400 text-sm mb-6">Completa el formulario y nos contactaremos contigo.</p>
+                            <div className="sticky top-28 p-8 rounded-[2rem] bg-white border border-gray-100 shadow-xl">
+                                <h2 className="text-2xl font-extrabold !text-slate-900 mb-2 font-headings">¿Te interesa esta propiedad?</h2>
+                                <p className="font-medium !text-slate-700 mb-8 text-base">Completa el formulario y nos contactaremos contigo a la brevedad.</p>
 
                                 {/* Quick Contact Buttons */}
-                                <div className="flex gap-3 mb-6">
+                                <div className="flex gap-3 mb-8">
                                     <button
                                         onClick={openWhatsApp}
-                                        className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-medium text-white transition-all hover:scale-105"
+                                        className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-white transition-all hover:scale-105 shadow-md shadow-green-500/20"
                                         style={{ background: '#25D366' }}
                                     >
                                         <MessageCircle className="w-5 h-5" />
@@ -588,20 +624,20 @@ export default function PropertyDetailPage() {
                                     </button>
                                     <a
                                         href={`tel:${property.contact_phone || '+541112345678'}`}
-                                        className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-medium text-white transition-all hover:scale-105"
-                                        style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)' }}
+                                        className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-white transition-all hover:scale-105 shadow-blue-500/20 shadow-md"
+                                        style={{ background: 'var(--primary-blue)' }}
                                     >
                                         <Phone className="w-5 h-5" />
                                         Llamar
                                     </a>
                                 </div>
 
-                                <div className="relative my-6">
+                                <div className="relative my-8">
                                     <div className="absolute inset-0 flex items-center">
-                                        <div className="w-full border-t border-white/10"></div>
+                                        <div className="w-full border-t border-gray-200"></div>
                                     </div>
                                     <div className="relative flex justify-center text-sm">
-                                        <span className="bg-[#12122a] px-4 text-neutral-500">o envía un mensaje</span>
+                                        <span className="bg-white px-4 font-bold !text-slate-500 tracking-wide">o envía un email</span>
                                     </div>
                                 </div>
 
@@ -613,7 +649,7 @@ export default function PropertyDetailPage() {
                                             placeholder="Tu nombre"
                                             value={formData.name}
                                             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                            className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-neutral-500 focus:outline-none focus:border-[#10b981] transition-all"
+                                            className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 text-[var(--text-main)] placeholder-gray-400 focus:outline-none focus:border-[var(--primary-blue)] focus:ring-2 focus:ring-[var(--primary-blue)]/10 transition-all font-medium"
                                             required
                                         />
                                     </div>
@@ -623,7 +659,7 @@ export default function PropertyDetailPage() {
                                             placeholder="Tu teléfono"
                                             value={formData.phone}
                                             onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                                            className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-neutral-500 focus:outline-none focus:border-[#10b981] transition-all"
+                                            className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 text-[var(--text-main)] placeholder-gray-400 focus:outline-none focus:border-[var(--primary-blue)] focus:ring-2 focus:ring-[var(--primary-blue)]/10 transition-all font-medium"
                                             required
                                         />
                                     </div>
@@ -633,7 +669,7 @@ export default function PropertyDetailPage() {
                                             placeholder="Tu email"
                                             value={formData.email}
                                             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                                            className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-neutral-500 focus:outline-none focus:border-[#10b981] transition-all"
+                                            className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 text-[var(--text-main)] placeholder-gray-400 focus:outline-none focus:border-[var(--primary-blue)] focus:ring-2 focus:ring-[var(--primary-blue)]/10 transition-all font-medium"
                                             required
                                         />
                                     </div>
@@ -643,17 +679,17 @@ export default function PropertyDetailPage() {
                                             value={formData.message}
                                             onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                                             rows={4}
-                                            className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-neutral-500 focus:outline-none focus:border-[#10b981] transition-all resize-none"
+                                            className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 text-[var(--text-main)] placeholder-gray-400 focus:outline-none focus:border-[var(--primary-blue)] focus:ring-2 focus:ring-[var(--primary-blue)]/10 transition-all resize-none font-medium"
                                         />
                                     </div>
                                     <button
                                         type="submit"
                                         disabled={formSubmitted}
-                                        className="w-full py-3 rounded-xl font-semibold text-white transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+                                        className="w-full py-4 rounded-xl font-bold text-white transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-blue-500/30 uppercase tracking-wide text-sm"
                                         style={{
                                             background: formSubmitted
                                                 ? '#10b981'
-                                                : 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                                                : 'var(--primary-blue)',
                                         }}
                                     >
                                         {formSubmitted ? (
@@ -668,16 +704,16 @@ export default function PropertyDetailPage() {
                                 </form>
 
                                 {/* Contact Info */}
-                                <div className="mt-6 pt-6 border-t border-white/10 space-y-3">
+                                <div className="mt-8 pt-6 border-t border-gray-100 space-y-4">
                                     {property.contact_phone && (
-                                        <div className="flex items-center gap-3 text-neutral-400">
-                                            <Phone className="w-4 h-4" />
+                                        <div className="flex items-center gap-3 font-bold !text-slate-600">
+                                            <Phone className="w-4 h-4 text-[var(--primary-blue)]" />
                                             <span>{property.contact_phone}</span>
                                         </div>
                                     )}
                                     {property.contact_email && (
-                                        <div className="flex items-center gap-3 text-neutral-400">
-                                            <Mail className="w-4 h-4" />
+                                        <div className="flex items-center gap-3 font-bold !text-slate-600">
+                                            <Mail className="w-4 h-4 text-[var(--primary-blue)]" />
                                             <span>{property.contact_email}</span>
                                         </div>
                                     )}

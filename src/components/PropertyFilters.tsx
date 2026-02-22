@@ -2,6 +2,7 @@
 
 import { usePropertyStore } from '@/store/propertyStore';
 import { Search, X } from 'lucide-react';
+import CustomSelect from './CustomSelect';
 
 const operationOptions = [
     { value: '', label: 'Todas las operaciones' },
@@ -35,35 +36,25 @@ export default function PropertyFilters() {
     };
 
     return (
-        <div
-            className="h-full p-6 overflow-y-auto"
-            style={{
-                background: 'rgba(15, 20, 25, 0.95)',
-                backdropFilter: 'blur(24px)',
-                borderRight: '1px solid rgba(255, 255, 255, 0.1)',
-            }}
-        >
+        <div className="p-6 bg-white rounded-xl">
             {/* Header */}
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center justify-between mb-8">
                 <div className="flex items-center gap-3">
                     <div
-                        className="w-10 h-10 rounded-xl flex items-center justify-center"
-                        style={{
-                            background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-                        }}
+                        className="w-10 h-10 rounded-xl flex items-center justify-center bg-[var(--primary-blue)]/10 text-[var(--primary-blue)]"
                     >
-                        <Search className="w-5 h-5 text-white" />
+                        <Search className="w-5 h-5" />
                     </div>
                     <div>
-                        <h3 className="text-white font-semibold">Filtros</h3>
-                        <p className="text-sm text-neutral-400">{filteredProperties.length} resultados</p>
+                        <h3 className="text-[var(--text-main)] font-bold text-lg">Filtros</h3>
+                        <p className="text-sm text-[var(--text-secondary)] font-medium">{filteredProperties.length} resultados</p>
                     </div>
                 </div>
 
                 {hasActiveFilters && (
                     <button
                         onClick={resetFilters}
-                        className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-neutral-400 hover:text-[#10b981] transition-colors rounded-lg hover:bg-white/5"
+                        className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-[var(--text-secondary)] hover:text-[var(--primary-blue)] transition-colors rounded-lg hover:bg-gray-50"
                     >
                         <X className="w-4 h-4" />
                         Limpiar
@@ -72,10 +63,10 @@ export default function PropertyFilters() {
             </div>
 
             {/* Filters */}
-            <div className="space-y-6">
+            <div className="space-y-8">
                 {/* Operation */}
                 <div>
-                    <label className="block text-sm font-medium text-neutral-300 mb-3">
+                    <label className="block text-sm font-bold text-[var(--text-main)] mb-3 uppercase tracking-wide">
                         Tipo de operación
                     </label>
                     <div className="space-y-2">
@@ -83,9 +74,9 @@ export default function PropertyFilters() {
                             <button
                                 key={option.value}
                                 onClick={() => setFilters({ operation: option.value })}
-                                className={`w-full px-4 py-3 text-left text-sm rounded-xl transition-all duration-200 ${filters.operation === option.value
-                                    ? 'bg-gradient-to-r from-[#10b981]/20 to-[#059669]/20 text-[#10b981] border border-[#10b981]/30'
-                                    : 'bg-white/5 text-neutral-300 border border-transparent hover:bg-white/10'
+                                className={`w-full px-4 py-3 text-left text-sm rounded-xl transition-all duration-200 border font-medium ${filters.operation === option.value
+                                    ? 'bg-[var(--primary-blue)]/5 border-[var(--primary-blue)] text-[var(--primary-blue)]'
+                                    : 'bg-white border-gray-100 text-[var(--text-secondary)] hover:border-gray-300 hover:bg-gray-50'
                                     }`}
                             >
                                 {option.label}
@@ -96,45 +87,43 @@ export default function PropertyFilters() {
 
                 {/* Property Type */}
                 <div>
-                    <label className="block text-sm font-medium text-neutral-300 mb-3">
+                    <label className="block text-sm font-bold text-[var(--text-main)] mb-3 uppercase tracking-wide">
                         Tipo de propiedad
                     </label>
-                    <select
+                    <CustomSelect
                         value={filters.type}
-                        onChange={(e) => setFilters({ type: e.target.value })}
-                        className="input-glass w-full"
-                    >
-                        <option value="">Todos los tipos</option>
-                        {propertyTypes.map((type) => (
-                            <option key={type} value={type}>
-                                {type.charAt(0).toUpperCase() + type.slice(1)}
-                            </option>
-                        ))}
-                    </select>
+                        onChange={(value) => setFilters({ type: value })}
+                        options={[
+                            { value: '', label: 'Todos los tipos' },
+                            ...propertyTypes.map(type => ({
+                                value: type,
+                                label: type.charAt(0).toUpperCase() + type.slice(1)
+                            }))
+                        ]}
+                        placeholder="Todos los tipos"
+                    />
                 </div>
 
                 {/* Price Range */}
                 <div>
-                    <label className="block text-sm font-medium text-neutral-300 mb-3">
+                    <label className="block text-sm font-bold text-[var(--text-main)] mb-3 uppercase tracking-wide">
                         Rango de precio
                     </label>
-                    <select
-                        value={getCurrentPriceRangeIndex()}
-                        onChange={(e) => handlePriceChange(parseInt(e.target.value))}
-                        className="input-glass w-full"
-                    >
-                        {priceRanges.map((range, index) => (
-                            <option key={index} value={index}>
-                                {range.label}
-                            </option>
-                        ))}
-                    </select>
+                    <CustomSelect
+                        value={getCurrentPriceRangeIndex().toString()}
+                        onChange={(value) => handlePriceChange(parseInt(value))}
+                        options={priceRanges.map((range, index) => ({
+                            value: index.toString(),
+                            label: range.label
+                        }))}
+                        placeholder="Cualquier precio"
+                    />
                 </div>
 
                 {/* Custom Price Range */}
                 <div>
-                    <label className="block text-sm font-medium text-neutral-300 mb-3">
-                        O ingresa un rango personalizado
+                    <label className="block text-sm font-bold text-[var(--text-main)] mb-3 uppercase tracking-wide">
+                        Rango personalizado
                     </label>
                     <div className="flex gap-3">
                         <div className="flex-1">
@@ -143,17 +132,17 @@ export default function PropertyFilters() {
                                 placeholder="Mín"
                                 value={filters.minPrice || ''}
                                 onChange={(e) => setFilters({ minPrice: parseInt(e.target.value) || 0 })}
-                                className="input-glass w-full text-sm"
+                                className="w-full px-4 py-3 rounded-xl bg-white border border-gray-200 text-[var(--text-main)] focus:border-[var(--primary-blue)] focus:ring-2 focus:ring-[var(--primary-blue)]/10 outline-none transition-all placeholder-gray-400 text-sm"
                             />
                         </div>
-                        <div className="flex items-center text-neutral-500">—</div>
+                        <div className="flex items-center text-gray-400 font-medium">—</div>
                         <div className="flex-1">
                             <input
                                 type="number"
                                 placeholder="Máx"
                                 value={filters.maxPrice || ''}
                                 onChange={(e) => setFilters({ maxPrice: parseInt(e.target.value) || 0 })}
-                                className="input-glass w-full text-sm"
+                                className="w-full px-4 py-3 rounded-xl bg-white border border-gray-200 text-[var(--text-main)] focus:border-[var(--primary-blue)] focus:ring-2 focus:ring-[var(--primary-blue)]/10 outline-none transition-all placeholder-gray-400 text-sm"
                             />
                         </div>
                     </div>
@@ -162,22 +151,21 @@ export default function PropertyFilters() {
 
             {/* Active Filters Summary */}
             {hasActiveFilters && (
-                <div className="mt-8 pt-6 border-t border-white/10">
-                    <p className="text-sm text-neutral-400 mb-3">Filtros activos:</p>
+                <div className="mt-8 pt-6 border-t border-gray-100">
+                    <p className="text-sm text-[var(--text-secondary)] mb-3 font-medium">Filtros activos:</p>
                     <div className="flex flex-wrap gap-2">
                         {filters.operation && (
                             <span
-                                className="inline-flex items-center gap-1 px-3 py-1 text-xs rounded-full"
+                                className="inline-flex items-center gap-1 px-3 py-1 text-xs rounded-full font-bold uppercase tracking-wide"
                                 style={{
-                                    background: 'rgba(16, 185, 129, 0.1)',
-                                    color: '#10b981',
-                                    border: '1px solid rgba(16, 185, 129, 0.2)',
+                                    background: 'var(--primary-blue)',
+                                    color: 'white',
                                 }}
                             >
                                 {filters.operation}
                                 <button
                                     onClick={() => setFilters({ operation: '' })}
-                                    className="ml-1 hover:text-white"
+                                    className="ml-1 hover:text-white/80"
                                 >
                                     <X className="w-3 h-3" />
                                 </button>
@@ -185,17 +173,16 @@ export default function PropertyFilters() {
                         )}
                         {filters.type && (
                             <span
-                                className="inline-flex items-center gap-1 px-3 py-1 text-xs rounded-full"
+                                className="inline-flex items-center gap-1 px-3 py-1 text-xs rounded-full font-bold uppercase tracking-wide"
                                 style={{
-                                    background: 'rgba(99, 102, 241, 0.1)',
-                                    color: '#6366f1',
-                                    border: '1px solid rgba(99, 102, 241, 0.2)',
+                                    background: 'var(--status-rent)',
+                                    color: 'white',
                                 }}
                             >
                                 {filters.type}
                                 <button
                                     onClick={() => setFilters({ type: '' })}
-                                    className="ml-1 hover:text-white"
+                                    className="ml-1 hover:text-white/80"
                                 >
                                     <X className="w-3 h-3" />
                                 </button>
