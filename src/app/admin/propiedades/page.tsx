@@ -27,6 +27,7 @@ import {
 } from '@/lib/supabase';
 import { useAuth } from '@/context/AuthContext';
 import CustomSelect from '@/components/CustomSelect';
+import FileUploader from '@/components/FileUploader';
 
 const emptyProperty = {
     title: '',
@@ -85,6 +86,7 @@ export default function AdminPropiedadesPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [activeTab, setActiveTab] = useState<'basic' | 'details' | 'amenities' | 'images' | 'contact'>('basic');
     const [newImageUrl, setNewImageUrl] = useState('');
+    const [deleteConfirm, setDeleteConfirm] = useState<{ open: boolean; property: Propiedad | null }>({ open: false, property: null });
 
     useEffect(() => {
         if (user) {
@@ -213,22 +215,28 @@ export default function AdminPropiedadesPage() {
         }
     };
 
-    const handleDelete = async (property: Propiedad) => {
-        if (!isSuperAdmin && property.user_id !== user?.id) {
-            alert('No tienes permisos para eliminar esta propiedad');
-            return;
-        }
+    const handleDelete = (property: Propiedad) => {
+        if (!isSuperAdmin && property.user_id !== user?.id) return;
+        setDeleteConfirm({ open: true, property });
+    };
 
-        if (!confirm('¿Estás seguro de eliminar esta propiedad?')) return;
+    const confirmDelete = async () => {
+        const property = deleteConfirm.property;
+        if (!property) return;
+        setDeleteConfirm({ open: false, property: null });
 
         try {
             const success = await deletePropiedad(property.id);
             if (success) {
-                setProperties(properties.filter(p => p.id !== property.id));
+                setProperties(prev => prev.filter(p => p.id !== property.id));
             }
         } catch (error) {
-            setProperties(properties.filter(p => p.id !== property.id));
+            console.error('Error deleting property:', error);
         }
+    };
+
+    const cancelDelete = () => {
+        setDeleteConfirm({ open: false, property: null });
     };
 
     const addImage = () => {
@@ -802,48 +810,78 @@ export default function AdminPropiedadesPage() {
 
                                 {/* TAB: Imágenes */}
                                 {activeTab === 'images' && (
-                                    <div className="space-y-4">
+                                    <div className="space-y-6">
+                                        {/* --- Imagen Principal --- */}
                                         <div>
                                             <label className="block text-sm font-bold text-[var(--text-main)] mb-2">
-                                                Imagen Principal (URL)
+                                                Imagen Principal
                                             </label>
-                                            <input
-                                                type="text"
-                                                value={formData.image_url}
-                                                onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-                                                className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 text-[var(--text-main)] focus:outline-none focus:border-[#0d9488] focus:ring-2 focus:ring-teal-100 transition-all font-medium"
-                                                placeholder="https://ejemplo.com/imagen.jpg"
-                                            />
                                             {formData.image_url && (
-                                                <div className="mt-2 relative h-48 rounded-xl overflow-hidden border border-gray-200">
+                                                <div className="mb-3 relative h-48 rounded-xl overflow-hidden border border-gray-200 group">
                                                     <img src={formData.image_url} alt="Preview" className="w-full h-full object-cover" />
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setFormData({ ...formData, image_url: '' })}
+                                                        className="absolute top-2 right-2 p-1.5 rounded-lg bg-red-500 text-white opacity-0 group-hover:opacity-100 transition-opacity shadow-md"
+                                                    >
+                                                        <X className="w-4 h-4" />
+                                                    </button>
                                                 </div>
                                             )}
+                                            <FileUploader
+                                                folder="propiedades"
+                                                accept="images"
+                                                multiple={false}
+                                                compact={!!formData.image_url}
+                                                onUpload={(url) => setFormData(prev => ({ ...prev, image_url: url }))}
+                                                helperText="JPG, PNG, WebP • Máx. 50MB"
+                                            />
+                                            <div className="mt-2">
+                                                <p className="text-xs text-gray-400 mb-1">O pegá una URL:</p>
+                                                <input
+                                                    type="text"
+                                                    value={formData.image_url}
+                                                    onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
+                                                    className="w-full px-4 py-2.5 rounded-xl bg-gray-50 border border-gray-200 text-[var(--text-main)] focus:outline-none focus:border-[#0d9488] focus:ring-2 focus:ring-teal-100 transition-all font-medium text-sm"
+                                                    placeholder="https://ejemplo.com/imagen.jpg"
+                                                />
+                                            </div>
                                         </div>
 
+                                        {/* --- Galería de Imágenes --- */}
                                         <div className="pt-4 border-t border-gray-100">
                                             <label className="block text-sm font-bold text-[var(--text-main)] mb-2">
                                                 Galería de Imágenes
                                             </label>
-                                            <div className="flex gap-2 mb-4">
+
+                                            <FileUploader
+                                                folder="propiedades"
+                                                accept="images"
+                                                multiple={true}
+                                                compact={true}
+                                                onUpload={(url) => setFormData(prev => ({ ...prev, images: [...prev.images, url] }))}
+                                                helperText="Subí múltiples fotos a la vez"
+                                            />
+
+                                            <div className="mt-3 flex gap-2 items-center">
                                                 <input
                                                     type="text"
                                                     value={newImageUrl}
                                                     onChange={(e) => setNewImageUrl(e.target.value)}
-                                                    className="flex-1 px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 text-[var(--text-main)] focus:outline-none focus:border-[#0d9488] focus:ring-2 focus:ring-teal-100 transition-all font-medium"
-                                                    placeholder="URL de la imagen"
+                                                    className="flex-1 px-4 py-2.5 rounded-xl bg-gray-50 border border-gray-200 text-[var(--text-main)] focus:outline-none focus:border-[#0d9488] focus:ring-2 focus:ring-teal-100 transition-all font-medium text-sm"
+                                                    placeholder="O pegá una URL de imagen"
                                                 />
                                                 <button
                                                     type="button"
                                                     onClick={addImage}
                                                     disabled={!newImageUrl}
-                                                    className="px-4 py-3 rounded-xl bg-[#0d9488] text-white font-bold disabled:opacity-50 hover:bg-teal-600 transition-colors"
+                                                    className="px-4 py-2.5 rounded-xl bg-[#0d9488] text-white font-bold disabled:opacity-50 hover:bg-teal-600 transition-colors text-sm"
                                                 >
-                                                    <Plus className="w-5 h-5" />
+                                                    <Plus className="w-4 h-4" />
                                                 </button>
                                             </div>
 
-                                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mt-4">
                                                 {formData.images.map((url, index) => (
                                                     <div key={index} className="relative group aspect-video rounded-xl overflow-hidden border border-gray-200 bg-gray-50">
                                                         <img src={url} alt={`Gallery ${index}`} className="w-full h-full object-cover" />
@@ -859,27 +897,47 @@ export default function AdminPropiedadesPage() {
                                                     </div>
                                                 ))}
                                                 {formData.images.length === 0 && (
-                                                    <div className="col-span-full py-8 text-center text-gray-400 bg-gray-50 rounded-xl border border-gray-100 border-dashed">
+                                                    <div className="col-span-full py-6 text-center text-gray-400 bg-gray-50 rounded-xl border border-gray-100 border-dashed">
                                                         <ImageIcon className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                                                        <p className="text-sm font-medium">No hay imágenes adicionales</p>
+                                                        <p className="text-sm font-medium">No hay imágenes en la galería</p>
                                                     </div>
                                                 )}
                                             </div>
                                         </div>
 
+                                        {/* --- Video --- */}
                                         <div className="pt-4 border-t border-gray-100">
                                             <label className="block text-sm font-bold text-[var(--text-main)] mb-2">
-                                                Video Tour (YouTube URL)
+                                                Video Tour
                                             </label>
-                                            <div className="relative">
+
+                                            <FileUploader
+                                                folder="propiedades"
+                                                accept="videos"
+                                                multiple={false}
+                                                compact={true}
+                                                onUpload={(url) => setFormData(prev => ({ ...prev, video_url: url }))}
+                                                helperText="MP4, WebM • Máx. 50MB"
+                                            />
+
+                                            <div className="mt-2">
+                                                <p className="text-xs text-gray-400 mb-1">O pegá un link de YouTube:</p>
                                                 <input
                                                     type="text"
                                                     value={formData.video_url}
                                                     onChange={(e) => setFormData({ ...formData, video_url: e.target.value })}
-                                                    className="w-full pl-4 pr-4 py-3 rounded-xl bg-gray-50 border border-gray-200 text-[var(--text-main)] focus:outline-none focus:border-[#0d9488] focus:ring-2 focus:ring-teal-100 transition-all font-medium"
+                                                    className="w-full px-4 py-2.5 rounded-xl bg-gray-50 border border-gray-200 text-[var(--text-main)] focus:outline-none focus:border-[#0d9488] focus:ring-2 focus:ring-teal-100 transition-all font-medium text-sm"
                                                     placeholder="https://youtube.com/watch?v=..."
                                                 />
                                             </div>
+                                            {formData.video_url && (
+                                                <div className="mt-2 flex items-center gap-2 p-2 rounded-lg bg-emerald-50 border border-emerald-100">
+                                                    <span className="text-xs text-emerald-700 font-medium truncate flex-1">✓ {formData.video_url}</span>
+                                                    <button type="button" onClick={() => setFormData({ ...formData, video_url: '' })} className="p-1 rounded hover:bg-emerald-100 text-emerald-500">
+                                                        <X className="w-3 h-3" />
+                                                    </button>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 )}
@@ -1003,6 +1061,92 @@ export default function AdminPropiedadesPage() {
                             </form>
                         </motion.div>
                     </>
+                )}
+            </AnimatePresence>
+
+            {/* Delete Confirmation Modal */}
+            <AnimatePresence>
+                {deleteConfirm.open && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100]"
+                        onClick={cancelDelete}
+                    >
+                        <motion.div
+                            initial={{ scale: 0.9, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.9, opacity: 0 }}
+                            onClick={(e) => e.stopPropagation()}
+                            className="bg-white rounded-2xl p-6 max-w-md w-full mx-4 shadow-2xl"
+                        >
+                            <div className="flex items-center gap-3 mb-4">
+                                <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
+                                    <Trash2 className="w-6 h-6 text-red-600" />
+                                </div>
+                                <div>
+                                    <h3 className="text-lg font-bold text-gray-900">Eliminar propiedad</h3>
+                                    <p className="text-sm text-gray-500">Esta acción no se puede deshacer</p>
+                                </div>
+                            </div>
+                            <p className="text-gray-700 mb-6">
+                                ¿Estás seguro de eliminar <strong>{deleteConfirm.property?.title}</strong>?
+                            </p>
+                            <div className="flex gap-3 justify-end">
+                                <button
+                                    onClick={cancelDelete}
+                                    className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors"
+                                >
+                                    Cancelar
+                                </button>
+                                <button
+                                    onClick={confirmDelete}
+                                    className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition-colors"
+                                >
+                                    Sí, eliminar
+                                </button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* Delete Confirmation Modal */}
+            <AnimatePresence>
+                {deleteConfirm.open && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100]"
+                        onClick={cancelDelete}
+                    >
+                        <motion.div
+                            initial={{ scale: 0.9, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.9, opacity: 0 }}
+                            onClick={(e) => e.stopPropagation()}
+                            className="bg-white rounded-2xl p-6 max-w-md w-full mx-4 shadow-2xl"
+                        >
+                            <div className="flex items-center gap-3 mb-4">
+                                <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
+                                    <Trash2 className="w-6 h-6 text-red-600" />
+                                </div>
+                                <div>
+                                    <h3 className="text-lg font-bold text-gray-900">Eliminar propiedad</h3>
+                                    <p className="text-sm text-gray-500">Esta acción no se puede deshacer</p>
+                                </div>
+                            </div>
+                            <p className="text-gray-700 mb-6">
+                                ¿Estás seguro de eliminar <strong>{deleteConfirm.property?.title}</strong>?
+                            </p>
+                            <div className="flex gap-3 justify-end">
+                                <button onClick={cancelDelete} className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors">Cancelar</button>
+                                <button onClick={confirmDelete} className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition-colors">Sí, eliminar</button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
                 )}
             </AnimatePresence>
         </div>

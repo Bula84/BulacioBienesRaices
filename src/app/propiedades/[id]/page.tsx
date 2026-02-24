@@ -405,7 +405,7 @@ export default function PropertyDetailPage() {
                             )}
 
                             {/* Video Tour */}
-                            {property.video_url && (
+                            {property.video_url?.trim() && (
                                 <div className="card p-8 bg-white border border-gray-100">
                                     <div className="flex items-center gap-3 mb-6">
                                         <div className="w-12 h-12 rounded-full flex items-center justify-center bg-red-50">

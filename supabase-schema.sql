@@ -120,8 +120,14 @@ CREATE TABLE IF NOT EXISTS servicios (
   email TEXT,
   rating NUMERIC DEFAULT 5 CHECK (rating >= 0 AND rating <= 5),
   image_url TEXT,
+  images TEXT[],
+  video_url TEXT,
   category TEXT NOT NULL,
   description TEXT,
+  full_description TEXT,
+  budget_info TEXT,
+  techniques TEXT[],
+  certifications TEXT[],
   user_id UUID REFERENCES auth.users(id),
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
@@ -274,6 +280,105 @@ CREATE POLICY "Anyone can submit contact" ON contact_messages
 -- Only admins can read/manage
 CREATE POLICY "Admins can manage contact_messages" ON contact_messages
   FOR ALL USING (public.get_my_role() IN ('admin', 'superadmin'));
+
+-- =====================================================
+-- EMPRENDIMIENTOS (Developments) Table
+-- =====================================================
+CREATE TABLE IF NOT EXISTS emprendimientos (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  title TEXT NOT NULL,
+  location TEXT NOT NULL,
+  status TEXT NOT NULL,
+  delivery TEXT,
+  price_start NUMERIC,
+  description TEXT,
+  image_url TEXT,
+  features TEXT[],
+  user_id UUID REFERENCES auth.users(id),
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE emprendimientos ENABLE ROW LEVEL SECURITY;
+
+-- Public can read all emprendimientos
+CREATE POLICY "Allow public read access on emprendimientos" ON emprendimientos
+  FOR SELECT USING (true);
+
+-- Admins can insert their own
+CREATE POLICY "Admins can insert own emprendimientos" ON emprendimientos
+  FOR INSERT WITH CHECK (
+    auth.uid() = user_id AND public.get_my_role() IN ('admin', 'superadmin')
+  );
+
+-- Admins can update their own
+CREATE POLICY "Admins can update own emprendimientos" ON emprendimientos
+  FOR UPDATE USING (
+    auth.uid() = user_id AND public.get_my_role() IN ('admin', 'superadmin')
+  );
+
+-- Admins can delete their own
+CREATE POLICY "Admins can delete own emprendimientos" ON emprendimientos
+  FOR DELETE USING (
+    auth.uid() = user_id AND public.get_my_role() IN ('admin', 'superadmin')
+  );
+
+-- SuperAdmins full access
+CREATE POLICY "SuperAdmins full access on emprendimientos" ON emprendimientos
+  FOR ALL USING (public.get_my_role() = 'superadmin');
+
+
+-- =====================================================
+-- OPORTUNIDADES (Opportunities/Marketplace) Table
+-- =====================================================
+CREATE TABLE IF NOT EXISTS oportunidades (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  title TEXT NOT NULL,
+  description TEXT NOT NULL,
+  full_description TEXT,
+  price NUMERIC,
+  discount NUMERIC,
+  image_url TEXT NOT NULL,
+  images TEXT[],
+  category TEXT NOT NULL,
+  seller_name TEXT NOT NULL,
+  contact_phone TEXT,
+  contact_email TEXT,
+  location TEXT,
+  is_featured BOOLEAN DEFAULT FALSE,
+  user_id UUID REFERENCES auth.users(id),
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE oportunidades ENABLE ROW LEVEL SECURITY;
+
+-- Public can read all oportunidades
+CREATE POLICY "Allow public read access on oportunidades" ON oportunidades
+  FOR SELECT USING (true);
+
+-- Admins can insert their own
+CREATE POLICY "Admins can insert own oportunidades" ON oportunidades
+  FOR INSERT WITH CHECK (
+    auth.uid() = user_id AND public.get_my_role() IN ('admin', 'superadmin')
+  );
+
+-- Admins can update their own
+CREATE POLICY "Admins can update own oportunidades" ON oportunidades
+  FOR UPDATE USING (
+    auth.uid() = user_id AND public.get_my_role() IN ('admin', 'superadmin')
+  );
+
+-- Admins can delete their own
+CREATE POLICY "Admins can delete own oportunidades" ON oportunidades
+  FOR DELETE USING (
+    auth.uid() = user_id AND public.get_my_role() IN ('admin', 'superadmin')
+  );
+
+-- SuperAdmins full access
+CREATE POLICY "SuperAdmins full access on oportunidades" ON oportunidades
+  FOR ALL USING (public.get_my_role() = 'superadmin');
+
 
 -- =====================================================
 -- SETUP SUPERADMIN (run after registration)

@@ -33,14 +33,49 @@ export default function ContactoPage() {
         getContactInfo().then(setContactInfo);
     }, []);
 
+    const [cooldown, setCooldown] = useState(false);
+
+    const sanitize = (str: string) => str.trim().replace(/<[^>]*>/g, ''); // strip HTML tags
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (cooldown) return;
+
+        // Sanitize all fields
+        const sanitized = {
+            name: sanitize(formData.name),
+            email: sanitize(formData.email).toLowerCase(),
+            phone: sanitize(formData.phone),
+            company: sanitize(formData.company),
+            subject: sanitize(formData.subject),
+            message: sanitize(formData.message),
+            source: 'contacto',
+        };
+
+        // Validate email
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(sanitized.email)) {
+            return; // HTML required will catch it, but this is a safety net
+        }
+
+        // Validate message length
+        if (sanitized.message.length < 10) {
+            return;
+        }
+        if (sanitized.message.length > 2000) {
+            alert('El mensaje no puede superar los 2000 caracteres.');
+            return;
+        }
+
         setEnviando(true);
         try {
-            const ok = await submitContactMessage(formData);
+            const ok = await submitContactMessage(sanitized);
             if (ok) {
                 setEnviado(true);
                 setFormData({ name: '', email: '', phone: '', company: '', subject: asuntos[0], message: '', source: 'contacto' });
+                // 60-second cooldown to prevent spam
+                setCooldown(true);
+                setTimeout(() => setCooldown(false), 60_000);
             }
         } catch (error) {
             console.error('Error:', error);
@@ -48,6 +83,7 @@ export default function ContactoPage() {
             setEnviando(false);
         }
     };
+
 
     const inputClass = "w-full px-4 py-3.5 rounded-xl bg-white border border-gray-200 text-[var(--text-main)] placeholder:text-gray-400 focus:outline-none focus:border-[#0d9488] focus:ring-2 focus:ring-[#0d9488]/20 transition-all text-sm font-medium";
 
@@ -139,17 +175,31 @@ export default function ContactoPage() {
                                         </div>
 
                                         <div>
-                                            <label className="block text-sm font-bold text-[var(--text-main)] mb-2">Mensaje *</label>
-                                            <textarea value={formData.message} onChange={(e) => setFormData({ ...formData, message: e.target.value })} className={`${inputClass} min-h-[150px] resize-y`} placeholder="Contanos cómo podemos ayudarte..." required />
+                                            <div className="flex items-center justify-between mb-2">
+                                                <label className="block text-sm font-bold text-[var(--text-main)]">Mensaje *</label>
+                                                <span className={`text-xs font-medium ${formData.message.length > 1800 ? 'text-amber-500' : 'text-gray-400'}`}>
+                                                    {formData.message.length}/2000
+                                                </span>
+                                            </div>
+                                            <textarea
+                                                value={formData.message}
+                                                onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                                                className={`${inputClass} min-h-[150px] resize-y`}
+                                                placeholder="Contános cómo podemos ayudarte..."
+                                                maxLength={2000}
+                                                minLength={10}
+                                                required
+                                            />
                                         </div>
 
                                         <button
                                             type="submit"
-                                            disabled={enviando}
-                                            className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-4 rounded-xl font-bold text-white bg-[#0d9488] hover:bg-[#0f766e] transition-all duration-200 hover:scale-105 shadow-lg shadow-teal-500/20 disabled:opacity-50 text-base"
+                                            disabled={enviando || cooldown}
+                                            className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-4 rounded-xl font-bold text-white transition-all duration-200 shadow-lg shadow-teal-500/20 disabled:opacity-50 disabled:cursor-not-allowed text-base"
+                                            style={{ background: cooldown ? '#64748b' : 'linear-gradient(135deg, #0d9488, #0f766e)' }}
                                         >
                                             <Send className="w-5 h-5" />
-                                            {enviando ? 'Enviando...' : 'Enviar Mensaje'}
+                                            {enviando ? 'Enviando...' : cooldown ? 'Espera 60s para reenviar' : 'Enviar Mensaje'}
                                         </button>
                                     </form>
                                 </div>

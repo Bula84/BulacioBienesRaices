@@ -39,12 +39,57 @@ export default function PropertyChat({ property }: PropertyChatProps) {
         }
     }, [isOpen]);
 
-    const initConversation = async () => {
+    // Generate local fallback greeting using property data
+    const generateLocalGreeting = (): string => {
+        return `¡Hola! 👋 Soy el asistente de BC BienesRaíces.\n\nEstás consultando por:\n🏠 ${property.title}\n📍 ${property.address || 'Ubicación por confirmar'}\n💰 USD ${property.price?.toLocaleString('es-AR') || 'Consultar'}\n\n¿En qué puedo ayudarte?`;
+    };
+
+    // Generate local fallback response for when Edge Function is unavailable
+    const generateLocalResponse = (msg: string): string => {
+        const lower = msg.toLowerCase();
+
+        if (lower.includes('expensa')) {
+            return property.expensas
+                ? `Las expensas de esta propiedad son de $${property.expensas.toLocaleString('es-AR')}/mes. ¿Tenés alguna otra consulta? 😊`
+                : 'Las expensas no están publicadas en este momento. Voy a consultar con el corredor y te aviso. ¿Te puedo ayudar con algo más?';
+        }
+        if (lower.includes('precio') || lower.includes('valor') || lower.includes('cuanto') || lower.includes('cuesta')) {
+            return `El precio es USD ${property.price?.toLocaleString('es-AR') || 'a consultar'}.${property.expensas ? ' Expensas: $' + property.expensas.toLocaleString('es-AR') + '/mes.' : ''} ¿Te gustaría coordinar una visita? 🏠`;
+        }
+        if (lower.includes('garantia') || lower.includes('caucion') || lower.includes('requisito') || lower.includes('finaer')) {
+            const req = property.requisitos || 'Garantía propietaria o seguro de caución (Finaer, Porto, etc.)';
+            return `Los requisitos para esta propiedad son:\n📋 ${req}\n\n¿Contás con alguno de estos? ✅`;
+        }
+        if (lower.includes('visita') || lower.includes('ver') || lower.includes('conocer') || lower.includes('agenda')) {
+            return '¡Genial! Para coordinar la visita necesito tus datos:\n\n📝 Nombre completo\n📞 Teléfono\n📧 Email\n\nHorarios disponibles: Lunes a Viernes 10-18hs, Sábados 10-13hs.';
+        }
+        if (lower.includes('ubicaci') || lower.includes('direcci') || lower.includes('donde') || lower.includes('dónde')) {
+            return `La propiedad está ubicada en:\n📍 ${property.address || 'Dirección exacta a confirmar'}, ${property.neighborhood || ''}, ${property.city || ''}\n\n¿Te gustaría coordinar una visita? 🏠`;
+        }
+        if (lower.includes('detalle') || lower.includes('característica') || lower.includes('tiene') || lower.includes('info')) {
+            let d = `📋 Detalles de ${property.title}:\n`;
+            if (property.m2) d += `• ${property.m2} m² totales`;
+            if (property.m2_covered) d += ` / ${property.m2_covered} m² cubiertos`;
+            d += '\n';
+            if (property.bedrooms) d += `• ${property.bedrooms} dormitorios\n`;
+            if (property.bathrooms) d += `• ${property.bathrooms} baños\n`;
+            if (property.parking) d += `• ${property.parking} cochera(s)\n`;
+            d += `\n${property.description || ''}\n\n¿Te interesa coordinar una visita? 🏠`;
+            return d;
+        }
+        return `Gracias por tu consulta.\n\nPuedo ayudarte con:\n• 💰 Precio y expensas\n• 📋 Requisitos y garantías\n• 📍 Ubicación\n• 🏠 Características\n• 📅 Agendar visita\n\n¿Qué te gustaría saber?`;
+    };
+
+    const initConversation = async (): Promise<string | null> => {
         if (conversationId) return conversationId;
-        const conv = await createChatConversation(property.id);
-        if (conv) {
-            setConversationId(conv.id);
-            return conv.id;
+        try {
+            const conv = await createChatConversation(property.id);
+            if (conv) {
+                setConversationId(conv.id);
+                return conv.id;
+            }
+        } catch {
+            // Property doesn't exist in DB (demo/mock) — continue in local mode
         }
         return null;
     };
@@ -52,21 +97,23 @@ export default function PropertyChat({ property }: PropertyChatProps) {
     const handleOpen = async () => {
         setIsOpen(true);
         if (messages.length === 0) {
-            // Send initial greeting
+            setTyping(true);
             const convId = await initConversation();
+
             if (convId) {
-                setTyping(true);
+                // Real property — call Edge Function
                 const result = await sendAgentMessage(convId, property.id, 'Hola', []);
                 setTyping(false);
                 if (result?.reply) {
-                    const assistantMsg: ChatMessage = {
-                        role: 'assistant',
-                        content: result.reply,
-                        timestamp: new Date().toISOString(),
-                    };
-                    setMessages([assistantMsg]);
+                    setMessages([{ role: 'assistant', content: result.reply, timestamp: new Date().toISOString() }]);
+                    return;
                 }
             }
+
+            // Fallback — generate greeting locally
+            await new Promise(r => setTimeout(r, 600));
+            setTyping(false);
+            setMessages([{ role: 'assistant', content: generateLocalGreeting(), timestamp: new Date().toISOString() }]);
         }
     };
 
@@ -92,6 +139,7 @@ export default function PropertyChat({ property }: PropertyChatProps) {
             }
 
             if (convId) {
+                // Real property — call Edge Function
                 const result = await sendAgentMessage(convId, property.id, userMessage.content, messages);
                 if (result?.reply) {
                     const assistantMsg: ChatMessage = {
@@ -111,16 +159,24 @@ export default function PropertyChat({ property }: PropertyChatProps) {
                             visitor_phone: phoneMatch?.[0],
                         });
                     }
+                    return;
                 }
             }
+
+            // Fallback — generate response locally
+            await new Promise(r => setTimeout(r, 800));
+            setMessages([...newMessages, {
+                role: 'assistant',
+                content: generateLocalResponse(userMessage.content),
+                timestamp: new Date().toISOString(),
+            }]);
         } catch (error) {
             console.error('Error:', error);
-            const errorMsg: ChatMessage = {
+            setMessages([...newMessages, {
                 role: 'assistant',
                 content: 'Disculpá, hubo un inconveniente técnico. ¿Podés intentar de nuevo? 🙏',
                 timestamp: new Date().toISOString(),
-            };
-            setMessages([...newMessages, errorMsg]);
+            }]);
         } finally {
             setSending(false);
             setTyping(false);

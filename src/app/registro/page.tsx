@@ -24,26 +24,54 @@ export default function RegistroPage() {
         setError(null);
         setIsLoading(true);
 
+        // Sanitize inputs
+        const trimmedEmail = email.trim().toLowerCase();
+        const trimmedPassword = password.trim();
+
         // Validations
-        if (!email || !password || !confirmPassword) {
+        if (!trimmedEmail || !trimmedPassword || !confirmPassword) {
             setError('Por favor completa todos los campos');
             setIsLoading(false);
             return;
         }
 
-        if (password.length < 6) {
-            setError('La contraseña debe tener al menos 6 caracteres');
+        // Email format validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(trimmedEmail)) {
+            setError('Por favor ingresá un correo electrónico válido');
             setIsLoading(false);
             return;
         }
 
-        if (password !== confirmPassword) {
+        // Password strength: min 8 chars, uppercase, lowercase, number
+        if (trimmedPassword.length < 8) {
+            setError('La contraseña debe tener al menos 8 caracteres');
+            setIsLoading(false);
+            return;
+        }
+        if (!/[A-Z]/.test(trimmedPassword)) {
+            setError('La contraseña debe contener al menos una letra mayúscula');
+            setIsLoading(false);
+            return;
+        }
+        if (!/[a-z]/.test(trimmedPassword)) {
+            setError('La contraseña debe contener al menos una letra minúscula');
+            setIsLoading(false);
+            return;
+        }
+        if (!/[0-9]/.test(trimmedPassword)) {
+            setError('La contraseña debe contener al menos un número');
+            setIsLoading(false);
+            return;
+        }
+
+        if (trimmedPassword !== confirmPassword.trim()) {
             setError('Las contraseñas no coinciden');
             setIsLoading(false);
             return;
         }
 
-        const result = await register(email, password);
+        const result = await register(trimmedEmail, trimmedPassword);
 
         if (result.error) {
             setError(result.error);
@@ -196,7 +224,8 @@ export default function RegistroPage() {
                                     type={showPassword ? 'text' : 'password'}
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
-                                    placeholder="Mínimo 6 caracteres"
+                                    placeholder="Mínimo 8 caracteres"
+                                    autoComplete="new-password"
                                     className="w-full pl-12 pr-12 py-4 rounded-xl bg-gray-50 border border-gray-200 text-[var(--text-main)] placeholder-gray-400 focus:outline-none focus:border-[var(--primary-blue)] focus:ring-2 focus:ring-blue-100 transition-all font-medium"
                                     disabled={isLoading || !isConfigured}
                                 />

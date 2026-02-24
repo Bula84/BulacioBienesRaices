@@ -3,483 +3,410 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-    Plus, Search, Edit, Trash2, X, ShoppingBag, Tag, Image, MapPin, Phone, Mail, Star, ChevronDown, ChevronUp, DollarSign, Percent, Store
+    Plus,
+    Search,
+    Edit,
+    Trash2,
+    X,
+    MapPin,
+    DollarSign,
+    Box,
+    AlertCircle,
+    Home
 } from 'lucide-react';
 import {
-    Oportunidad, getOportunidades, createOportunidad, updateOportunidad, deleteOportunidad
+    Oportunidad,
+    getOportunidades,
+    createOportunidad,
+    updateOportunidad,
+    deleteOportunidad
 } from '@/lib/supabase';
+import { useAuth } from '@/context/AuthContext';
+import FileUploader from '@/components/FileUploader';
+import CustomSelect from '@/components/CustomSelect';
 
-const categorias = [
-    'Materiales', 'Herramientas', 'Maquinaria', 'Remanentes de Obra',
-    'Revestimientos', 'Pintura', 'Sanitarios', 'Aberturas',
-    'Electricidad', 'Pisos', 'Techos', 'Otro',
-];
-
-const formularioVacio = {
+const emptyOportunidad: Omit<Oportunidad, 'id' | 'created_at'> = {
     title: '',
     description: '',
     full_description: '',
     price: 0,
     discount: 0,
     image_url: '',
-    images: [] as string[],
+    images: [],
     category: '',
     seller_name: '',
     contact_phone: '',
     contact_email: '',
     location: '',
-    is_featured: false,
+    is_featured: false
 };
 
+const CATEGORIES = [
+    'Materiales',
+    'Herramientas',
+    'Maquinaria',
+    'Sobrantes de Obra',
+    'Mobiliario',
+    'Otros'
+];
+
 export default function AdminOportunidadesPage() {
+    const { user, isSuperAdmin } = useAuth();
     const [oportunidades, setOportunidades] = useState<Oportunidad[]>([]);
-    const [busqueda, setBusqueda] = useState('');
-    const [modalAbierto, setModalAbierto] = useState(false);
-    const [editando, setEditando] = useState<Oportunidad | null>(null);
-    const [formData, setFormData] = useState(formularioVacio);
-    const [imagenInput, setImagenInput] = useState('');
-    const [cargando, setCargando] = useState(true);
-    const [guardando, setGuardando] = useState(false);
-    const [filaExpandida, setFilaExpandida] = useState<string | null>(null);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [editingItem, setEditingItem] = useState<Oportunidad | null>(null);
+    const [formData, setFormData] = useState(emptyOportunidad);
+    const [isLoading, setIsLoading] = useState(true);
+    const [activeTab, setActiveTab] = useState<'basic' | 'images' | 'contact'>('basic');
+    const [newImageUrl, setNewImageUrl] = useState('');
+    const [deleteConfirm, setDeleteConfirm] = useState<{ open: boolean; item: Oportunidad | null }>({ open: false, item: null });
 
-    useEffect(() => { cargarDatos(); }, []);
+    useEffect(() => {
+        if (user) {
+            loadOportunidades();
+        }
+    }, [user, isSuperAdmin]);
 
-    const cargarDatos = async () => {
+    const loadOportunidades = async () => {
+        setIsLoading(true);
         try {
             const data = await getOportunidades();
-            if (data.length > 0) setOportunidades(data);
+            setOportunidades(data || []);
         } catch (error) {
-            console.log('Sin datos');
+            console.error('Error loading oportunidades:', error);
         } finally {
-            setCargando(false);
+            setIsLoading(false);
         }
     };
 
-    const filtradas = oportunidades.filter(o =>
-        o.title.toLowerCase().includes(busqueda.toLowerCase()) ||
-        o.category.toLowerCase().includes(busqueda.toLowerCase()) ||
-        o.seller_name.toLowerCase().includes(busqueda.toLowerCase()) ||
-        o.location?.toLowerCase().includes(busqueda.toLowerCase())
+    const filteredItems = oportunidades.filter(item =>
+        item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.category.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
-    const abrirModal = (oportunidad?: Oportunidad) => {
-        if (oportunidad) {
-            setEditando(oportunidad);
+    const openModal = (item?: Oportunidad) => {
+        if (item) {
+            setEditingItem(item);
             setFormData({
-                title: oportunidad.title,
-                description: oportunidad.description || '',
-                full_description: oportunidad.full_description || '',
-                price: oportunidad.price || 0,
-                discount: oportunidad.discount || 0,
-                image_url: oportunidad.image_url || '',
-                images: oportunidad.images || [],
-                category: oportunidad.category,
-                seller_name: oportunidad.seller_name,
-                contact_phone: oportunidad.contact_phone || '',
-                contact_email: oportunidad.contact_email || '',
-                location: oportunidad.location || '',
-                is_featured: oportunidad.is_featured || false,
+                title: item.title,
+                description: item.description,
+                full_description: item.full_description || '',
+                price: item.price || 0,
+                discount: item.discount || 0,
+                image_url: item.image_url || '',
+                images: item.images || [],
+                category: item.category,
+                seller_name: item.seller_name,
+                contact_phone: item.contact_phone || '',
+                contact_email: item.contact_email || '',
+                location: item.location || '',
+                is_featured: item.is_featured || false
             });
         } else {
-            setEditando(null);
-            setFormData(formularioVacio);
+            setEditingItem(null);
+            setFormData(emptyOportunidad);
         }
-        setModalAbierto(true);
+        setActiveTab('basic');
+        setIsModalOpen(true);
     };
 
-    const cerrarModal = () => {
-        setModalAbierto(false);
-        setEditando(null);
-        setFormData(formularioVacio);
-        setImagenInput('');
-    };
-
-    const agregarImagen = () => {
-        if (imagenInput.trim() && !formData.images.includes(imagenInput.trim())) {
-            setFormData({ ...formData, images: [...formData.images, imagenInput.trim()] });
-            setImagenInput('');
-        }
-    };
-
-    const quitarImagen = (url: string) => {
-        setFormData({ ...formData, images: formData.images.filter(i => i !== url) });
+    const closeModal = () => {
+        setIsModalOpen(false);
+        setEditingItem(null);
+        setFormData(emptyOportunidad);
+        setActiveTab('basic');
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setGuardando(true);
+
+        if (!user) return;
+
         try {
-            if (editando) {
-                const actualizada = await updateOportunidad(editando.id, formData);
-                if (actualizada) setOportunidades(oportunidades.map(o => o.id === editando.id ? actualizada : o));
+            if (editingItem) {
+                const updated = await updateOportunidad(editingItem.id, formData);
+                if (updated) {
+                    setOportunidades(oportunidades.map(o => o.id === editingItem.id ? updated : o));
+                }
             } else {
-                const creada = await createOportunidad(formData as any);
-                if (creada) setOportunidades([creada, ...oportunidades]);
+                const created = await createOportunidad(formData);
+                if (created) {
+                    setOportunidades([created, ...oportunidades]);
+                }
             }
-            cerrarModal();
+            closeModal();
         } catch (error) {
-            console.error('Error al guardar:', error);
-        } finally {
-            setGuardando(false);
+            console.error('Error saving oportunidad:', error);
         }
     };
 
-    const handleEliminar = async (id: string) => {
-        if (!confirm('¿Estás seguro de eliminar esta oportunidad?')) return;
+    const handleDelete = (item: Oportunidad) => {
+        setDeleteConfirm({ open: true, item });
+    };
+
+    const confirmDelete = async () => {
+        const item = deleteConfirm.item;
+        if (!item) return;
+        setDeleteConfirm({ open: false, item: null });
+
         try {
-            const ok = await deleteOportunidad(id);
-            if (ok) setOportunidades(oportunidades.filter(o => o.id !== id));
+            const success = await deleteOportunidad(item.id);
+            if (success) {
+                setOportunidades(prev => prev.filter(o => o.id !== item.id));
+            }
         } catch (error) {
-            setOportunidades(oportunidades.filter(o => o.id !== id));
+            console.error('Error deleting oportunidad:', error);
         }
     };
 
-    const formatPrecio = (precio?: number) => {
-        if (!precio) return 'Consultar';
-        return `$${precio.toLocaleString('es-AR')}`;
+    const canEdit = () => {
+        // En este modelo asumimos que sólo un Admin / SuperAdmin general puede acceder a Oportunidades
+        // Por lo cual todos en esta vista pueden editar. Se podría refinar más adelante.
+        return true;
     };
-
-    const inputClass = "w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 text-[var(--text-main)] placeholder:text-gray-400 focus:outline-none focus:border-[#0d9488] focus:ring-2 focus:ring-[#0d9488]/20 transition-all text-sm";
-    const labelClass = "block text-sm font-bold text-[var(--text-main)] mb-2";
 
     return (
         <div className="space-y-6">
-            {/* Encabezado */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-[var(--text-main)]">Oportunidades y Ofertas</h1>
-                    <p className="text-[var(--text-secondary)] text-sm">Gestiona las ofertas de materiales, herramientas y más</p>
+                    <h1 className="text-2xl font-bold text-[var(--text-main)] font-headings">Oportunidades</h1>
+                    <p className="text-[var(--text-secondary)] text-sm font-medium">Gestión del Marketplace (Bazar / Remates)</p>
                 </div>
                 <button
-                    onClick={() => abrirModal()}
-                    className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-white transition-all duration-200 hover:scale-105 bg-[#0d9488] hover:bg-[#0f766e] shadow-lg shadow-teal-500/20"
+                    onClick={() => openModal()}
+                    className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold transition-all duration-200 hover:scale-105 text-white shadow-md shadow-teal-500/20"
+                    style={{ background: '#0d9488' }}
                 >
                     <Plus className="w-5 h-5" />
                     Nueva Oportunidad
                 </button>
             </div>
 
-            {/* Buscador */}
             <div className="relative max-w-md">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
                     type="text"
                     placeholder="Buscar oportunidades..."
-                    value={busqueda}
-                    onChange={(e) => setBusqueda(e.target.value)}
-                    className="w-full bg-white border border-gray-200 rounded-xl pl-12 pr-4 py-3 text-[var(--text-main)] placeholder:text-gray-400 focus:outline-none focus:border-[#0d9488] focus:ring-2 focus:ring-[#0d9488]/20 transition-all text-sm"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full px-4 py-3 rounded-xl bg-white border border-gray-200 text-[var(--text-main)] placeholder-gray-400 focus:outline-none focus:border-[#0d9488] focus:ring-2 focus:ring-teal-100 transition-all font-medium"
                 />
             </div>
 
-            {/* Estadísticas */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="bg-white rounded-2xl p-4 border border-gray-100">
-                    <p className="text-sm text-[var(--text-secondary)] font-medium">Total</p>
-                    <p className="text-2xl font-bold text-[var(--text-main)]">{oportunidades.length}</p>
-                </div>
-                <div className="bg-white rounded-2xl p-4 border border-gray-100">
-                    <p className="text-sm text-[var(--text-secondary)] font-medium">Destacadas</p>
-                    <p className="text-2xl font-bold text-[var(--text-main)]">{oportunidades.filter(o => o.is_featured).length}</p>
-                </div>
-                <div className="bg-white rounded-2xl p-4 border border-gray-100">
-                    <p className="text-sm text-[var(--text-secondary)] font-medium">Con descuento</p>
-                    <p className="text-2xl font-bold text-[var(--text-main)]">{oportunidades.filter(o => o.discount && o.discount > 0).length}</p>
-                </div>
-                <div className="bg-white rounded-2xl p-4 border border-gray-100">
-                    <p className="text-sm text-[var(--text-secondary)] font-medium">Categorías</p>
-                    <p className="text-2xl font-bold text-[var(--text-main)]">{new Set(oportunidades.map(o => o.category)).size}</p>
-                </div>
+            <div className="rounded-2xl overflow-hidden bg-white border border-gray-100 shadow-sm">
+                {isLoading ? (
+                    <div className="text-center py-12">
+                        <div className="w-8 h-8 border-2 border-gray-200 border-t-[#0d9488] rounded-full animate-spin mx-auto mb-4" />
+                        <p className="text-[var(--text-secondary)]">Cargando oportunidades...</p>
+                    </div>
+                ) : (
+                    <div className="overflow-x-auto">
+                        <table className="w-full">
+                            <thead>
+                                <tr className="bg-gray-50 border-b border-gray-100">
+                                    <th className="text-left p-4 text-sm font-bold text-[var(--text-main)]">Oportunidad</th>
+                                    <th className="text-left p-4 text-sm font-bold text-[var(--text-main)]">Categoría</th>
+                                    <th className="text-left p-4 text-sm font-bold text-[var(--text-main)]">Precio</th>
+                                    <th className="text-right p-4 text-sm font-bold text-[var(--text-main)]">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {filteredItems.map(item => (
+                                    <tr key={item.id} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
+                                        <td className="p-4">
+                                            <div className="flex items-center gap-3">
+                                                <div
+                                                    className="w-12 h-12 rounded-xl bg-cover bg-center flex-shrink-0 shadow-sm border border-gray-100"
+                                                    style={{ backgroundImage: item.image_url ? `url(${item.image_url})` : 'linear-gradient(135deg, #e2e8f0, #cbd5e1)' }}
+                                                />
+                                                <div>
+                                                    <p className="font-bold text-[var(--text-main)] text-sm">{item.title}</p>
+                                                    <p className="text-xs text-[var(--text-secondary)] font-medium">{item.seller_name}</p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td className="p-4">
+                                            <span className="inline-block px-2.5 py-1 text-xs font-bold rounded-full bg-teal-50 text-[#0d9488]">
+                                                {item.category}
+                                            </span>
+                                        </td>
+                                        <td className="p-4">
+                                            <span className="text-sm text-[var(--text-main)] font-bold">
+                                                {item.price ? `$${item.price.toLocaleString('es-AR')}` : 'Consultar'}
+                                            </span>
+                                        </td>
+                                        <td className="p-4">
+                                            <div className="flex items-center justify-end gap-2">
+                                                {canEdit() ? (
+                                                    <>
+                                                        <button onClick={() => openModal(item)} className="p-2 rounded-lg hover:bg-teal-50 text-gray-400 hover:text-[#0d9488]">
+                                                            <Edit className="w-4 h-4" />
+                                                        </button>
+                                                        <button onClick={() => handleDelete(item)} className="p-2 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500">
+                                                            <Trash2 className="w-4 h-4" />
+                                                        </button>
+                                                    </>
+                                                ) : null}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
+
+                {!isLoading && filteredItems.length === 0 && (
+                    <div className="text-center py-12">
+                        <Box className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                        <p className="text-[var(--text-secondary)] font-medium">No se encontraron oportunidades</p>
+                    </div>
+                )}
             </div>
-
-            {/* Listado */}
-            {cargando ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {[1, 2, 3, 4].map(i => <div key={i} className="h-32 bg-gray-100 rounded-2xl animate-pulse" />)}
-                </div>
-            ) : filtradas.length === 0 ? (
-                <div className="text-center py-16 bg-white rounded-2xl border border-gray-100">
-                    <ShoppingBag className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                    <p className="text-[var(--text-secondary)] font-medium">No se encontraron oportunidades</p>
-                    <p className="text-sm text-gray-400 mt-1">Creá una nueva oportunidad para comenzar</p>
-                </div>
-            ) : (
-                <div className="space-y-3">
-                    {filtradas.map((oportunidad) => (
-                        <motion.div
-                            key={oportunidad.id}
-                            layout
-                            className="bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-md transition-shadow"
-                        >
-                            <div className="flex items-center gap-4 p-4">
-                                {/* Miniatura */}
-                                <div
-                                    className="w-16 h-16 rounded-xl bg-cover bg-center flex-shrink-0 bg-gray-100 border border-gray-200"
-                                    style={{ backgroundImage: oportunidad.image_url ? `url(${oportunidad.image_url})` : undefined }}
-                                >
-                                    {!oportunidad.image_url && (
-                                        <div className="w-full h-full flex items-center justify-center rounded-xl bg-gradient-to-br from-teal-50 to-teal-100">
-                                            <Tag className="w-6 h-6 text-teal-400" />
-                                        </div>
-                                    )}
-                                </div>
-
-                                {/* Información */}
-                                <div className="flex-1 min-w-0">
-                                    <div className="flex items-center gap-2 flex-wrap">
-                                        <h3 className="font-bold text-[var(--text-main)] truncate">{oportunidad.title}</h3>
-                                        <span className="px-2.5 py-0.5 text-xs font-bold rounded-full bg-teal-50 text-[#0d9488]">
-                                            {oportunidad.category}
-                                        </span>
-                                        {oportunidad.is_featured && (
-                                            <span className="flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-full bg-amber-50 text-amber-600">
-                                                <Star className="w-3 h-3 fill-amber-400" /> Destacada
-                                            </span>
-                                        )}
-                                        {oportunidad.discount && oportunidad.discount > 0 ? (
-                                            <span className="flex items-center gap-1 px-2 py-0.5 text-xs font-bold rounded-full bg-emerald-50 text-emerald-700">
-                                                <Percent className="w-3 h-3" /> -{oportunidad.discount}%
-                                            </span>
-                                        ) : null}
-                                    </div>
-                                    <div className="flex items-center gap-3 mt-1 text-sm text-[var(--text-secondary)]">
-                                        <span className="font-bold text-[var(--text-main)]">{formatPrecio(oportunidad.price)}</span>
-                                        <span className="text-gray-300">•</span>
-                                        <span className="flex items-center gap-1 truncate"><Store className="w-3 h-3" />{oportunidad.seller_name}</span>
-                                        {oportunidad.location && (
-                                            <>
-                                                <span className="text-gray-300">•</span>
-                                                <span className="flex items-center gap-1 truncate"><MapPin className="w-3 h-3" />{oportunidad.location}</span>
-                                            </>
-                                        )}
-                                    </div>
-                                </div>
-
-                                {/* Acciones */}
-                                <div className="flex items-center gap-1 flex-shrink-0">
-                                    <button
-                                        onClick={() => setFilaExpandida(filaExpandida === oportunidad.id ? null : oportunidad.id)}
-                                        className="p-2 rounded-lg hover:bg-gray-50 text-gray-400 hover:text-[var(--text-main)] transition-colors"
-                                    >
-                                        {filaExpandida === oportunidad.id ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                                    </button>
-                                    <button
-                                        onClick={() => abrirModal(oportunidad)}
-                                        className="p-2 rounded-lg hover:bg-teal-50 text-gray-400 hover:text-[#0d9488] transition-colors"
-                                    >
-                                        <Edit className="w-4 h-4" />
-                                    </button>
-                                    <button
-                                        onClick={() => handleEliminar(oportunidad.id)}
-                                        className="p-2 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors"
-                                    >
-                                        <Trash2 className="w-4 h-4" />
-                                    </button>
-                                </div>
-                            </div>
-
-                            {/* Detalles expandidos */}
-                            <AnimatePresence>
-                                {filaExpandida === oportunidad.id && (
-                                    <motion.div
-                                        initial={{ height: 0, opacity: 0 }}
-                                        animate={{ height: 'auto', opacity: 1 }}
-                                        exit={{ height: 0, opacity: 0 }}
-                                        className="border-t border-gray-100 overflow-hidden"
-                                    >
-                                        <div className="p-4 grid grid-cols-1 md:grid-cols-3 gap-4 bg-gray-50/50">
-                                            <div>
-                                                <p className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-1">Vendedor</p>
-                                                <p className="text-sm font-medium text-[var(--text-main)]">{oportunidad.seller_name}</p>
-                                                {oportunidad.contact_phone && <p className="flex items-center gap-1 text-sm text-[var(--text-secondary)] mt-1"><Phone className="w-3 h-3" />{oportunidad.contact_phone}</p>}
-                                                {oportunidad.contact_email && <p className="flex items-center gap-1 text-sm text-[var(--text-secondary)] mt-1"><Mail className="w-3 h-3" />{oportunidad.contact_email}</p>}
-                                            </div>
-                                            <div>
-                                                <p className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-1">Precio</p>
-                                                <p className="text-lg font-bold text-[var(--text-main)]">{formatPrecio(oportunidad.price)}</p>
-                                                {oportunidad.discount && oportunidad.discount > 0 && (
-                                                    <p className="text-sm text-emerald-600 font-medium">Descuento: {oportunidad.discount}%</p>
-                                                )}
-                                            </div>
-                                            <div>
-                                                <p className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-1">Ubicación</p>
-                                                <p className="text-sm text-[var(--text-main)]">{oportunidad.location || 'No especificada'}</p>
-                                            </div>
-                                            {oportunidad.description && (
-                                                <div className="md:col-span-3">
-                                                    <p className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-1">Descripción</p>
-                                                    <p className="text-sm text-[var(--text-secondary)]">{oportunidad.description}</p>
-                                                </div>
-                                            )}
-                                            {oportunidad.images && oportunidad.images.length > 0 && (
-                                                <div className="md:col-span-3">
-                                                    <p className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-2">Galería</p>
-                                                    <div className="flex gap-2 overflow-x-auto pb-2">
-                                                        {oportunidad.images.map((img, i) => (
-                                                            <div key={i} className="w-20 h-20 rounded-lg bg-cover bg-center flex-shrink-0 border border-gray-200" style={{ backgroundImage: `url(${img})` }} />
-                                                        ))}
-                                                    </div>
-                                                </div>
-                                            )}
-                                        </div>
-                                    </motion.div>
-                                )}
-                            </AnimatePresence>
-                        </motion.div>
-                    ))}
-                </div>
-            )}
 
             {/* Modal */}
             <AnimatePresence>
-                {modalAbierto && (
+                {isModalOpen && (
                     <>
-                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50" onClick={cerrarModal} />
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.95, y: 20 }}
-                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-3xl max-h-[90vh] overflow-y-auto z-50 rounded-2xl bg-white border border-gray-200 shadow-2xl"
-                        >
-                            {/* Encabezado del Modal */}
-                            <div className="sticky top-0 bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between z-10">
-                                <h2 className="text-xl font-bold text-[var(--text-main)]">
-                                    {editando ? 'Editar Oportunidad' : 'Nueva Oportunidad'}
+                        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/40 z-50 backdrop-blur-sm" onClick={closeModal} />
+                        <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }} className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-3xl max-h-[90vh] overflow-y-auto z-50 p-6 rounded-2xl bg-white shadow-2xl border border-gray-100">
+                            <div className="flex items-center justify-between mb-6">
+                                <h2 className="text-xl font-bold text-[var(--text-main)] font-headings">
+                                    {editingItem ? 'Editar Oportunidad' : 'Nueva Oportunidad'}
                                 </h2>
-                                <button onClick={cerrarModal} className="p-2 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-[var(--text-main)] transition-colors">
+                                <button onClick={closeModal} className="p-2 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-[var(--text-main)]">
                                     <X className="w-5 h-5" />
                                 </button>
                             </div>
 
-                            <form onSubmit={handleSubmit} className="p-6 space-y-6">
-                                {/* Título y Categoría */}
-                                <div className="grid sm:grid-cols-2 gap-4">
-                                    <div>
-                                        <label className={labelClass}>Título *</label>
-                                        <input type="text" value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} className={inputClass} placeholder="Ej: Ladrillos Retak - Lote 500u" required />
-                                    </div>
-                                    <div>
-                                        <label className={labelClass}>Categoría *</label>
-                                        <select value={formData.category} onChange={(e) => setFormData({ ...formData, category: e.target.value })} className={inputClass} required>
-                                            <option value="">Seleccionar categoría</option>
-                                            {categorias.map(cat => <option key={cat} value={cat}>{cat}</option>)}
-                                        </select>
-                                    </div>
-                                </div>
+                            <div className="flex gap-2 mb-6 overflow-x-auto pb-2 border-b border-gray-100">
+                                {[
+                                    { id: 'basic', label: 'Básico' },
+                                    { id: 'images', label: 'Imágenes' },
+                                    { id: 'contact', label: 'Contacto' },
+                                ].map(tab => (
+                                    <button
+                                        key={tab.id}
+                                        onClick={() => setActiveTab(tab.id as any)}
+                                        className={`px-4 py-2 rounded-lg text-sm font-bold whitespace-nowrap transition-all ${activeTab === tab.id ? 'bg-teal-50 text-[#0d9488]' : 'text-[var(--text-secondary)] hover:text-[var(--text-main)] hover:bg-gray-50'}`}
+                                    >
+                                        {tab.label}
+                                    </button>
+                                ))}
+                            </div>
 
-                                {/* Vendedor y Ubicación */}
-                                <div className="grid sm:grid-cols-2 gap-4">
-                                    <div>
-                                        <label className={labelClass}>Nombre del Vendedor *</label>
-                                        <input type="text" value={formData.seller_name} onChange={(e) => setFormData({ ...formData, seller_name: e.target.value })} className={inputClass} placeholder="Ej: Corralón El Sol" required />
-                                    </div>
-                                    <div>
-                                        <label className={labelClass}>Ubicación</label>
-                                        <input type="text" value={formData.location} onChange={(e) => setFormData({ ...formData, location: e.target.value })} className={inputClass} placeholder="Ej: San Isidro, Buenos Aires" />
-                                    </div>
-                                </div>
-
-                                {/* Contacto */}
-                                <div className="grid sm:grid-cols-2 gap-4">
-                                    <div>
-                                        <label className={labelClass}>Teléfono de contacto *</label>
-                                        <input type="tel" value={formData.contact_phone} onChange={(e) => setFormData({ ...formData, contact_phone: e.target.value })} className={inputClass} placeholder="+54 11 1234-5678" required />
-                                    </div>
-                                    <div>
-                                        <label className={labelClass}>Email de contacto</label>
-                                        <input type="email" value={formData.contact_email} onChange={(e) => setFormData({ ...formData, contact_email: e.target.value })} className={inputClass} placeholder="ventas@corralon.com" />
-                                    </div>
-                                </div>
-
-                                {/* Precio y Descuento */}
-                                <div className="grid sm:grid-cols-3 gap-4">
-                                    <div>
-                                        <label className={labelClass}>Precio (ARS) *</label>
-                                        <div className="relative">
-                                            <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                                            <input type="number" value={formData.price || ''} onChange={(e) => setFormData({ ...formData, price: parseFloat(e.target.value) || 0 })} className={`${inputClass} pl-10`} placeholder="0" required />
+                            <form onSubmit={handleSubmit} className="space-y-6">
+                                {activeTab === 'basic' && (
+                                    <div className="space-y-4">
+                                        <div>
+                                            <label className="block text-sm font-bold mb-2">Título *</label>
+                                            <input required type="text" value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200" placeholder="Ej: Lote de porcelanatos" />
                                         </div>
-                                    </div>
-                                    <div>
-                                        <label className={labelClass}>Descuento (%)</label>
-                                        <div className="relative">
-                                            <Percent className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                                            <input type="number" min="0" max="100" value={formData.discount || ''} onChange={(e) => setFormData({ ...formData, discount: parseInt(e.target.value) || 0 })} className={`${inputClass} pl-10`} placeholder="0" />
-                                        </div>
-                                    </div>
-                                    <div className="flex items-end pb-1">
-                                        <label className="flex items-center gap-3 cursor-pointer p-3 bg-gray-50 rounded-xl border border-gray-200 w-full hover:bg-teal-50 hover:border-teal-200 transition-colors">
-                                            <input type="checkbox" checked={formData.is_featured} onChange={(e) => setFormData({ ...formData, is_featured: e.target.checked })} className="w-5 h-5 rounded accent-[#0d9488]" />
+                                        <div className="grid sm:grid-cols-2 gap-4">
                                             <div>
-                                                <span className="font-bold text-sm text-[var(--text-main)]">Destacada</span>
-                                                <p className="text-xs text-[var(--text-secondary)]">Aparece primero</p>
+                                                <label className="block text-sm font-bold mb-2">Categoría *</label>
+                                                <CustomSelect options={CATEGORIES.map(c => ({ value: c, label: c }))} value={formData.category} onChange={val => setFormData({ ...formData, category: val })} required placeholder="Seleccionar" />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-bold mb-2">Ubicación</label>
+                                                <input type="text" value={formData.location} onChange={e => setFormData({ ...formData, location: e.target.value })} className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200" placeholder="Ej: Av.ellaneda, Quilmes" />
+                                            </div>
+                                        </div>
+                                        <div className="grid sm:grid-cols-2 gap-4">
+                                            <div>
+                                                <label className="block text-sm font-bold mb-2">Precio (ARS)</label>
+                                                <input type="number" value={formData.price} onChange={e => setFormData({ ...formData, price: parseFloat(e.target.value) || 0 })} className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200" />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-bold mb-2">Descuento (%)</label>
+                                                <input type="number" value={formData.discount} onChange={e => setFormData({ ...formData, discount: parseFloat(e.target.value) || 0 })} className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200" />
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-bold mb-2">Vendedor / Proveedor *</label>
+                                            <input required type="text" value={formData.seller_name} onChange={e => setFormData({ ...formData, seller_name: e.target.value })} className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200" placeholder="Nombre completo o Empresa" />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-bold mb-2">Descripción Corta *</label>
+                                            <textarea required value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200" rows={2} />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-bold mb-2">Descripción Completa</label>
+                                            <textarea value={formData.full_description} onChange={e => setFormData({ ...formData, full_description: e.target.value })} className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200" rows={4} />
+                                        </div>
+                                        <label className="flex items-center gap-3 p-4 rounded-xl cursor-pointer border bg-teal-50 border-teal-200">
+                                            <input type="checkbox" checked={formData.is_featured} onChange={e => setFormData({ ...formData, is_featured: e.target.checked })} className="w-5 h-5 text-teal-600 rounded focus:ring-teal-500" />
+                                            <div>
+                                                <span className="font-bold text-[#0d9488]">Destacar</span>
+                                                <span className="block text-sm text-teal-700/80">Mostrar como oportunidad principal</span>
                                             </div>
                                         </label>
                                     </div>
-                                </div>
+                                )}
 
-                                {/* Descripción Breve */}
-                                <div>
-                                    <label className={labelClass}>Descripción Breve *</label>
-                                    <textarea value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} className={`${inputClass} min-h-[80px] resize-y`} placeholder="Resumen que se muestra en la tarjeta de la oferta" required />
-                                </div>
-
-                                {/* Descripción Completa */}
-                                <div>
-                                    <label className={labelClass}>Descripción Completa</label>
-                                    <textarea value={formData.full_description} onChange={(e) => setFormData({ ...formData, full_description: e.target.value })} className={`${inputClass} min-h-[120px] resize-y`} placeholder="Descripción detallada que se muestra en la página de la oportunidad (especificaciones, medidas, estado, condiciones de venta, etc.)" />
-                                </div>
-
-                                {/* Imagen Principal */}
-                                <div>
-                                    <label className={labelClass}>Imagen Principal (URL) *</label>
-                                    <input type="url" value={formData.image_url} onChange={(e) => setFormData({ ...formData, image_url: e.target.value })} className={inputClass} placeholder="https://..." required />
-                                    {formData.image_url && (
-                                        <div className="mt-3 w-28 h-28 rounded-xl bg-cover bg-center border-2 border-gray-200" style={{ backgroundImage: `url(${formData.image_url})` }} />
-                                    )}
-                                </div>
-
-                                {/* Galería de Imágenes */}
-                                <div>
-                                    <label className={labelClass}>Galería Adicional de Imágenes</label>
-                                    <p className="text-xs text-[var(--text-secondary)] mb-2">Agregá fotos adicionales del producto para mostrar detalles</p>
-                                    <div className="flex gap-2 mb-3">
-                                        <input type="url" value={imagenInput} onChange={(e) => setImagenInput(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), agregarImagen())} className={`${inputClass} flex-1`} placeholder="https://...imagen-adicional.jpg" />
-                                        <button type="button" onClick={agregarImagen} className="px-4 py-2 rounded-xl bg-[#0d9488] text-white font-bold hover:bg-[#0f766e] transition-colors text-sm flex-shrink-0">
-                                            <Plus className="w-4 h-4" />
-                                        </button>
-                                    </div>
-                                    {formData.images.length > 0 && (
-                                        <div className="flex flex-wrap gap-3">
-                                            {formData.images.map((img, i) => (
-                                                <div key={i} className="relative group">
-                                                    <div className="w-24 h-24 rounded-xl bg-cover bg-center border-2 border-gray-200" style={{ backgroundImage: `url(${img})` }} />
-                                                    <button type="button" onClick={() => quitarImagen(img)} className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-red-500 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md">
-                                                        <X className="w-3 h-3" />
-                                                    </button>
-                                                </div>
-                                            ))}
+                                {activeTab === 'images' && (
+                                    <div className="space-y-6">
+                                        <div>
+                                            <label className="block text-sm font-bold mb-2">Imagen Principal *</label>
+                                            <FileUploader folder="oportunidades" accept="images" multiple={false} onUpload={(url) => setFormData({ ...formData, image_url: url })} />
+                                            {formData.image_url && <img src={formData.image_url} alt="Portada" className="mt-4 h-32 rounded-xl border border-gray-200 object-cover" />}
                                         </div>
-                                    )}
-                                </div>
+                                        <div>
+                                            <label className="block text-sm font-bold mb-2">Galería Extra</label>
+                                            <FileUploader folder="oportunidades" accept="images" multiple={true} onUpload={(url) => setFormData({ ...formData, images: [...formData.images || [], url] })} />
+                                            {formData.images && formData.images.length > 0 && (
+                                                <div className="flex gap-2 mt-4 flex-wrap">
+                                                    {formData.images.map((img, i) => (
+                                                        <div key={i} className="relative group">
+                                                            <img src={img} className="h-20 w-20 object-cover rounded shadow" alt="Extra" />
+                                                            <button type="button" onClick={() => setFormData({ ...formData, images: formData.images?.filter((_, idx) => idx !== i) })} className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                                <X className="w-4 h-4" />
+                                                            </button>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
 
-                                {/* Acciones */}
-                                <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-100">
-                                    <button type="button" onClick={cerrarModal} className="px-5 py-2.5 rounded-xl font-bold text-[var(--text-secondary)] hover:bg-gray-100 transition-colors">
-                                        Cancelar
-                                    </button>
-                                    <button
-                                        type="submit"
-                                        disabled={guardando}
-                                        className="px-6 py-2.5 rounded-xl font-bold text-white bg-[#0d9488] hover:bg-[#0f766e] transition-all duration-200 hover:scale-105 shadow-lg shadow-teal-500/20 disabled:opacity-50"
-                                    >
-                                        {guardando ? 'Guardando...' : editando ? 'Guardar Cambios' : 'Publicar Oportunidad'}
-                                    </button>
+                                {activeTab === 'contact' && (
+                                    <div className="space-y-4">
+                                        <div>
+                                            <label className="block text-sm font-bold mb-2">Teléfono de Contacto</label>
+                                            <input type="tel" value={formData.contact_phone} onChange={e => setFormData({ ...formData, contact_phone: e.target.value })} className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200" placeholder="+54 9 11 1234-5678" />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-bold mb-2">Email de Contacto</label>
+                                            <input type="email" value={formData.contact_email} onChange={e => setFormData({ ...formData, contact_email: e.target.value })} className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200" placeholder="ventas@proveedor.com" />
+                                        </div>
+                                    </div>
+                                )}
+
+                                <div className="pt-6 flex justify-end gap-3 mt-8 border-t border-gray-100">
+                                    <button type="button" onClick={closeModal} className="px-6 py-2.5 rounded-xl text-gray-500 hover:bg-gray-100 font-bold transition-colors">Cancelar</button>
+                                    <button type="submit" className="px-6 py-2.5 rounded-xl text-white font-bold bg-[#0d9488] hover:bg-[#0f766e] transition-all">Guardar Localmente</button>
                                 </div>
                             </form>
                         </motion.div>
                     </>
                 )}
             </AnimatePresence>
-        </div>
+
+            <AnimatePresence>
+                {deleteConfirm.open && (
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black/40 z-[60] flex items-center justify-center p-4 backdrop-blur-sm">
+                        <motion.div initial={{ scale: 0.95 }} animate={{ scale: 1 }} exit={{ scale: 0.95 }} className="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl">
+                            <h3 className="text-xl font-bold mb-2 text-gray-900 text-center">¿Eliminar oportunidad?</h3>
+                            <p className="text-gray-500 text-center mb-6">Esta acción no se puede deshacer.</p>
+                            <div className="flex gap-3">
+                                <button onClick={() => setDeleteConfirm({ open: false, item: null })} className="flex-1 px-4 py-3 rounded-xl font-bold text-gray-600 bg-gray-100 hover:bg-gray-200">Cancelar</button>
+                                <button onClick={confirmDelete} className="flex-1 px-4 py-3 rounded-xl font-bold text-white bg-red-500 hover:bg-red-600">Eliminar</button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </div >
     );
 }

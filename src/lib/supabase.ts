@@ -314,13 +314,19 @@ export async function updateOportunidad(id: string, oportunidad: Partial<Oportun
 export async function deleteOportunidad(id: string): Promise<boolean> {
     if (!supabase) return false;
 
-    const { error } = await supabase
+    const { data, error } = await supabase
         .from('oportunidades')
         .delete()
-        .eq('id', id);
+        .eq('id', id)
+        .select();
 
     if (error) {
         console.error('Error deleting oportunidad:', error);
+        return false;
+    }
+
+    if (!data || data.length === 0) {
+        console.error('No se pudo eliminar la oportunidad. Verifica permisos.');
         return false;
     }
 
@@ -397,13 +403,19 @@ export async function updatePropiedad(id: string, propiedad: Partial<Propiedad>)
 export async function deletePropiedad(id: string): Promise<boolean> {
     if (!supabase) return false;
 
-    const { error } = await supabase
+    const { data, error } = await supabase
         .from('propiedades')
         .delete()
-        .eq('id', id);
+        .eq('id', id)
+        .select();
 
     if (error) {
         console.error('Error deleting propiedad:', error);
+        return false;
+    }
+
+    if (!data || data.length === 0) {
+        console.error('No se pudo eliminar la propiedad. RLS puede estar bloqueando.');
         return false;
     }
 
@@ -578,13 +590,19 @@ export async function updateServicio(id: string, servicio: Partial<Servicio>): P
 export async function deleteServicio(id: string): Promise<boolean> {
     if (!supabase) return false;
 
-    const { error } = await supabase
+    const { data, error } = await supabase
         .from('servicios')
         .delete()
-        .eq('id', id);
+        .eq('id', id)
+        .select();
 
     if (error) {
         console.error('Error deleting servicio:', error);
+        return false;
+    }
+
+    if (!data || data.length === 0) {
+        console.error('No se pudo eliminar el servicio. Verifica permisos.');
         return false;
     }
 
@@ -1224,5 +1242,102 @@ export async function sendAgentMessage(
     } catch (e) {
         console.error('Error invocando agente:', e);
         return null;
+    }
+}
+
+// =====================================================
+// STORAGE - File Upload
+// =====================================================
+
+const STORAGE_BUCKET = 'media';
+
+/**
+ * Upload a file to Supabase Storage.
+ * @param file The file to upload
+ * @param folder Optional folder path (e.g. 'propiedades', 'emprendimientos', 'oportunidades')
+ * @returns The public URL of the uploaded file, or null on error
+ */
+export async function uploadFile(
+    file: File,
+    folder: string = 'general'
+): Promise<string | null> {
+    if (!supabase) return null;
+
+    // Generate a unique file name to avoid collisions
+    const timestamp = Date.now();
+    const randomStr = Math.random().toString(36).substring(2, 8);
+    const extension = file.name.split('.').pop()?.toLowerCase() || 'bin';
+    const safeName = `${timestamp}-${randomStr}.${extension}`;
+    const filePath = `${folder}/${safeName}`;
+
+    const { error } = await supabase.storage
+        .from(STORAGE_BUCKET)
+        .upload(filePath, file, {
+            cacheControl: '3600',
+            upsert: false,
+        });
+
+    if (error) {
+        console.error('Error uploading file:', error);
+        return null;
+    }
+
+    // Get the public URL
+    const { data: urlData } = supabase.storage
+        .from(STORAGE_BUCKET)
+        .getPublicUrl(filePath);
+
+    return urlData?.publicUrl || null;
+}
+
+/**
+ * Upload multiple files to Supabase Storage.
+ * @param files Array of files to upload
+ * @param folder Optional folder path
+ * @returns Array of public URLs for successfully uploaded files
+ */
+export async function uploadFiles(
+    files: File[],
+    folder: string = 'general'
+): Promise<string[]> {
+    const urls: string[] = [];
+
+    for (const file of files) {
+        const url = await uploadFile(file, folder);
+        if (url) urls.push(url);
+    }
+
+    return urls;
+}
+
+/**
+ * Delete a file from Supabase Storage by its public URL.
+ * @param publicUrl The public URL of the file to delete
+ * @returns true if deleted successfully
+ */
+export async function deleteStorageFile(publicUrl: string): Promise<boolean> {
+    if (!supabase) return false;
+
+    try {
+        // Extract the file path from the public URL
+        const url = new URL(publicUrl);
+        const pathParts = url.pathname.split(`/storage/v1/object/public/${STORAGE_BUCKET}/`);
+        if (pathParts.length < 2) return false;
+
+        const filePath = decodeURIComponent(pathParts[1]);
+
+        const { error } = await supabase.storage
+            .from(STORAGE_BUCKET)
+            .remove([filePath]);
+
+        if (error) {
+            console.error('Error deleting file:', error);
+            return false;
+        }
+
+        return true;
+    } catch (e) {
+        console.error('Error parsing file URL:', e);
+        return false;
     }
 }

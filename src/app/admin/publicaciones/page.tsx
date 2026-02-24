@@ -30,6 +30,7 @@ import {
     Propiedad
 } from '@/lib/supabase';
 import { useAuth } from '@/context/AuthContext';
+import FileUploader from '@/components/FileUploader';
 
 // TikTok icon component
 const TikTokIcon = ({ className }: { className?: string }) => (
@@ -433,33 +434,77 @@ export default function AdminPublicacionesPage() {
                                 </div>
 
                                 {/* Media */}
-                                <div className="grid sm:grid-cols-2 gap-4">
+                                <div className="space-y-4">
+                                    <label className="block text-sm font-medium text-neutral-300">
+                                        <ImageIcon className="w-4 h-4 inline mr-2" />
+                                        Imagen
+                                    </label>
+                                    {formData.image_url && (
+                                        <div className="relative h-40 rounded-xl overflow-hidden border border-white/10 group">
+                                            <img src={formData.image_url} alt="Preview" className="w-full h-full object-cover" />
+                                            <button
+                                                type="button"
+                                                onClick={() => setFormData({ ...formData, image_url: '' })}
+                                                className="absolute top-2 right-2 p-1.5 rounded-lg bg-red-500 text-white opacity-0 group-hover:opacity-100 transition-opacity shadow-md"
+                                            >
+                                                <X className="w-4 h-4" />
+                                            </button>
+                                        </div>
+                                    )}
+                                    <FileUploader
+                                        folder="publicaciones"
+                                        accept="images"
+                                        multiple={false}
+                                        compact={!!formData.image_url}
+                                        dark={true}
+                                        onUpload={(url) => setFormData({ ...formData, image_url: url })}
+                                        helperText="JPG, PNG, WebP • Máx. 50MB"
+                                    />
                                     <div>
-                                        <label className="block text-sm font-medium text-neutral-300 mb-2">
-                                            <ImageIcon className="w-4 h-4 inline mr-2" />
-                                            URL de Imagen
-                                        </label>
+                                        <p className="text-xs text-neutral-500 mb-1">O pegá una URL:</p>
                                         <input
                                             type="url"
                                             value={formData.image_url}
                                             onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-                                            className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-neutral-500 focus:outline-none focus:border-blue-500 transition-all"
+                                            className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder-neutral-500 focus:outline-none focus:border-blue-500 transition-all text-sm"
                                             placeholder="https://..."
                                         />
                                     </div>
+                                </div>
+
+                                <div className="space-y-4">
+                                    <label className="block text-sm font-medium text-neutral-300">
+                                        <Video className="w-4 h-4 inline mr-2" />
+                                        Video (TikTok / Reels)
+                                    </label>
+                                    <FileUploader
+                                        folder="publicaciones"
+                                        accept="videos"
+                                        multiple={false}
+                                        compact={true}
+                                        dark={true}
+                                        onUpload={(url) => setFormData({ ...formData, video_url: url })}
+                                        helperText="MP4, WebM • Máx. 50MB"
+                                    />
                                     <div>
-                                        <label className="block text-sm font-medium text-neutral-300 mb-2">
-                                            <Video className="w-4 h-4 inline mr-2" />
-                                            URL de Video (TikTok)
-                                        </label>
+                                        <p className="text-xs text-neutral-500 mb-1">O pegá un link:</p>
                                         <input
                                             type="url"
                                             value={formData.video_url}
                                             onChange={(e) => setFormData({ ...formData, video_url: e.target.value })}
-                                            className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-neutral-500 focus:outline-none focus:border-blue-500 transition-all"
+                                            className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder-neutral-500 focus:outline-none focus:border-blue-500 transition-all text-sm"
                                             placeholder="https://..."
                                         />
                                     </div>
+                                    {formData.video_url && (
+                                        <div className="flex items-center gap-2 p-2.5 rounded-lg bg-blue-500/10 border border-blue-500/20">
+                                            <Video className="w-4 h-4 text-blue-400" />
+                                            <span className="text-xs text-blue-300 font-medium truncate flex-1">✓ {formData.video_url}</span>
+                                            <button type="button" onClick={() => setFormData({ ...formData, video_url: '' })} className="p-1 rounded hover:bg-blue-500/20 text-blue-400">
+                                                <X className="w-3 h-3" />
+                                            </button>
+                                        </div>
+                                    )}
                                 </div>
 
                                 {/* Platforms */}

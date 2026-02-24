@@ -9,6 +9,7 @@ import {
     Servicio, getServicios, createServicio, updateServicio, deleteServicio
 } from '@/lib/supabase';
 import StarRating from '@/components/StarRating';
+import FileUploader from '@/components/FileUploader';
 
 const categories = [
     'Electricidad', 'Plomería', 'Carpintería', 'Pintura',
@@ -49,6 +50,7 @@ export default function AdminServiciosPage() {
     const [isSaving, setIsSaving] = useState(false);
     const [activeTab, setActiveTab] = useState<'info' | 'media' | 'skills'>('info');
     const [expandedRow, setExpandedRow] = useState<string | null>(null);
+    const [deleteConfirm, setDeleteConfirm] = useState<{ open: boolean; id: string | null; name: string }>({ open: false, id: null, name: '' });
 
     useEffect(() => { loadServices(); }, []);
 
@@ -134,14 +136,26 @@ export default function AdminServiciosPage() {
         }
     };
 
-    const handleDelete = async (id: string) => {
-        if (!confirm('¿Estás seguro de eliminar este profesional?')) return;
+    const handleDelete = (id: string, name: string) => {
+        setDeleteConfirm({ open: true, id, name });
+    };
+
+    const confirmDelete = async () => {
+        const id = deleteConfirm.id;
+        if (!id) return;
+        setDeleteConfirm({ open: false, id: null, name: '' });
         try {
             const success = await deleteServicio(id);
-            if (success) setServices(services.filter(s => s.id !== id));
+            if (success) {
+                setServices(services.filter(s => s.id !== id));
+            }
         } catch (error) {
-            setServices(services.filter(s => s.id !== id));
+            console.error('Error deleting servicio:', error);
         }
+    };
+
+    const cancelDelete = () => {
+        setDeleteConfirm({ open: false, id: null, name: '' });
     };
 
     const inputClass = "w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 text-[var(--text-main)] placeholder:text-gray-400 focus:outline-none focus:border-[#0d9488] focus:ring-2 focus:ring-[#0d9488]/20 transition-all text-sm";
@@ -269,7 +283,7 @@ export default function AdminServiciosPage() {
                                         <Edit className="w-4 h-4" />
                                     </button>
                                     <button
-                                        onClick={() => handleDelete(service.id)}
+                                        onClick={() => handleDelete(service.id, service.name)}
                                         className="p-2 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors"
                                     >
                                         <Trash2 className="w-4 h-4" />
@@ -442,24 +456,51 @@ export default function AdminServiciosPage() {
                                 {activeTab === 'media' && (
                                     <>
                                         <div>
-                                            <label className={labelClass}>Foto de Perfil (URL) *</label>
-                                            <input type="url" value={formData.image_url} onChange={(e) => setFormData({ ...formData, image_url: e.target.value })} className={inputClass} placeholder="https://..." required />
+                                            <label className={labelClass}>Foto de Perfil</label>
                                             {formData.image_url && (
-                                                <div className="mt-3 w-24 h-24 rounded-xl bg-cover bg-center border-2 border-gray-200" style={{ backgroundImage: `url(${formData.image_url})` }} />
+                                                <div className="mb-3 w-24 h-24 rounded-xl bg-cover bg-center border-2 border-gray-200 relative group" style={{ backgroundImage: `url(${formData.image_url})` }}>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setFormData({ ...formData, image_url: '' })}
+                                                        className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-red-500 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md"
+                                                    >
+                                                        <X className="w-3 h-3" />
+                                                    </button>
+                                                </div>
                                             )}
+                                            <FileUploader
+                                                folder="servicios"
+                                                accept="images"
+                                                multiple={false}
+                                                compact={!!formData.image_url}
+                                                onUpload={(url) => setFormData(prev => ({ ...prev, image_url: url }))}
+                                                helperText="JPG, PNG, WebP • Máx. 50MB"
+                                            />
+                                            <div className="mt-2">
+                                                <p className="text-xs text-gray-400 mb-1">O pegá una URL:</p>
+                                                <input type="url" value={formData.image_url} onChange={(e) => setFormData({ ...formData, image_url: e.target.value })} className={`${inputClass} text-sm`} placeholder="https://..." />
+                                            </div>
                                         </div>
 
                                         <div>
                                             <label className={labelClass}>Galería de Trabajos</label>
-                                            <p className="text-xs text-[var(--text-secondary)] mb-2">Agrega URLs de fotos de trabajos realizados</p>
-                                            <div className="flex gap-2 mb-3">
-                                                <input type="url" value={imageInput} onChange={(e) => setImageInput(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addToList('images', imageInput, setImageInput))} className={`${inputClass} flex-1`} placeholder="https://...imagen-del-trabajo.jpg" />
+                                            <p className="text-xs text-[var(--text-secondary)] mb-2">Subí fotos de trabajos realizados</p>
+                                            <FileUploader
+                                                folder="servicios"
+                                                accept="images"
+                                                multiple={true}
+                                                compact={true}
+                                                onUpload={(url) => setFormData(prev => ({ ...prev, images: [...prev.images, url] }))}
+                                                helperText="Subí múltiples fotos a la vez"
+                                            />
+                                            <div className="flex gap-2 mt-3">
+                                                <input type="url" value={imageInput} onChange={(e) => setImageInput(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addToList('images', imageInput, setImageInput))} className={`${inputClass} flex-1 text-sm`} placeholder="O pegá una URL de imagen" />
                                                 <button type="button" onClick={() => addToList('images', imageInput, setImageInput)} className="px-4 py-2 rounded-xl bg-[#0d9488] text-white font-bold hover:bg-[#0f766e] transition-colors text-sm flex-shrink-0">
                                                     <Plus className="w-4 h-4" />
                                                 </button>
                                             </div>
                                             {formData.images.length > 0 && (
-                                                <div className="flex flex-wrap gap-3">
+                                                <div className="flex flex-wrap gap-3 mt-3">
                                                     {formData.images.map((img, i) => (
                                                         <div key={i} className="relative group">
                                                             <div className="w-24 h-24 rounded-xl bg-cover bg-center border-2 border-gray-200" style={{ backgroundImage: `url(${img})` }} />
@@ -473,13 +514,27 @@ export default function AdminServiciosPage() {
                                         </div>
 
                                         <div>
-                                            <label className={labelClass}>Video de Presentación (URL)</label>
-                                            <p className="text-xs text-[var(--text-secondary)] mb-2">YouTube, Vimeo o enlace directo a MP4</p>
-                                            <input type="url" value={formData.video_url} onChange={(e) => setFormData({ ...formData, video_url: e.target.value })} className={inputClass} placeholder="https://youtube.com/watch?v=..." />
+                                            <label className={labelClass}>Video de Presentación</label>
+                                            <p className="text-xs text-[var(--text-secondary)] mb-2">Subí un video o pegá un link de YouTube</p>
+                                            <FileUploader
+                                                folder="servicios"
+                                                accept="videos"
+                                                multiple={false}
+                                                compact={true}
+                                                onUpload={(url) => setFormData(prev => ({ ...prev, video_url: url }))}
+                                                helperText="MP4, WebM • Máx. 50MB"
+                                            />
+                                            <div className="mt-2">
+                                                <p className="text-xs text-gray-400 mb-1">O pegá un link:</p>
+                                                <input type="url" value={formData.video_url} onChange={(e) => setFormData({ ...formData, video_url: e.target.value })} className={`${inputClass} text-sm`} placeholder="https://youtube.com/watch?v=..." />
+                                            </div>
                                             {formData.video_url && (
                                                 <div className="mt-3 flex items-center gap-2 p-3 bg-blue-50 rounded-xl border border-blue-100">
                                                     <Video className="w-5 h-5 text-blue-600" />
-                                                    <span className="text-sm text-blue-700 font-medium truncate">{formData.video_url}</span>
+                                                    <span className="text-sm text-blue-700 font-medium truncate flex-1">{formData.video_url}</span>
+                                                    <button type="button" onClick={() => setFormData({ ...formData, video_url: '' })} className="p-1 rounded hover:bg-blue-100 text-blue-500">
+                                                        <X className="w-3 h-3" />
+                                                    </button>
                                                 </div>
                                             )}
                                         </div>
@@ -555,6 +610,44 @@ export default function AdminServiciosPage() {
                             </form>
                         </motion.div>
                     </>
+                )}
+            </AnimatePresence>
+
+            {/* Delete Confirmation Modal */}
+            <AnimatePresence>
+                {deleteConfirm.open && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100]"
+                        onClick={cancelDelete}
+                    >
+                        <motion.div
+                            initial={{ scale: 0.9, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.9, opacity: 0 }}
+                            onClick={(e) => e.stopPropagation()}
+                            className="bg-white rounded-2xl p-6 max-w-md w-full mx-4 shadow-2xl"
+                        >
+                            <div className="flex items-center gap-3 mb-4">
+                                <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
+                                    <Trash2 className="w-6 h-6 text-red-600" />
+                                </div>
+                                <div>
+                                    <h3 className="text-lg font-bold text-gray-900">Eliminar profesional</h3>
+                                    <p className="text-sm text-gray-500">Esta acción no se puede deshacer</p>
+                                </div>
+                            </div>
+                            <p className="text-gray-700 mb-6">
+                                ¿Estás seguro de eliminar a <strong>{deleteConfirm.name}</strong>?
+                            </p>
+                            <div className="flex gap-3 justify-end">
+                                <button onClick={cancelDelete} className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors">Cancelar</button>
+                                <button onClick={confirmDelete} className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition-colors">Sí, eliminar</button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
                 )}
             </AnimatePresence>
         </div>
