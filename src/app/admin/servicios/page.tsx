@@ -36,6 +36,11 @@ const emptyForm = {
     certifications: [] as string[],
 };
 
+const PERMISSION_ERROR =
+    'Supabase rechazó la operación por permisos (RLS). Para escribir en la tabla `servicios` necesitás rol admin o superadmin. ' +
+    'Si acabás de ampliar la política, verificá que se haya ejecutado el archivo `supabase-migration-servicios-rls.sql`. ' +
+    'El formulario sigue abierto: no se perdió nada.';
+
 export default function AdminServiciosPage() {
     const [services, setServices] = useState<Servicio[]>([]);
     const [searchQuery, setSearchQuery] = useState('');
@@ -48,6 +53,8 @@ export default function AdminServiciosPage() {
     const [imageInput, setImageInput] = useState('');
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
+    const [saveError, setSaveError] = useState<string | null>(null);
+    const [listError, setListError] = useState<string | null>(null);
     const [activeTab, setActiveTab] = useState<'info' | 'media' | 'skills'>('info');
     const [expandedRow, setExpandedRow] = useState<string | null>(null);
     const [deleteConfirm, setDeleteConfirm] = useState<{ open: boolean; id: string | null; name: string }>({ open: false, id: null, name: '' });
@@ -96,6 +103,7 @@ export default function AdminServiciosPage() {
             setFormData(emptyForm);
         }
         setActiveTab('info');
+        setSaveError(null);
         setIsModalOpen(true);
     };
 
@@ -103,6 +111,7 @@ export default function AdminServiciosPage() {
         setIsModalOpen(false);
         setEditingServicio(null);
         setFormData(emptyForm);
+        setSaveError(null);
         setSkillInput(''); setCertInput(''); setTechInput(''); setImageInput('');
     };
 
@@ -120,17 +129,28 @@ export default function AdminServiciosPage() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsSaving(true);
+        setSaveError(null);
         try {
             if (editingServicio) {
                 const updated = await updateServicio(editingServicio.id, formData);
-                if (updated) setServices(services.map(s => s.id === editingServicio.id ? updated : s));
+                if (!updated) {
+                    // No se cerraba el modal: el usuario creía que había guardado.
+                    setSaveError(PERMISSION_ERROR);
+                    return;
+                }
+                setServices(services.map(s => s.id === editingServicio.id ? updated : s));
             } else {
-                const created = await createServicio(formData as any);
-                if (created) setServices([created, ...services]);
+                const created = await createServicio(formData);
+                if (!created) {
+                    setSaveError(PERMISSION_ERROR);
+                    return;
+                }
+                setServices([created, ...services]);
             }
             closeModal();
         } catch (error) {
             console.error('Error saving servicio:', error);
+            setSaveError('Ocurrió un error inesperado al guardar. Mirá la consola del navegador para más detalles.');
         } finally {
             setIsSaving(false);
         }
@@ -144,13 +164,17 @@ export default function AdminServiciosPage() {
         const id = deleteConfirm.id;
         if (!id) return;
         setDeleteConfirm({ open: false, id: null, name: '' });
+        setListError(null);
         try {
             const success = await deleteServicio(id);
             if (success) {
                 setServices(services.filter(s => s.id !== id));
+            } else {
+                setListError('Supabase rechazó el borrado por permisos (RLS). Necesitás rol admin o superadmin sobre la tabla `servicios`.');
             }
         } catch (error) {
             console.error('Error deleting servicio:', error);
+            setListError('Ocurrió un error inesperado al eliminar. Mirá la consola del navegador.');
         }
     };
 
@@ -209,6 +233,17 @@ export default function AdminServiciosPage() {
                     <p className="text-2xl font-bold text-[var(--text-main)]">{new Set(services.map(s => s.category)).size}</p>
                 </div>
             </div>
+
+            {/* Error de listado (borrado rechazado por RLS) */}
+            {listError && (
+                <div className="mb-4 flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50 px-4 py-3">
+                    <span className="mt-0.5 text-xs font-bold uppercase tracking-wide text-red-600">Error</span>
+                    <p className="text-sm font-medium text-red-700">{listError}</p>
+                    <button onClick={() => setListError(null)} className="ml-auto text-red-400 hover:text-red-700">
+                        <X className="w-4 h-4" />
+                    </button>
+                </div>
+            )}
 
             {/* Cards Grid */}
             {isLoading ? (
@@ -592,6 +627,14 @@ export default function AdminServiciosPage() {
                                             </div>
                                         </div>
                                     </>
+                                )}
+
+                                {/* Save error */}
+                                {saveError && (
+                                    <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3">
+                                        <p className="text-sm font-bold text-red-700">No se pudo guardar</p>
+                                        <p className="mt-1 text-sm font-medium text-red-600">{saveError}</p>
+                                    </div>
                                 )}
 
                                 {/* Actions */}

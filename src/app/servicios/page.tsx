@@ -1,112 +1,34 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Wrench, Search } from 'lucide-react';
 import ServiceCard from '@/components/ServiceCard';
 import BannerAd from '@/components/BannerAd';
 import { Servicio, getServicios } from '@/lib/supabase';
-
-// Mock categories
-const categories = [
-    'Todos',
-    'Electricidad',
-    'Plomería',
-    'Carpintería',
-    'Pintura',
-    'Climatización',
-    'Jardinería',
-    'Limpieza',
-];
-
-// Mock data for demo
-const mockServices: Servicio[] = [
-    {
-        id: '1',
-        name: 'Juan Pérez',
-        skill_tags: ['Instalaciones eléctricas', 'Reparaciones', 'Iluminación LED'],
-        contact: '+54 11 1234-5678',
-        phone: '+541112345678',
-        email: 'juan.perez@email.com',
-        rating: 4.8,
-        image_url: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400',
-        category: 'Electricidad',
-        description: 'Electricista matriculado con más de 15 años de experiencia en instalaciones residenciales y comerciales.',
-        created_at: new Date().toISOString(),
-    },
-    {
-        id: '2',
-        name: 'Roberto Gómez',
-        skill_tags: ['Plomería general', 'Gas', 'Destapes'],
-        contact: '+54 11 2345-6789',
-        phone: '+541123456789',
-        email: 'roberto@plomeria.com',
-        rating: 4.9,
-        image_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400',
-        category: 'Plomería',
-        description: 'Gasista matriculado. Trabajos de plomería y gas con garantía escrita.',
-        created_at: new Date().toISOString(),
-    },
-    {
-        id: '3',
-        name: 'María Fernández',
-        skill_tags: ['Pintura interior', 'Pintura exterior', 'Empapelado'],
-        contact: '+54 11 3456-7890',
-        phone: '+541134567890',
-        email: 'maria.pinturas@email.com',
-        rating: 4.7,
-        image_url: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400',
-        category: 'Pintura',
-        description: 'Especialista en pintura decorativa y acabados de alta calidad.',
-        created_at: new Date().toISOString(),
-    },
-    {
-        id: '4',
-        name: 'Carlos Mendoza',
-        skill_tags: ['Muebles a medida', 'Reparaciones', 'Restauración'],
-        contact: '+54 11 4567-8901',
-        phone: '+541145678901',
-        email: 'carlos.carpintero@email.com',
-        rating: 5.0,
-        image_url: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400',
-        category: 'Carpintería',
-        description: 'Carpintero artesanal especializado en muebles a medida y restauración de antigüedades.',
-        created_at: new Date().toISOString(),
-    },
-    {
-        id: '5',
-        name: 'Lucía Torres',
-        skill_tags: ['Aire acondicionado', 'Calefacción', 'Ventilación'],
-        contact: '+54 11 5678-9012',
-        phone: '+541156789012',
-        email: 'lucia.clima@email.com',
-        rating: 4.6,
-        image_url: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=400',
-        category: 'Climatización',
-        description: 'Técnica certificada en sistemas de climatización para hogares y oficinas.',
-        created_at: new Date().toISOString(),
-    },
-    {
-        id: '6',
-        name: 'Diego Ramírez',
-        skill_tags: ['Diseño de jardines', 'Mantenimiento', 'Riego'],
-        contact: '+54 11 6789-0123',
-        phone: '+541167890123',
-        email: 'diego.jardin@email.com',
-        rating: 4.8,
-        image_url: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400',
-        category: 'Jardinería',
-        description: 'Paisajista con experiencia en diseño y mantenimiento de espacios verdes.',
-        created_at: new Date().toISOString(),
-    },
-];
+import { mockServicios } from '@/lib/mockServicios';
 
 export default function ServiciosPage() {
-    const [services, setServices] = useState<Servicio[]>(mockServices);
-    const [filteredServices, setFilteredServices] = useState<Servicio[]>(mockServices);
+    const [services, setServices] = useState<Servicio[]>(mockServicios);
+    const [filteredServices, setFilteredServices] = useState<Servicio[]>(mockServicios);
     const [activeCategory, setActiveCategory] = useState('Todos');
     const [searchQuery, setSearchQuery] = useState('');
     const [isLoading, setIsLoading] = useState(true);
+
+    // Categorías derivadas de los datos reales: toda categoría que exista en la
+    // base (o en el fallback de demo) aparece como filtro seleccionable.
+    const categories = useMemo(() => {
+        const present = new Set(services.map(s => s.category).filter(Boolean));
+        const preferred = ['Electricidad', 'Plomería', 'Carpintería', 'Pintura', 'Climatización', 'Jardinería', 'Limpieza'];
+        const ordered = preferred.filter(c => present.has(c));
+        const rest = [...present].filter(c => !preferred.includes(c)).sort();
+        return ['Todos', ...ordered, ...rest];
+    }, [services]);
+
+    // Si la categoría seleccionada dejara de existir (p. ej. cambian los datos
+    // de la base), caemos a "Todos" derivando el valor, sin escribir en el
+    // estado desde dentro de un useEffect.
+    const effectiveCategory = categories.includes(activeCategory) ? activeCategory : 'Todos';
 
     useEffect(() => {
         const loadServices = async () => {
@@ -130,8 +52,8 @@ export default function ServiciosPage() {
         let result = services;
 
         // Filter by category
-        if (activeCategory !== 'Todos') {
-            result = result.filter(s => s.category === activeCategory);
+        if (effectiveCategory !== 'Todos') {
+            result = result.filter(s => s.category === effectiveCategory);
         }
 
         // Filter by search query
@@ -146,7 +68,7 @@ export default function ServiciosPage() {
         }
 
         setFilteredServices(result);
-    }, [activeCategory, searchQuery, services]);
+    }, [effectiveCategory, searchQuery, services]);
 
     return (
         <div className="py-12 bg-[var(--bg-page)]">
@@ -207,12 +129,12 @@ export default function ServiciosPage() {
                             <button
                                 key={category}
                                 onClick={() => setActiveCategory(category)}
-                                className={`px-5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${activeCategory === category
+                                className={`px-5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${effectiveCategory === category
                                     ? 'text-white shadow-md'
                                     : 'text-[var(--text-secondary)] hover:text-[var(--text-main)] hover:bg-white bg-gray-50'
                                     }`}
                                 style={{
-                                    background: activeCategory === category
+                                    background: effectiveCategory === category
                                         ? 'var(--primary-blue)'
                                         : undefined,
                                 }}

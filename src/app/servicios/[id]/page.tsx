@@ -22,56 +22,9 @@ import {
     ChevronRight
 } from 'lucide-react';
 import { getServicio, Servicio } from '@/lib/supabase';
+import { mockServicios } from '@/lib/mockServicios';
 import Navbar from '@/components/Navbar';
 import StarRating from '@/components/StarRating';
-
-// Mock data extension for details page
-const mockServicesDetails: Record<string, Servicio> = {
-    '1': {
-        id: '1',
-        name: 'Juan Pérez',
-        skill_tags: ['Instalaciones eléctricas', 'Reparaciones', 'Iluminación LED'],
-        contact: '+54 11 1234-5678',
-        phone: '+541112345678',
-        email: 'juan.perez@email.com',
-        rating: 4.8,
-        image_url: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400',
-        category: 'Electricidad',
-        description: 'Electricista matriculado con más de 15 años de experiencia en instalaciones residenciales y comerciales.',
-        full_description: 'Especialista en todo tipo de instalaciones eléctricas residenciales e industriales. Realizo recableados completos, instalaciones de tableros, iluminación LED arquitectónica y sistemas de seguridad. Más de 15 años de experiencia brindando soluciones eléctricas seguras y garantizadas bajo normas vigentes y altos estándares de calidad.',
-        certifications: ['Matricula GCBA N° 12345', 'Curso avanzado en Domótica e IoT (UBA)', 'Especialización en Tableros Industriales'],
-        techniques: ['Cableado estructurado', 'Normas IRAM', 'Instalación de cámaras IP', 'Medición de puesta a tierra'],
-        budget_info: 'Ofrezco presupuestos detallados sin cargo tras una visita técnica. Garantía de 6 meses escrita por cada trabajo realizado. Acepto depósitos, transferencias y tarjetas de crédito mediante MercadoPago.',
-        video_url: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-        images: [
-            'https://images.unsplash.com/photo-1555963966-b7ae5404b6ed?w=800', // Cables/electric
-            'https://images.unsplash.com/photo-1621905252507-b35492cc74b4?w=800',
-            'https://images.unsplash.com/photo-1599839619722-39751411ea63?w=800'
-        ],
-        created_at: new Date().toISOString(),
-    },
-    '2': {
-        id: '2',
-        name: 'Roberto Gómez',
-        skill_tags: ['Plomería general', 'Gas', 'Destapes'],
-        contact: '+54 11 2345-6789',
-        phone: '+541123456789',
-        email: 'roberto@plomeria.com',
-        rating: 4.9,
-        image_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400',
-        category: 'Plomería',
-        description: 'Gasista matriculado. Trabajos de plomería y gas con garantía escrita.',
-        full_description: 'Experto plomero y gasista matriculado. Realizo destapes con máquina, detección de fugas (agua y gas) con tecnología de ultrasonido e instalaciones completas para obras nuevas o refacciones. Comprometido con la limpieza, la puntualidad y la seguridad de cada familia en su hogar.',
-        certifications: ['Gasista Matriculado 1ra Categoría Metrogas', 'Curso en Detección Electrónica de Fugas'],
-        techniques: ['Termofusión', 'Soldadura de plata para refrigeración', 'Pruebas de hermeticidad'],
-        budget_info: 'Solicita cotización por teléfono. Presupuesto sin cargo en zona CABA. Trabajos con materiales de primera marca. Garantía de 1 año en instalaciones nuevas.',
-        images: [
-            'https://images.unsplash.com/photo-1585704032915-c3400ca199e7?w=800', // Pipes
-            'https://images.unsplash.com/photo-1607519658739-1bc9d2b2fdfe?w=800'
-        ],
-        created_at: new Date().toISOString(),
-    }
-};
 
 export default function ServicioDetailPage() {
     const params = useParams();
@@ -85,13 +38,14 @@ export default function ServicioDetailPage() {
         const loadService = async () => {
             if (!params.id) return;
 
-            const data = await getServicio(params.id as string);
+            const id = params.id as string;
+            const data = await getServicio(id);
             if (data) {
                 setService(data);
             } else {
-                // Check mock
-                const mock = mockServicesDetails[params.id as string] || mockServicesDetails['1'];
-                setService(mock);
+                // Fallback de demo: sólo si el id existe realmente en la lista mock.
+                // Si no existe, service queda en null y se muestra "no encontrado".
+                setService(mockServicios.find(s => s.id === id) ?? null);
             }
             setLoading(false);
         };

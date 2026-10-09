@@ -224,9 +224,11 @@ CREATE POLICY "Admins can delete own propiedades" ON propiedades
 CREATE POLICY "SuperAdmins full access on noticias" ON noticias
   FOR ALL USING (public.get_my_role() = 'superadmin');
 
--- SERVICIOS: Only SuperAdmins can manage
-CREATE POLICY "SuperAdmins full access on servicios" ON servicios
-  FOR ALL USING (public.get_my_role() = 'superadmin');
+-- SERVICIOS: Admins and SuperAdmins can manage
+CREATE POLICY "Admins full access on servicios" ON servicios
+  FOR ALL
+  USING (public.get_my_role() IN ('admin', 'superadmin'))
+  WITH CHECK (public.get_my_role() IN ('admin', 'superadmin'));
 
 -- =====================================================
 -- SITE CONFIG (Admin-configurable contact info)
