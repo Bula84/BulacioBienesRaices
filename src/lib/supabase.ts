@@ -1192,6 +1192,45 @@ export async function createChatConversation(propertyId: string): Promise<ChatCo
     return data as ChatConversation;
 }
 
+// ===== SOCIAL MEDIA CONFIG =====
+
+export async function getSocialMediaConfigs(): Promise<SocialMediaConfig[]> {
+    if (!supabase) return [];
+
+    const { data, error } = await supabase
+        .from('social_media_config')
+        .select('*')
+        .order('platform');
+
+    if (error) {
+        console.error('Error fetching social media limits:', error);
+        return [];
+    }
+
+    return data as SocialMediaConfig[];
+}
+
+export async function upsertSocialMediaConfig(config: Partial<SocialMediaConfig>): Promise<boolean> {
+    if (!supabase) return false;
+
+    // ensure platform exists
+    if (!config.platform) return false;
+
+    const { error } = await supabase
+        .from('social_media_config')
+        .upsert({
+            ...config,
+            updated_at: new Date().toISOString()
+        }, { onConflict: 'platform' });
+
+    if (error) {
+        console.error('Error upserting social media config:', error);
+        return false;
+    }
+
+    return true;
+}
+
 export async function updateChatConversation(id: string, updates: Partial<ChatConversation>): Promise<boolean> {
     if (!supabase) return false;
 

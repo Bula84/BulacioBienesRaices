@@ -57,7 +57,7 @@ export default function Footer() {
                                 </div>
                                 <div>
                                     <span className="text-xl font-bold text-[var(--text-main)] block font-headings">
-                                        BC BienesRaices
+                                        Bulacio Bienes Raíces
                                     </span>
                                     <span className="text-sm text-[var(--text-secondary)] block -mt-1 font-medium">Tu hogar es tu refugio</span>
                                 </div>
@@ -145,7 +145,7 @@ export default function Footer() {
                     {/* Bottom Bar */}
                     <div className="mt-16 pt-8 border-t border-gray-200 flex flex-col md:flex-row items-center justify-between gap-6">
                         <p className="text-[var(--text-secondary)] text-sm font-medium">
-                            © {currentYear} BC BienesRaices. Todos los derechos reservados.
+                            © {currentYear} Bulacio Bienes Raíces. Todos los derechos reservados.
                         </p>
 
                         {/* Social Links */}

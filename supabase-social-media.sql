@@ -6,7 +6,7 @@
 -- Tabla para configuración de redes sociales
 CREATE TABLE IF NOT EXISTS social_media_config (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  platform TEXT NOT NULL CHECK (platform IN ('facebook', 'instagram', 'tiktok')),
+  platform TEXT NOT NULL UNIQUE CHECK (platform IN ('facebook', 'instagram', 'tiktok')),
   access_token TEXT,
   refresh_token TEXT,
   page_id TEXT, -- For Facebook Pages

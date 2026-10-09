@@ -13,11 +13,11 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: {
-    default: "BC BienesRaíces – Propiedades, Emprendimientos y Servicios",
-    template: "%s | BC BienesRaíces",
+    default: "Bulacio Bienes Raíces – Propiedades, Emprendimientos y Servicios",
+    template: "%s | Bulacio Bienes Raíces",
   },
   description:
-    "Encuentra propiedades, emprendimientos y servicios profesionales en BC BienesRaíces. La plataforma inmobiliaria líder de Argentina.",
+    "Encuentra propiedades, emprendimientos y servicios profesionales en Bulacio Bienes Raíces. La plataforma inmobiliaria líder de Argentina.",
   keywords: [
     "bienes raices",
     "propiedades",
@@ -27,17 +27,17 @@ export const metadata: Metadata = {
     "venta",
     "argentina",
   ],
-  authors: [{ name: "BC BienesRaíces" }],
-  creator: "BC BienesRaíces",
-  metadataBase: new URL("https://bcbienesraices.com"),
+  authors: [{ name: "Bulacio Bienes Raíces" }],
+  creator: "Bulacio Bienes Raíces",
+  metadataBase: new URL("https://bulaciobienesraices.com"),
   openGraph: {
     type: "website",
     locale: "es_AR",
-    url: "https://bcbienesraices.com",
-    siteName: "BC BienesRaíces",
-    title: "BC BienesRaíces – Propiedades, Emprendimientos y Servicios",
+    url: "https://bulaciobienesraices.com",
+    siteName: "Bulacio Bienes Raíces",
+    title: "Bulacio Bienes Raíces – Propiedades, Emprendimientos y Servicios",
     description:
-      "Encuentra propiedades, emprendimientos y servicios profesionales en BC BienesRaíces.",
+      "Encuentra propiedades, emprendimientos y servicios profesionales en Bulacio Bienes Raíces.",
   },
   robots: {
     index: true,

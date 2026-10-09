@@ -41,7 +41,7 @@ export default function PropertyChat({ property }: PropertyChatProps) {
 
     // Generate local fallback greeting using property data
     const generateLocalGreeting = (): string => {
-        return `¡Hola! 👋 Soy el asistente de BC BienesRaíces.\n\nEstás consultando por:\n🏠 ${property.title}\n📍 ${property.address || 'Ubicación por confirmar'}\n💰 USD ${property.price?.toLocaleString('es-AR') || 'Consultar'}\n\n¿En qué puedo ayudarte?`;
+        return `¡Hola! 👋 Soy el asistente de Bulacio Bienes Raíces.\n\nEstás consultando por:\n🏠 ${property.title}\n📍 ${property.address || 'Ubicación por confirmar'}\n💰 USD ${property.price?.toLocaleString('es-AR') || 'Consultar'}\n\n¿En qué puedo ayudarte?`;
     };
 
     // Generate local fallback response for when Edge Function is unavailable
@@ -243,7 +243,7 @@ export default function PropertyChat({ property }: PropertyChatProps) {
                                 <Bot className="w-5 h-5 text-white" />
                             </div>
                             <div className="flex-1">
-                                <h3 className="text-white font-bold text-sm">Asistente BC BienesRaíces</h3>
+                                <h3 className="text-white font-bold text-sm">Asistente Bulacio Bienes Raíces</h3>
                                 <div className="flex items-center gap-1.5">
                                     <span className="w-2 h-2 rounded-full bg-emerald-300 animate-pulse" />
                                     <span className="text-teal-100 text-xs font-medium">En línea</span>
@@ -354,7 +354,7 @@ export default function PropertyChat({ property }: PropertyChatProps) {
                                 </button>
                             </div>
                             <p className="text-center text-[10px] text-gray-400 mt-2 font-medium">
-                                Asistente IA · BC BienesRaíces
+                                Asistente IA · Bulacio Bienes Raíces
                             </p>
                         </div>
                     </motion.div>

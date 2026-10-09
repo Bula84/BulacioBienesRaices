@@ -86,7 +86,7 @@ export default function Navbar() {
                         </div>
                         <div className="hidden sm:block">
                             <span className="text-lg font-bold text-gradient block leading-tight" style={{ fontFamily: 'var(--font-heading)' }}>
-                                BC BienesRaices
+                                Bulacio Bienes Raíces
                             </span>
                             <span className="text-xs text-[var(--text-secondary)] block -mt-0.5 font-medium">Tu hogar, tu refugio</span>
                         </div>

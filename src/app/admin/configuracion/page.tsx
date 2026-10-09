@@ -4,19 +4,29 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Settings, Save, Phone, Mail, MapPin, Clock, MessageCircle,
-    Inbox, Trash2, Eye, EyeOff, CheckCircle, X, Building2, ChevronDown, ChevronUp
+    Inbox, Trash2, Eye, EyeOff, CheckCircle, X, Building2, ChevronDown, ChevronUp,
+    Share2, Facebook, Instagram, Video
 } from 'lucide-react';
 import {
     ContactInfo, getContactInfo, updateContactInfo,
-    ContactMessage, getContactMessages, markMessageRead, deleteContactMessage
+    ContactMessage, getContactMessages, markMessageRead, deleteContactMessage,
+    SocialMediaConfig, getSocialMediaConfigs, upsertSocialMediaConfig
 } from '@/lib/supabase';
 
+// TikTok icon component
+const TikTokIcon = ({ className }: { className?: string }) => (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+        <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z" />
+    </svg>
+);
+
 export default function AdminConfigPage() {
-    const [pestana, setPestana] = useState<'contacto' | 'mensajes'>('contacto');
+    const [pestana, setPestana] = useState<'contacto' | 'mensajes' | 'redes'>('contacto');
     const [contactInfo, setContactInfo] = useState<ContactInfo>({
         phone: '', email: '', whatsapp: '', address: '', business_hours: '',
     });
     const [mensajes, setMensajes] = useState<ContactMessage[]>([]);
+    const [socialConfigs, setSocialConfigs] = useState<SocialMediaConfig[]>([]);
     const [cargando, setCargando] = useState(true);
     const [guardando, setGuardando] = useState(false);
     const [guardadoOk, setGuardadoOk] = useState(false);
@@ -29,9 +39,25 @@ export default function AdminConfigPage() {
     const cargarDatos = async () => {
         setCargando(true);
         try {
-            const [info, msgs] = await Promise.all([getContactInfo(), getContactMessages()]);
+            const [info, msgs, socials] = await Promise.all([
+                getContactInfo(),
+                getContactMessages(),
+                getSocialMediaConfigs()
+            ]);
             setContactInfo(info);
             setMensajes(msgs);
+            // Default setup if not present
+            const defSocials = [
+                { platform: 'facebook', is_active: false },
+                { platform: 'instagram', is_active: false },
+                { platform: 'tiktok', is_active: false },
+            ] as SocialMediaConfig[];
+
+            const mergedSocials = defSocials.map(def => {
+                const found = socials.find(s => s.platform === def.platform);
+                return found ? found : def;
+            });
+            setSocialConfigs(mergedSocials);
         } catch (error) {
             console.error('Error cargando datos:', error);
         } finally {
@@ -52,6 +78,27 @@ export default function AdminConfigPage() {
         } finally {
             setGuardando(false);
         }
+    };
+
+    const handleGuardarRedes = async (config: SocialMediaConfig) => {
+        setGuardando(true);
+        try {
+            const ok = await upsertSocialMediaConfig(config);
+            if (ok) {
+                setGuardadoOk(true);
+                setTimeout(() => setGuardadoOk(false), 3000);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        } finally {
+            setGuardando(false);
+        }
+    };
+
+    const updateSocialConfig = (platform: string, field: string, value: any) => {
+        setSocialConfigs(prev => prev.map(c =>
+            c.platform === platform ? { ...c, [field]: value } : c
+        ));
     };
 
     const handleMarcarLeido = async (id: string, leido: boolean) => {
@@ -94,6 +141,13 @@ export default function AdminConfigPage() {
                     {noLeidos > 0 && (
                         <span className="px-2 py-0.5 text-xs font-bold rounded-full bg-[#0d9488] text-white">{noLeidos}</span>
                     )}
+                </button>
+                <button
+                    onClick={() => setPestana('redes')}
+                    className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-bold transition-all ${pestana === 'redes' ? 'bg-white text-[var(--text-main)] shadow-sm' : 'text-[var(--text-secondary)] hover:text-[var(--text-main)]'}`}
+                >
+                    <Share2 className="w-4 h-4" />
+                    Redes Sociales
                 </button>
             </div>
 
@@ -274,6 +328,105 @@ export default function AdminConfigPage() {
                             </div>
                         ))
                     )}
+                </motion.div>
+            )}
+
+            {/* Pestaña: Redes Sociales */}
+            {pestana === 'redes' && (
+                <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="space-y-6 max-w-3xl"
+                >
+                    {socialConfigs.map(config => (
+                        <div key={config.platform} className="bg-white rounded-2xl p-8 border border-gray-100 shadow-sm">
+                            <div className="flex items-center justify-between mb-6 pb-6 border-b border-gray-100">
+                                <div className="flex items-center gap-3">
+                                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-white ${config.platform === 'facebook' ? 'bg-[#1877F2]' :
+                                        config.platform === 'instagram' ? 'bg-gradient-to-tr from-[#f09433] via-[#e6683c] to-[#bc1888]' :
+                                            'bg-black'
+                                        }`}>
+                                        {config.platform === 'facebook' && <Facebook className="w-6 h-6" />}
+                                        {config.platform === 'instagram' && <Instagram className="w-6 h-6" />}
+                                        {config.platform === 'tiktok' && <TikTokIcon className="w-6 h-6" />}
+                                    </div>
+                                    <div className="capitalize">
+                                        <h2 className="font-bold text-[var(--text-main)] text-lg">{config.platform}</h2>
+                                        <p className="text-sm text-[var(--text-secondary)]">
+                                            {config.platform === 'facebook' && 'Configura el Page ID y Access Token'}
+                                            {config.platform === 'instagram' && 'Configura el Account ID (debe estar enlazado a Facebook)'}
+                                            {config.platform === 'tiktok' && 'Configura las credenciales de TikTok Developer'}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                {/* Toggle Switch */}
+                                <label className="flex items-center cursor-pointer">
+                                    <div className="relative">
+                                        <input
+                                            type="checkbox"
+                                            className="sr-only"
+                                            checked={config.is_active}
+                                            onChange={(e) => updateSocialConfig(config.platform, 'is_active', e.target.checked)}
+                                        />
+                                        <div className={`block w-14 h-8 rounded-full transition-colors ${config.is_active ? 'bg-[#0d9488]' : 'bg-gray-300'}`}></div>
+                                        <div className={`dot absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition-transform ${config.is_active ? 'transform translate-x-6' : ''}`}></div>
+                                    </div>
+                                </label>
+                            </div>
+
+                            <div className="space-y-4">
+                                <div>
+                                    <label className="block text-sm font-bold text-[var(--text-main)] mb-1">Access Token</label>
+                                    <input
+                                        type="password"
+                                        value={config.access_token || ''}
+                                        onChange={(e) => updateSocialConfig(config.platform, 'access_token', e.target.value)}
+                                        className={inputClass}
+                                        placeholder="EAAI..."
+                                    />
+                                    <p className="text-xs text-[var(--text-secondary)] mt-1">Token de acceso de larga duración (Long-Lived Access Token)</p>
+                                </div>
+
+                                {config.platform === 'facebook' && (
+                                    <div>
+                                        <label className="block text-sm font-bold text-[var(--text-main)] mb-1">Page ID (ID de la página)</label>
+                                        <input
+                                            type="text"
+                                            value={config.page_id || ''}
+                                            onChange={(e) => updateSocialConfig(config.platform, 'page_id', e.target.value)}
+                                            className={inputClass}
+                                            placeholder="1234567890"
+                                        />
+                                    </div>
+                                )}
+
+                                {config.platform === 'instagram' && (
+                                    <div>
+                                        <label className="block text-sm font-bold text-[var(--text-main)] mb-1">Instagram Business Account ID</label>
+                                        <input
+                                            type="text"
+                                            value={config.account_id || ''}
+                                            onChange={(e) => updateSocialConfig(config.platform, 'account_id', e.target.value)}
+                                            className={inputClass}
+                                            placeholder="1234567890"
+                                        />
+                                    </div>
+                                )}
+
+                                <div className="flex justify-end pt-4">
+                                    <button
+                                        onClick={() => handleGuardarRedes(config)}
+                                        disabled={guardando}
+                                        className="flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold text-[#0d9488] bg-teal-50 hover:bg-teal-100 transition-all duration-200"
+                                    >
+                                        <Save className="w-4 h-4" />
+                                        Guardar Credenciales
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
                 </motion.div>
             )}
         </div>
