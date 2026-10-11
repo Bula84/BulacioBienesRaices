@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import Analytics from "@/components/Analytics";
 import { AuthProvider } from "@/context/AuthContext";
 
 const inter = Inter({
@@ -13,16 +14,19 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: {
-    default: "Bulacio Bienes Raíces – Propiedades, Emprendimientos y Servicios",
+    default: "Bulacio Bienes Raíces – Propiedades, Tasaciones y Fondos de Comercio",
     template: "%s | Bulacio Bienes Raíces",
   },
   description:
-    "Encuentra propiedades, emprendimientos y servicios profesionales en Bulacio Bienes Raíces. La plataforma inmobiliaria líder de Argentina.",
+    "Encontrá propiedades en venta y alquiler, tasaciones profesionales, fondos de comercio y gestión legal de cobranza de mora en Bulacio Bienes Raíces.",
   keywords: [
     "bienes raices",
     "propiedades",
     "inmuebles",
-    "emprendimientos",
+    "tasaciones",
+    "fondos de comercio",
+    "gestion legal",
+    "cobranza de mora",
     "alquiler",
     "venta",
     "argentina",
@@ -35,9 +39,9 @@ export const metadata: Metadata = {
     locale: "es_AR",
     url: "https://bulaciobienesraices.com",
     siteName: "Bulacio Bienes Raíces",
-    title: "Bulacio Bienes Raíces – Propiedades, Emprendimientos y Servicios",
+    title: "Bulacio Bienes Raíces – Propiedades, Tasaciones y Fondos de Comercio",
     description:
-      "Encuentra propiedades, emprendimientos y servicios profesionales en Bulacio Bienes Raíces.",
+      "Propiedades en venta y alquiler, tasaciones, fondos de comercio y gestión legal de cobranza de mora.",
   },
   robots: {
     index: true,
@@ -73,6 +77,7 @@ export default function RootLayout({
         className={`${inter.variable} antialiased bg-[var(--bg-page)] text-[var(--text-main)] font-sans`}
       >
         <AuthProvider>
+          <Analytics />
           <Navbar />
           <main className="min-h-screen pt-20">{children}</main>
           <Footer />

@@ -4,29 +4,26 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, Building2, Home, Users, Wrench, LogIn, LogOut, User, DollarSign, Store, ShoppingBag } from 'lucide-react';
+import { Menu, X, Building2, Home, Users, LogIn, LogOut, User, DollarSign, Store } from 'lucide-react';
 import { useUIStore } from '@/store/propertyStore';
 import { useAuth } from '@/context/AuthContext';
 
 const navLinks = [
     { href: '/', label: 'Inicio', icon: Home },
     { href: '/propiedades', label: 'Propiedades', icon: Building2 },
-    { href: '/emprendimientos', label: 'Emprendimientos', icon: Building2 },
     { href: '/tasaciones', label: 'Tasaciones', icon: DollarSign },
     { href: '/fondos-de-comercio', label: 'Fondos de Comercio', icon: Store },
+    { href: '/gestion-legal', label: 'Gestión Legal', icon: Users },
     { href: '/nosotros', label: 'Nosotros', icon: Users },
-    { href: '/servicios', label: 'Servicios', icon: Wrench },
-    { href: '/oportunidades', label: 'Oportunidades', icon: ShoppingBag },
     { href: '/contacto', label: 'Contacto', icon: Users },
 ];
 
 // Links shown in the top desktop bar (condensed set to avoid overflow)
 const desktopLinks = [
     { href: '/propiedades', label: 'Propiedades' },
-    { href: '/emprendimientos', label: 'Emprendimientos' },
     { href: '/tasaciones', label: 'Tasaciones' },
-    { href: '/servicios', label: 'Servicios' },
-    { href: '/oportunidades', label: 'Oportunidades' },
+    { href: '/fondos-de-comercio', label: 'Fondos de Comercio' },
+    { href: '/gestion-legal', label: 'Gestión Legal' },
     { href: '/nosotros', label: 'Nosotros' },
     { href: '/contacto', label: 'Contacto' },
 ];

@@ -5,8 +5,7 @@ const footerLinks = {
     company: [
         { label: 'Nosotros', href: '/nosotros' },
         { label: 'Tasaciones', href: '/tasaciones' },
-        { label: 'Servicios', href: '/servicios' },
-        { label: 'Oportunidades', href: '/oportunidades' },
+        { label: 'Gestión Legal', href: '/gestion-legal' },
         { label: 'Contacto', href: '/contacto' },
     ],
     properties: [
@@ -14,13 +13,12 @@ const footerLinks = {
         { label: 'Alquiler', href: '/propiedades?operation=alquiler' },
         { label: 'Casas', href: '/propiedades?type=casa' },
         { label: 'Departamentos', href: '/propiedades?type=departamento' },
-        { label: 'Emprendimientos', href: '/emprendimientos' },
         { label: 'Fondos de Comercio', href: '/fondos-de-comercio' },
     ],
     legal: [
         { label: 'Términos y Condiciones', href: '/legal/terminos' },
         { label: 'Política de Privacidad', href: '/legal/privacidad' },
-        { label: 'Cookies', href: '/legal/cookies' },
+        { label: 'Política de Cookies', href: '/legal/cookies' },
     ],
 };
 

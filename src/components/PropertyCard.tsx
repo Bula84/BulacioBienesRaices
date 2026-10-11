@@ -9,12 +9,12 @@ import { usePropertyStore } from '@/store/propertyStore';
 interface PropertyCardProps {
     property: Propiedad;
     index?: number;
+    /** true = ficha de demostración (no existe en la base de datos). */
+    esEjemplo?: boolean;
 }
 
-export default function PropertyCard({ property, index = 0 }: PropertyCardProps) {
-    const { setHoveredProperty, hoveredPropertyId } = usePropertyStore();
-
-    const isHovered = hoveredPropertyId === property.id;
+export default function PropertyCard({ property, index = 0, esEjemplo = false }: PropertyCardProps) {
+    const { setHoveredProperty } = usePropertyStore();
 
     const formatPrice = (price: number) => {
         if (price >= 1000000) {
@@ -23,8 +23,7 @@ export default function PropertyCard({ property, index = 0 }: PropertyCardProps)
         return `$${price.toLocaleString('es-AR')}`;
     };
 
-    return (
-        <Link href={`/propiedades/${property.id}`}>
+    const card = (
             <motion.div
                 layout
                 initial={{ opacity: 0, y: 20 }}
@@ -83,6 +82,13 @@ export default function PropertyCard({ property, index = 0 }: PropertyCardProps)
                             </span>
                         </div>
                     )}
+
+                    {/* Marcador de ejemplo — para que nadie lo confunda con inventario real */}
+                    {esEjemplo && (
+                        <span className="absolute top-4 right-4 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider rounded-full bg-amber-400 text-amber-950 shadow-sm">
+                            Ejemplo
+                        </span>
+                    )}
                 </div>
 
                 {/* Content */}
@@ -135,6 +141,12 @@ export default function PropertyCard({ property, index = 0 }: PropertyCardProps)
                     </div>
                 </div>
             </motion.div>
-        </Link>
+    );
+
+    // Las fichas de ejemplo no navegan: esos IDs no existen en la base de datos.
+    return esEjemplo ? (
+        <div className="relative">{card}</div>
+    ) : (
+        <Link href={`/propiedades/${property.id}`}>{card}</Link>
     );
 }

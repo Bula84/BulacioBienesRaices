@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-    Plus, Search, Edit, Trash2, X, Wrench, Star, Image, Video, Award, Settings, Eye, Phone, Mail, MessageCircle, ChevronDown, ChevronUp
+    Plus, Search, Edit, Trash2, X, Wrench, Star, Image as ImageIcon, Video, Award, Settings, Phone, Mail, ChevronDown, ChevronUp
 } from 'lucide-react';
 import {
     Servicio, getServicios, createServicio, updateServicio, deleteServicio
@@ -65,7 +65,7 @@ export default function AdminServiciosPage() {
         try {
             const data = await getServicios();
             if (data.length > 0) setServices(data);
-        } catch (error) {
+        } catch {
             console.log('Using mock data');
         } finally {
             setIsLoading(false);
@@ -292,7 +292,7 @@ export default function AdminServiciosPage() {
                                         )}
                                         {(service.images?.length ?? 0) > 0 && (
                                             <span className="flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-full bg-amber-50 text-amber-600">
-                                                <Image className="w-3 h-3" /> {service.images?.length} fotos
+                                                <ImageIcon className="w-3 h-3" /> {service.images?.length} fotos
                                             </span>
                                         )}
                                     </div>
@@ -413,7 +413,7 @@ export default function AdminServiciosPage() {
                             <div className="px-6 pt-4 flex gap-1 border-b border-gray-100">
                                 {[
                                     { key: 'info' as const, label: 'Información', icon: Settings },
-                                    { key: 'media' as const, label: 'Fotos y Video', icon: Image },
+                                    { key: 'media' as const, label: 'Fotos y Video', icon: ImageIcon },
                                     { key: 'skills' as const, label: 'Habilidades y Certificaciones', icon: Award },
                                 ].map(tab => (
                                     <button

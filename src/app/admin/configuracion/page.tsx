@@ -4,14 +4,16 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     Settings, Save, Phone, Mail, MapPin, Clock, MessageCircle,
-    Inbox, Trash2, Eye, EyeOff, CheckCircle, X, Building2, ChevronDown, ChevronUp,
-    Share2, Facebook, Instagram, Video
+    Inbox, Trash2, Eye, EyeOff, CheckCircle, Building2, ChevronDown, ChevronUp,
+    Share2, Facebook, Instagram, BarChart3
 } from 'lucide-react';
 import {
     ContactInfo, getContactInfo, updateContactInfo,
     ContactMessage, getContactMessages, markMessageRead, deleteContactMessage,
-    SocialMediaConfig, getSocialMediaConfigs, upsertSocialMediaConfig
+    SocialMediaConfig, getSocialMediaConfigs, upsertSocialMediaConfig,
+    getSiteConfig, setSiteConfig
 } from '@/lib/supabase';
+import type { AnalyticsConfig } from '@/components/Analytics';
 
 // TikTok icon component
 const TikTokIcon = ({ className }: { className?: string }) => (
@@ -21,7 +23,10 @@ const TikTokIcon = ({ className }: { className?: string }) => (
 );
 
 export default function AdminConfigPage() {
-    const [pestana, setPestana] = useState<'contacto' | 'mensajes' | 'redes'>('contacto');
+    const [pestana, setPestana] = useState<'contacto' | 'mensajes' | 'redes' | 'analitica'>('contacto');
+    const [analytics, setAnalytics] = useState<AnalyticsConfig>({
+        ga4_id: '', meta_pixel_id: '', enabled: false,
+    });
     const [contactInfo, setContactInfo] = useState<ContactInfo>({
         phone: '', email: '', whatsapp: '', address: '', business_hours: '',
     });
@@ -39,13 +44,15 @@ export default function AdminConfigPage() {
     const cargarDatos = async () => {
         setCargando(true);
         try {
-            const [info, msgs, socials] = await Promise.all([
+            const [info, msgs, socials, ana] = await Promise.all([
                 getContactInfo(),
                 getContactMessages(),
-                getSocialMediaConfigs()
+                getSocialMediaConfigs(),
+                getSiteConfig<AnalyticsConfig>('analytics')
             ]);
             setContactInfo(info);
             setMensajes(msgs);
+            if (ana) setAnalytics({ ga4_id: '', meta_pixel_id: '', enabled: false, ...ana });
             // Default setup if not present
             const defSocials = [
                 { platform: 'facebook', is_active: false },
@@ -95,10 +102,28 @@ export default function AdminConfigPage() {
         }
     };
 
-    const updateSocialConfig = (platform: string, field: string, value: any) => {
+    const updateSocialConfig = (platform: string, field: string, value: string | boolean | number | null) => {
         setSocialConfigs(prev => prev.map(c =>
             c.platform === platform ? { ...c, [field]: value } : c
         ));
+    };
+
+    const handleGuardarAnalitica = async () => {
+        setGuardando(true);
+        try {
+            const ok = await setSiteConfig('analytics', {
+                ...analytics,
+                enabled: Boolean(analytics.ga4_id || analytics.meta_pixel_id),
+            });
+            if (ok) {
+                setGuardadoOk(true);
+                setTimeout(() => setGuardadoOk(false), 3000);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        } finally {
+            setGuardando(false);
+        }
     };
 
     const handleMarcarLeido = async (id: string, leido: boolean) => {
@@ -148,6 +173,13 @@ export default function AdminConfigPage() {
                 >
                     <Share2 className="w-4 h-4" />
                     Redes Sociales
+                </button>
+                <button
+                    onClick={() => setPestana('analitica')}
+                    className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-bold transition-all ${pestana === 'analitica' ? 'bg-white text-[var(--text-main)] shadow-sm' : 'text-[var(--text-secondary)] hover:text-[var(--text-main)]'}`}
+                >
+                    <BarChart3 className="w-4 h-4" />
+                    Analítica
                 </button>
             </div>
 
@@ -427,6 +459,76 @@ export default function AdminConfigPage() {
                             </div>
                         </div>
                     ))}
+                </motion.div>
+            )}
+
+            {/* Pestaña: Analítica */}
+            {pestana === 'analitica' && (
+                <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="bg-white rounded-2xl p-8 border border-gray-100 shadow-sm max-w-2xl space-y-6"
+                >
+                    <div>
+                        <h2 className="text-xl font-bold text-[var(--text-main)] mb-2">
+                            Medición y publicidad
+                        </h2>
+                        <p className="text-sm text-[var(--text-secondary)] leading-relaxed">
+                            Cargá los IDs de Google Analytics 4 y del Meta Pixel. Sin ellos no
+                            podés medir de dónde vienen las consultas ni preparar campañas
+                            futuras. Dejar ambos vacíos desactiva la medición.
+                        </p>
+                    </div>
+
+                    <div className="space-y-4">
+                        <div>
+                            <label htmlFor="ga4" className="block text-sm font-bold text-[var(--text-main)] mb-2">
+                                ID de Google Analytics 4
+                            </label>
+                            <input
+                                id="ga4"
+                                type="text"
+                                value={analytics.ga4_id ?? ''}
+                                onChange={(e) => setAnalytics(prev => ({ ...prev, ga4_id: e.target.value }))}
+                                placeholder="G-XXXXXXXXXX"
+                                className={inputClass}
+                            />
+                            <p className="text-xs text-[var(--text-secondary)] mt-1.5">
+                                Google Analytics → Admin → Flujo de datos web → Medidor
+                            </p>
+                        </div>
+
+                        <div>
+                            <label htmlFor="pixel" className="block text-sm font-bold text-[var(--text-main)] mb-2">
+                                ID del Meta Pixel (Facebook / Instagram)
+                            </label>
+                            <input
+                                id="pixel"
+                                type="text"
+                                value={analytics.meta_pixel_id ?? ''}
+                                onChange={(e) => setAnalytics(prev => ({ ...prev, meta_pixel_id: e.target.value }))}
+                                placeholder="1234567890123456"
+                                className={inputClass}
+                            />
+                            <p className="text-xs text-[var(--text-secondary)] mt-1.5">
+                                Meta Business Suite → Configuración del negocio → Datos del pixel
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                        <p className="text-xs text-[var(--text-secondary)]">
+                            Los cambios aplican al recargar el sitio.
+                        </p>
+                        <button
+                            onClick={handleGuardarAnalitica}
+                            disabled={guardando}
+                            className="flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold text-[#0d9488] bg-teal-50 hover:bg-teal-100 transition-all duration-200 disabled:opacity-50"
+                        >
+                            <Save className="w-4 h-4" />
+                            {guardadoOk ? '¡Guardado!' : 'Guardar Analítica'}
+                        </button>
+                    </div>
                 </motion.div>
             )}
         </div>

@@ -8,8 +8,8 @@ import { getContactInfo, submitContactMessage, ContactInfo } from '@/lib/supabas
 const asuntos = [
     'Quiero publicar en la plataforma',
     'Consulta sobre propiedades',
-    'Consulta sobre servicios profesionales',
-    'Oportunidad comercial / convenio',
+    'Consulta sobre fondos de comercio',
+    'Consulta sobre gestión legal y cobranza de mora',
     'Tasación de inmueble',
     'Soporte técnico',
     'Otro',
@@ -278,9 +278,9 @@ export default function ContactoPage() {
                             {/* CTA */}
                             <div className="bg-gradient-to-br from-[#0d9488] to-[#0f766e] rounded-3xl p-8 text-white">
                                 <Building2 className="w-10 h-10 mb-4 opacity-80" />
-                                <h3 className="text-lg font-bold mb-2">¿Querés publicar?</h3>
+                                <h3 className="text-lg font-bold mb-2">¿Querés publicar tu propiedad?</h3>
                                 <p className="text-sm text-teal-100 mb-4 leading-relaxed">
-                                    Publicá tus materiales, ofertas o servicios profesionales en nuestra plataforma y llegá a miles de constructores y arquitectos.
+                                    Publicá tu propiedad o fondo de comercio en nuestra plataforma y llegá a miles de compradores e inversores.
                                 </p>
                                 <div className="text-xs text-teal-200 font-medium">
                                     Seleccioná &quot;Quiero publicar en la plataforma&quot; en el formulario y contanos qué ofrecés.

@@ -1,12 +1,12 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import dynamic from 'next/dynamic';
 import { motion } from 'framer-motion';
 import { Map } from 'lucide-react';
 import PropertyCard from '@/components/PropertyCard';
 import PropertyFilters from '@/components/PropertyFilters';
-import { usePropertyStore, useUIStore } from '@/store/propertyStore';
+import { usePropertyStore } from '@/store/propertyStore';
+import type { PropertyFilters as FiltrosPropiedad } from '@/store/propertyStore';
 import { Propiedad } from '@/lib/supabase';
 
 
@@ -111,22 +111,43 @@ export default function PropiedadesPage() {
         isLoading,
         fetchProperties,
     } = usePropertyStore();
-
-    const { isMapExpanded, toggleMapExpanded } = useUIStore();
-    const [useMockData, setUseMockData] = useState(false);
+    const [esDemo, setEsDemo] = useState(false);
 
     useEffect(() => {
+        // Los links del footer y del hero llegan con querystring
+        // (p. ej. /propiedades?operation=venta) — hay que aplicarlos a los filtros.
+        const params = new URLSearchParams(window.location.search);
+        const patch: Partial<FiltrosPropiedad> = {};
+
+        const op = params.get('operation');
+        if (op === 'venta' || op === 'alquiler') patch.operation = op;
+
+        const tipo = params.get('type');
+        if (tipo) patch.type = tipo;
+
+        const min = params.get('minPrice');
+        if (min && !Number.isNaN(Number(min))) patch.minPrice = Number(min);
+
+        const max = params.get('maxPrice');
+        if (max && !Number.isNaN(Number(max))) patch.maxPrice = Number(max);
+
+        const conFiltros = Object.keys(patch).length > 0;
+
         const loadData = async () => {
             await fetchProperties();
-            // If no data from Supabase, use mock
+
+            // Si no hay datos en Supabase, mostramos el listado de ejemplo
             if (usePropertyStore.getState().filteredProperties.length === 0) {
-                setUseMockData(true);
                 usePropertyStore.setState({
                     properties: mockProperties,
                     filteredProperties: mockProperties,
                     propertyTypes: [...new Set(mockProperties.map(p => p.type))],
                 });
+                setEsDemo(true);
             }
+
+            // Se aplican después de cargar, así hay datos sobre los que filtrar
+            if (conFiltros) usePropertyStore.getState().setFilters(patch);
         };
         loadData();
     }, [fetchProperties]);
@@ -173,7 +194,7 @@ export default function PropiedadesPage() {
                             ))
                         ) : displayProperties.length > 0 ? (
                             displayProperties.map((property, index) => (
-                                <PropertyCard key={property.id} property={property} index={index} />
+                                <PropertyCard key={property.id} property={property} index={index} esEjemplo={esDemo} />
                             ))
                         ) : (
                             // Empty State

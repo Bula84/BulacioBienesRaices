@@ -54,32 +54,6 @@ export interface Propiedad {
     is_featured?: boolean;
 }
 
-export interface Emprendimiento {
-    id: string;
-    title: string;
-    location: string;
-    status: string;
-    delivery?: string;
-    price_start?: number;
-    description?: string;
-    image_url?: string;
-    features?: string[];
-    user_id?: string;
-    created_at: string;
-    updated_at?: string;
-}
-
-export interface Noticia {
-    id: string;
-    title: string;
-    content: string;
-    excerpt?: string;
-    image_url: string;
-    author?: string;
-    user_id?: string;
-    created_at: string;
-}
-
 export interface Servicio {
     id: string;
     name: string;
@@ -111,24 +85,6 @@ export interface UserRole {
     created_at: string;
 }
 
-export interface Oportunidad {
-    id: string;
-    title: string;
-    description: string;
-    full_description?: string;
-    price?: number;
-    discount?: number; // Porcentaje de descuento o monto
-    image_url: string;
-    images?: string[];
-    category: string; // Ej: Materiales, Herramientas, Maquinaria, etc.
-    seller_name: string;
-    contact_phone?: string;
-    contact_email?: string;
-    location?: string;
-    is_featured: boolean;
-    created_at: string;
-}
-
 export interface Publicacion {
     id: string;
     title: string;
@@ -136,7 +92,6 @@ export interface Publicacion {
     image_url?: string;
     video_url?: string;
     propiedad_id?: string;
-    noticia_id?: string;
     // Facebook
     facebook_status: 'pending' | 'published' | 'failed' | 'skipped';
     facebook_post_id?: string;
@@ -228,111 +183,6 @@ export async function getPropiedades(filters?: {
     return data || [];
 }
 
-export async function getOportunidades(filters?: {
-    category?: string;
-    isFeatured?: boolean;
-}): Promise<Oportunidad[]> {
-    if (!supabase) return [];
-
-    let query = supabase.from('oportunidades').select('*');
-
-    if (filters?.category) {
-        query = query.eq('category', filters.category);
-    }
-    if (filters?.isFeatured) {
-        query = query.eq('is_featured', true);
-    }
-
-    const { data, error } = await query.order('created_at', { ascending: false });
-
-    if (error) {
-        console.error('Error fetching oportunidades:', error.message || error);
-        return [];
-    }
-
-    return data as Oportunidad[] || [];
-}
-
-export async function getOportunidad(id: string): Promise<Oportunidad | null> {
-    if (!supabase) return null;
-
-    // Validate UUID format
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-    if (!uuidRegex.test(id)) {
-        return null;
-    }
-
-    const { data, error } = await supabase
-        .from('oportunidades')
-        .select('*')
-        .eq('id', id)
-        .single();
-
-    if (error) {
-        console.error('Error fetching oportunidad:', error.message || error);
-        return null;
-    }
-
-    return data as Oportunidad;
-}
-
-export async function createOportunidad(oportunidad: Omit<Oportunidad, 'id' | 'created_at'>): Promise<Oportunidad | null> {
-    if (!supabase) return null;
-
-    const { data, error } = await supabase
-        .from('oportunidades')
-        .insert(oportunidad)
-        .select()
-        .single();
-
-    if (error) {
-        console.error('Error creating oportunidad:', error);
-        return null;
-    }
-
-    return data as Oportunidad;
-}
-
-export async function updateOportunidad(id: string, oportunidad: Partial<Oportunidad>): Promise<Oportunidad | null> {
-    if (!supabase) return null;
-
-    const { data, error } = await supabase
-        .from('oportunidades')
-        .update(oportunidad)
-        .eq('id', id)
-        .select()
-        .single();
-
-    if (error) {
-        console.error('Error updating oportunidad:', error);
-        return null;
-    }
-
-    return data as Oportunidad;
-}
-
-export async function deleteOportunidad(id: string): Promise<boolean> {
-    if (!supabase) return false;
-
-    const { data, error } = await supabase
-        .from('oportunidades')
-        .delete()
-        .eq('id', id)
-        .select();
-
-    if (error) {
-        console.error('Error deleting oportunidad:', error);
-        return false;
-    }
-
-    if (!data || data.length === 0) {
-        console.error('No se pudo eliminar la oportunidad. Verifica permisos.');
-        return false;
-    }
-
-    return true;
-}
-
 export async function getPropiedad(id: string): Promise<Propiedad | null> {
     if (!supabase) return null;
 
@@ -416,92 +266,6 @@ export async function deletePropiedad(id: string): Promise<boolean> {
 
     if (!data || data.length === 0) {
         console.error('No se pudo eliminar la propiedad. RLS puede estar bloqueando.');
-        return false;
-    }
-
-    return true;
-}
-
-// ===== NOTICIAS =====
-
-export async function getNoticias(): Promise<Noticia[]> {
-    if (!supabase) return [];
-
-    const { data, error } = await supabase
-        .from('noticias')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-    if (error) {
-        console.error('Error fetching noticias:', error);
-        return [];
-    }
-
-    return data as Noticia[];
-}
-
-export async function getNoticia(id: string): Promise<Noticia | null> {
-    if (!supabase) return null;
-
-    const { data, error } = await supabase
-        .from('noticias')
-        .select('*')
-        .eq('id', id)
-        .single();
-
-    if (error) {
-        console.error('Error fetching noticia:', error);
-        return null;
-    }
-
-    return data as Noticia;
-}
-
-export async function createNoticia(noticia: Omit<Noticia, 'id' | 'created_at'>): Promise<Noticia | null> {
-    if (!supabase) return null;
-
-    const { data, error } = await supabase
-        .from('noticias')
-        .insert(noticia)
-        .select()
-        .single();
-
-    if (error) {
-        console.error('Error creating noticia:', error);
-        return null;
-    }
-
-    return data as Noticia;
-}
-
-export async function updateNoticia(id: string, noticia: Partial<Noticia>): Promise<Noticia | null> {
-    if (!supabase) return null;
-
-    const { data, error } = await supabase
-        .from('noticias')
-        .update(noticia)
-        .eq('id', id)
-        .select()
-        .single();
-
-    if (error) {
-        console.error('Error updating noticia:', error);
-        return null;
-    }
-
-    return data as Noticia;
-}
-
-export async function deleteNoticia(id: string): Promise<boolean> {
-    if (!supabase) return false;
-
-    const { error } = await supabase
-        .from('noticias')
-        .delete()
-        .eq('id', id);
-
-    if (error) {
-        console.error('Error deleting noticia:', error);
         return false;
     }
 
@@ -679,23 +443,6 @@ export async function getPropiedadesByUser(userId: string, filters?: {
     }
 
     return data as Propiedad[];
-}
-
-export async function getNoticiasByUser(userId: string): Promise<Noticia[]> {
-    if (!supabase) return [];
-
-    const { data, error } = await supabase
-        .from('noticias')
-        .select('*')
-        .eq('user_id', userId)
-        .order('created_at', { ascending: false });
-
-    if (error) {
-        console.error('Error fetching user noticias:', error);
-        return [];
-    }
-
-    return data as Noticia[];
 }
 
 export async function getServiciosByUser(userId: string, category?: string): Promise<Servicio[]> {
@@ -913,113 +660,6 @@ export async function deletePublicacion(id: string): Promise<boolean> {
     return true;
 }
 
-
-
-// =====================================================
-// EMPRENDIMIENTOS
-// =====================================================
-
-export async function getEmprendimientos(): Promise<Emprendimiento[]> {
-    if (!supabase) return [];
-
-    const { data, error } = await supabase
-        .from('emprendimientos')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-    if (error) {
-        console.error('Error fetching emprendimientos:', error.message || error);
-        return [];
-    }
-
-    return data as Emprendimiento[] || [];
-}
-
-export async function getEmprendimiento(id: string): Promise<Emprendimiento | null> {
-    if (!supabase) return null;
-
-    const { data, error } = await supabase
-        .from('emprendimientos')
-        .select('*')
-        .eq('id', id)
-        .single();
-
-    if (error) {
-        console.error('Error fetching emprendimiento:', error.message || error);
-        return null;
-    }
-
-    return data as Emprendimiento;
-}
-
-export async function getEmprendimientosByUser(userId: string): Promise<Emprendimiento[]> {
-    if (!supabase) return [];
-
-    const { data, error } = await supabase
-        .from('emprendimientos')
-        .select('*')
-        .eq('user_id', userId)
-        .order('created_at', { ascending: false });
-
-    if (error) {
-        console.error('Error fetching user emprendimientos:', error.message || error);
-        return [];
-    }
-
-    return data as Emprendimiento[] || [];
-}
-
-export async function createEmprendimiento(emprendimiento: Omit<Emprendimiento, 'id' | 'created_at'>): Promise<Emprendimiento | null> {
-    if (!supabase) return null;
-
-    const { data, error } = await supabase
-        .from('emprendimientos')
-        .insert(emprendimiento)
-        .select()
-        .single();
-
-    if (error) {
-        console.error('Error creating emprendimiento:', error.message || error);
-        return null;
-    }
-
-    return data as Emprendimiento;
-}
-
-export async function updateEmprendimiento(id: string, updates: Partial<Emprendimiento>): Promise<Emprendimiento | null> {
-    if (!supabase) return null;
-
-    const { data, error } = await supabase
-        .from('emprendimientos')
-        .update({ ...updates, updated_at: new Date().toISOString() })
-        .eq('id', id)
-        .select()
-        .single();
-
-    if (error) {
-        console.error('Error updating emprendimiento:', error.message || error);
-        return null;
-    }
-
-    return data as Emprendimiento;
-}
-
-export async function deleteEmprendimiento(id: string): Promise<boolean> {
-    if (!supabase) return false;
-
-    const { error } = await supabase
-        .from('emprendimientos')
-        .delete()
-        .eq('id', id);
-
-    if (error) {
-        console.error('Error deleting emprendimiento:', error.message || error);
-        return false;
-    }
-
-    return true;
-}
-
 // Trigger social media publishing via Edge Function
 export async function publishToSocialMedia(publicacionId: string): Promise<{ success: boolean; error?: string }> {
     if (!supabase) return { success: false, error: 'No database connection' };
@@ -1034,7 +674,7 @@ export async function publishToSocialMedia(publicacionId: string): Promise<{ suc
         }
 
         return { success: true, ...data };
-    } catch (e) {
+    } catch {
         return { success: false, error: 'Failed to invoke publishing function' };
     }
 }
@@ -1082,6 +722,41 @@ export async function updateContactInfo(info: ContactInfo): Promise<boolean> {
 
     if (error) {
         console.error('Error actualizando configuración:', error);
+        return false;
+    }
+    return true;
+}
+
+// ===== CONFIGURACIÓN GENÉRICA (site_config) =====
+
+/** Lee una clave de `site_config`. Devuelve `null` si no existe. */
+export async function getSiteConfig<T = Record<string, unknown>>(key: string): Promise<T | null> {
+    if (!supabase) return null;
+
+    const { data, error } = await supabase
+        .from('site_config')
+        .select('value')
+        .eq('key', key)
+        .single();
+
+    if (error || !data) return null;
+    return data.value as T;
+}
+
+/** Escribe (upsert) una clave de `site_config`. */
+export async function setSiteConfig(key: string, value: unknown): Promise<boolean> {
+    if (!supabase) return false;
+
+    const { error } = await supabase
+        .from('site_config')
+        .upsert({
+            key,
+            value,
+            updated_at: new Date().toISOString(),
+        }, { onConflict: 'key' });
+
+    if (error) {
+        console.error(`Error guardando site_config[${key}]:`, error);
         return false;
     }
     return true;
@@ -1285,6 +960,110 @@ export async function sendAgentMessage(
 }
 
 // =====================================================
+// GESTIÓN LEGAL — casos de cobranza de mora
+// =====================================================
+
+export interface LegalCase {
+    id: string;
+    contact_name: string;
+    contact_email: string;
+    contact_phone?: string | null;
+    contact_role?: string | null;
+    debtor_name?: string | null;
+    contract_type?: string | null;
+    amount?: number | null;
+    days_overdue?: number | null;
+    stage: 'extrajudicial' | 'judicial' | 'sin_determinar';
+    details?: string | null;
+    ai_summary?: string | null;
+    status: 'nuevo' | 'en_revision' | 'contactado' | 'cerrado';
+    is_read: boolean;
+    notified_at?: string | null;
+    created_at: string;
+    updated_at?: string;
+}
+
+/** Conversa con el asistente de Gestión Legal (Edge Function `gestion-legal`). */
+export async function sendLegalChat(
+    message: string,
+    history: ChatMessage[]
+): Promise<{ reply: string; resumen?: string | null } | null> {
+    if (!supabase) return null;
+
+    try {
+        const { data, error } = await supabase.functions.invoke('gestion-legal', {
+            body: { action: 'chat', message, history },
+        });
+        if (error) {
+            console.error('Error asistente legal:', error);
+            return null;
+        }
+        return data;
+    } catch (e) {
+        console.error('Error invocando asistente legal:', e);
+        return null;
+    }
+}
+
+/**
+ * Deriva el caso al equipo: lo guarda en `legal_cases` y dispara la
+ * notificación por email al asesor (Edge Function `gestion-legal`).
+ */
+export async function submitLegalCase(
+    caso: Omit<LegalCase, 'id' | 'status' | 'is_read' | 'created_at' | 'updated_at' | 'stage'> & { stage?: LegalCase['stage'] },
+    resumen?: string | null
+): Promise<boolean> {
+    if (!supabase) return false;
+
+    try {
+        const { data, error } = await supabase.functions.invoke('gestion-legal', {
+            body: { action: 'submit', caso, resumen: resumen ?? null },
+        });
+        if (error) {
+            console.error('Error derivando caso legal:', error);
+            return false;
+        }
+        return Boolean(data?.ok);
+    } catch (e) {
+        console.error('Error invocando derivación legal:', e);
+        return false;
+    }
+}
+
+export async function getLegalCases(): Promise<LegalCase[]> {
+    if (!supabase) return [];
+
+    const { data, error } = await supabase
+        .from('legal_cases')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+    if (error) {
+        console.error('Error fetching legal cases:', error.message || error);
+        return [];
+    }
+    return (data as LegalCase[]) || [];
+}
+
+export async function updateLegalCase(
+    id: string,
+    updates: Partial<LegalCase>
+): Promise<boolean> {
+    if (!supabase) return false;
+
+    const { error } = await supabase
+        .from('legal_cases')
+        .update({ ...updates, updated_at: new Date().toISOString() })
+        .eq('id', id);
+
+    if (error) {
+        console.error('Error updating legal case:', error);
+        return false;
+    }
+    return true;
+}
+
+// =====================================================
 // STORAGE - File Upload
 // =====================================================
 
@@ -1293,7 +1072,7 @@ const STORAGE_BUCKET = 'media';
 /**
  * Upload a file to Supabase Storage.
  * @param file The file to upload
- * @param folder Optional folder path (e.g. 'propiedades', 'emprendimientos', 'oportunidades')
+ * @param folder Optional folder path (e.g. 'propiedades', 'servicios')
  * @returns The public URL of the uploaded file, or null on error
  */
 export async function uploadFile(

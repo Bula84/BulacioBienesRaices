@@ -1,30 +1,28 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Calculator, Copy, Check, TrendingUp, Calendar, DollarSign, Info } from 'lucide-react';
+import { Calculator, Copy, Check, TrendingUp, Calendar, DollarSign, Info, AlertTriangle } from 'lucide-react';
 
-// Simulated API Call to fetch index data
-const fetchIndexData = async () => {
-    // In a real scenario, this would be an API call to your backend or an external source like BCRA
-    return new Promise<{ ICL: Record<string, number>, IPC: Record<string, number> }>((resolve) => {
-        setTimeout(() => {
-            resolve({
-                ICL: {
-                    '2022-01': 1.69, '2022-02': 1.76, '2022-03': 1.84, '2022-04': 1.93, '2022-05': 2.05, '2022-06': 2.16, '2022-07': 2.27, '2022-08': 2.42, '2022-09': 2.58, '2022-10': 2.75, '2022-11': 2.92, '2022-12': 3.10,
-                    '2023-01': 3.32, '2023-02': 3.49, '2023-03': 3.70, '2023-04': 3.97, '2023-05': 4.25, '2023-06': 4.60, '2023-07': 4.98, '2023-08': 5.40, '2023-09': 5.92, '2023-10': 6.57, '2023-11': 7.22, '2023-12': 8.16,
-                    '2024-01': 10.36, '2024-02': 12.39, '2024-03': 14.88, '2024-04': 16.71, '2024-05': 18.25, '2024-06': 19.83, '2024-07': 21.05, '2024-08': 22.18, '2024-09': 23.23, '2024-10': 24.16, '2024-11': 25.01, '2024-12': 25.80,
-                    '2025-01': 26.65, '2025-02': 27.50, '2025-03': 28.32, // Example projections
-                },
-                IPC: {
-                    // Represented as indices relative to a base month (e.g. Dec 2016=100)
-                    '2022-01': 845.2, '2022-02': 884.9, '2022-03': 944.3, '2022-04': 1001.0, '2022-05': 1052.1, '2022-06': 1107.8, '2022-07': 1190.1, '2022-08': 1273.4, '2022-09': 1352.3, '2022-10': 1437.5, '2022-11': 1507.9, '2022-12': 1584.8,
-                    '2023-01': 1680.6, '2023-02': 1791.5, '2023-03': 1929.5, '2023-04': 2091.6, '2023-05': 2254.8, '2023-06': 2389.5, '2023-07': 2541.2, '2023-08': 2858.9, '2023-09': 3221.9, '2023-10': 3489.3, '2023-11': 3935.1, '2023-12': 4938.8,
-                    '2024-01': 5956.2, '2024-02': 6742.4, '2024-03': 7484.1, '2024-04': 8142.7, '2024-05': 8484.7, '2024-06': 8875.0, '2024-07': 9230.0, '2024-08': 9617.7, '2024-09': 9954.3, '2024-10': 10223.1, '2024-11': 10560.5, '2024-12': 10845.6,
-                    '2025-01': 11138.4, '2025-02': 11450.3, '2025-03': 11759.4, // Example projections
-                }
-            });
-        }, 600);
-    });
+interface IndicesResponse {
+    ICL: Record<string, number>;
+    IPC: Record<string, number>;
+    fuentes: { ICL: string; IPC: string };
+    updated_at: string;
+    disponible: boolean;
+}
+
+/**
+ * Índices oficiales (BCRA v4.0 + datos.gob.ar), servidos por
+ * `/api/indices` con caché de 6 horas. Ver src/app/api/indices/route.ts
+ */
+const fetchIndexData = async (): Promise<IndicesResponse | null> => {
+    try {
+        const res = await fetch('/api/indices');
+        if (!res.ok) return null;
+        return (await res.json()) as IndicesResponse;
+    } catch {
+        return null;
+    }
 };
 
 // Formatter for currency
@@ -42,16 +40,21 @@ export default function CalculadoraAlquileresPage() {
     const [startDate, setStartDate] = useState<string>('');
     const [adjustmentMonths, setAdjustmentMonths] = useState<string>('12');
 
-    const [indicesData, setIndicesData] = useState<{ ICL: Record<string, number>, IPC: Record<string, number> } | null>(null);
+    const [indicesData, setIndicesData] = useState<IndicesResponse | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [copied, setCopied] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        fetchIndexData().then(data => {
+        let activo = true;
+        fetchIndexData().then((data) => {
+            if (!activo) return;
             setIndicesData(data);
             setIsLoading(false);
         });
+        return () => {
+            activo = false;
+        };
     }, []);
 
     const calculateUpdate = () => {
@@ -160,6 +163,17 @@ Quedamos a tu disposición por cualquier consulta. ¡Saludos!`;
                     <p className="text-[var(--text-secondary)] font-medium">Herramienta profesional para calcular los ajustes contractuales</p>
                 </div>
             </div>
+
+            {/* Estado de la fuente de datos */}
+            {!indicesData?.disponible && (
+                <div className="flex items-start gap-3 p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-sm font-medium">
+                    <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5" />
+                    <span>
+                        No se pudieron obtener los índices oficiales. Verificá la conexión e intentá de nuevo
+                        recargando la página.
+                    </span>
+                </div>
+            )}
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Left Column - Form */}
@@ -304,6 +318,25 @@ Quedamos a tu disposición por cualquier consulta. ¡Saludos!`;
                     )}
                 </div>
             </div>
+
+            {/* Fuente de los índices */}
+            {indicesData?.disponible && (
+                <div className="rounded-2xl bg-white border border-gray-100 p-5 text-xs text-[var(--text-secondary)] space-y-1.5">
+                    <p className="font-bold text-[var(--text-main)] text-sm mb-2">Fuente de los índices</p>
+                    <p>
+                        <span className="font-semibold">ICL:</span> {indicesData.fuentes.ICL} —
+                        serie diaria, convertida a valor de fin de mes.
+                    </p>
+                    <p>
+                        <span className="font-semibold">IPC:</span> {indicesData.fuentes.IPC} —
+                        serie mensual, nivel general.
+                    </p>
+                    <p className="text-gray-400 pt-1">
+                        Última actualización: {new Date(indicesData.updated_at).toLocaleString('es-AR')}
+                        {' · '}Consultado a las APIs oficiales del Estado argentino.
+                    </p>
+                </div>
+            )}
         </div>
     );
 }

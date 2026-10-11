@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     ArrowLeft,
@@ -11,11 +12,9 @@ import {
     Bath,
     Square,
     Car,
-    Calendar,
     Phone,
     Mail,
     MessageCircle,
-    Share2,
     Heart,
     ChevronLeft,
     ChevronRight,
@@ -33,9 +32,9 @@ import {
     Maximize2,
     Play
 } from 'lucide-react';
-import { getPropiedad, Propiedad } from '@/lib/supabase';
-import Navbar from '@/components/Navbar';
+import { getPropiedad, Propiedad, submitContactMessage } from '@/lib/supabase';
 import PropertyChat from '@/components/PropertyChat';
+import ShareButtons from '@/components/ShareButtons';
 import dynamic from 'next/dynamic';
 
 const PropertyMap = dynamic(() => import('@/components/PropertyMap'), {
@@ -47,111 +46,6 @@ const PropertyMap = dynamic(() => import('@/components/PropertyMap'), {
     ),
 });
 
-// Mock data for demo when property not found
-const mockProperty: Propiedad = {
-    id: 'demo',
-    title: 'Departamento de Lujo en Puerto Madero',
-    description: 'Espectacular departamento con vista al río en la mejor zona de Puerto Madero.',
-    full_description: `Espectacular departamento de categoría ubicado en el corazón de Puerto Madero, con impresionantes vistas al río y a la ciudad.
-
-Este exclusivo departamento cuenta con acabados de primera calidad, pisos de porcelanato importado, carpintería de diseño y una disposición que maximiza la luz natural durante todo el día.
-
-La cocina está completamente equipada con electrodomésticos de alta gama, mesadas de granito y muebles bajo y sobre mesada. El living-comedor es amplio y luminoso, perfecto para recibir invitados o disfrutar de momentos en familia.
-
-El edificio cuenta con amenities de primer nivel incluyendo piscina climatizada, gimnasio completamente equipado, SUM, seguridad 24 horas y cochera.
-
-Ubicación privilegiada a pasos de los mejores restaurantes, bares y paseos de Puerto Madero. Excelente conectividad con el resto de la ciudad.`,
-    price: 450000,
-    operation: 'venta',
-    type: 'Departamento',
-    m2: 120,
-    m2_covered: 110,
-    bedrooms: 3,
-    bathrooms: 2,
-    parking: 2,
-    floors: 1,
-    year_built: 2020,
-    coords_lat: -34.6118,
-    coords_lng: -58.3625,
-    image_url: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=1200',
-    images: [
-        'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=1200',
-        'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=1200',
-        'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=1200',
-        'https://images.unsplash.com/photo-1560185007-cde436f6a4d0?w=1200',
-        'https://images.unsplash.com/photo-1560185127-6a8c28b6f1ef?w=1200',
-        'https://images.unsplash.com/photo-1560185008-b033106af5c3?w=1200',
-    ],
-    address: 'Juana Manso 1500',
-    city: 'Buenos Aires',
-    neighborhood: 'Puerto Madero',
-    has_pool: true,
-    has_gym: true,
-    has_security: true,
-    has_elevator: true,
-    has_ac: true,
-    has_heating: true,
-    has_balcony: true,
-    has_laundry: true,
-    pets_allowed: false,
-    contact_phone: '+54 11 1234-5678',
-    contact_whatsapp: '5491112345678',
-    contact_email: 'info@bcbienesraices.com',
-    video_url: 'https://www.youtube.com/embed/dQw4w9WgXcQ', // Demo video
-    created_at: new Date().toISOString(),
-};
-
-const mockFondos: Propiedad[] = [
-    {
-        id: 'f1',
-        title: 'Cafetería de Especialidad en Palermo',
-        price: 45000,
-        operation: 'venta',
-        type: 'fondo_comercio',
-        m2: 80,
-        coords_lat: -34.582,
-        coords_lng: -58.431,
-        image_url: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=1200',
-        images: [
-            'https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=1200',
-            'https://images.unsplash.com/photo-1497935586351-b67a49e012bf?w=1200',
-        ],
-        description: 'Excelente oportunidad de cafetería funcionando a pleno.',
-        full_description: 'Ubicación privilegiada con cartera de clientes habituales. Equipamiento completo lista para trabajar. Se traspasa con mobiliario importado, máquinas y permisos correspondientes.',
-        address: 'Palermo, Buenos Aires',
-        created_at: new Date().toISOString(),
-    },
-    {
-        id: 'f2',
-        title: 'Minimercado y Kiosco',
-        price: 25000,
-        operation: 'venta',
-        type: 'fondo_comercio',
-        m2: 60,
-        coords_lat: -34.612,
-        coords_lng: -58.401,
-        image_url: 'https://images.unsplash.com/photo-1578916171728-46686eac8d58?w=1200',
-        description: 'Kiosco y minimercado sobre avenida...',
-        full_description: 'Local sobre importante avenida de alto tránsito. Mostradores, heladeras exhibidoras y gondolas en perfecto estado.',
-        address: 'Balvanera, Buenos Aires',
-        created_at: new Date().toISOString(),
-    },
-    {
-        id: 'f3',
-        title: 'Restaurante Equipado',
-        price: 120000,
-        operation: 'venta',
-        type: 'fondo_comercio',
-        m2: 150,
-        coords_lat: -34.603,
-        coords_lng: -58.381,
-        image_url: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1200',
-        description: 'Restaurante de primer nivel listo para continuar operando.',
-        full_description: 'Instalaciones que contemplan cocina industrial doble, cámaras frigoríficas, salón finamente decorado. Con habilitaciones comerciales al día y excelente facturación mensual comprobable.',
-        address: 'Centro, Buenos Aires',
-        created_at: new Date().toISOString(),
-    },
-];
 
 export default function PropertyDetailPage() {
     const params = useParams();
@@ -168,6 +62,8 @@ export default function PropertyDetailPage() {
         message: '',
     });
     const [formSubmitted, setFormSubmitted] = useState(false);
+    const [formSending, setFormSending] = useState(false);
+    const [formError, setFormError] = useState(false);
 
     useEffect(() => {
         const loadProperty = async () => {
@@ -176,15 +72,9 @@ export default function PropertyDetailPage() {
             const data = await getPropiedad(params.id as string);
             if (data) {
                 setProperty(data);
-            } else {
-                // Use mock data for demo
-                const isFondoMock = mockFondos.find((f) => f.id === params.id);
-                if (isFondoMock) {
-                    setProperty(isFondoMock);
-                } else {
-                    setProperty(mockProperty);
-                }
             }
+            // Si no existe, `property` queda en null y se muestra el estado
+            // "Propiedad no encontrada" (nunca una ficha de mentira).
             setLoading(false);
         };
 
@@ -201,12 +91,41 @@ export default function PropertyDetailPage() {
         setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        // Here you would send the form data
-        console.log('Form submitted:', formData);
+
+        const name = formData.name.trim().replace(/<[^>]*>/g, '');
+        const email = formData.email.trim().replace(/<[^>]*>/g, '');
+        const phone = formData.phone.trim().replace(/<[^>]*>/g, '');
+        const message = formData.message.trim().replace(/<[^>]*>/g, '');
+
+        if (!name || !email || !message) {
+            setFormError(true);
+            return;
+        }
+
+        setFormError(false);
+        setFormSending(true);
+
+        const ok = await submitContactMessage({
+            name,
+            email,
+            phone,
+            subject: `Consulta por propiedad: ${property?.title || 'Sin título'}`,
+            source: 'propiedad',
+            message: `${message}\n\nPropiedad: ${property?.title || ''}\nID: ${property?.id || ''}`,
+        });
+
+        setFormSending(false);
+
+        if (!ok) {
+            setFormError(true);
+            return;
+        }
+
         setFormSubmitted(true);
-        setTimeout(() => setFormSubmitted(false), 3000);
+        setFormData({ name: '', phone: '', email: '', message: '' });
+        setTimeout(() => setFormSubmitted(false), 5000);
     };
 
     const openWhatsApp = () => {
@@ -215,23 +134,6 @@ export default function PropertyDetailPage() {
             `Hola, me interesa la propiedad: ${property?.title}\nID: ${property?.id}\nPrecio: USD ${property?.price?.toLocaleString('es-AR')}`
         );
         window.open(`https://wa.me/${phone}?text=${message}`, '_blank');
-    };
-
-    const shareProperty = async () => {
-        if (navigator.share) {
-            try {
-                await navigator.share({
-                    title: property?.title,
-                    text: `Mirá esta propiedad: ${property?.title}`,
-                    url: window.location.href,
-                });
-            } catch (error) {
-                console.log('Error sharing:', error);
-            }
-        } else {
-            navigator.clipboard.writeText(window.location.href);
-            alert('Link copiado al portapapeles');
-        }
     };
 
     const amenities = [
@@ -281,9 +183,7 @@ export default function PropertyDetailPage() {
 
     return (
         <>
-            <Navbar />
-
-            <main className="min-h-screen pt-24 pb-12 bg-[var(--bg-page)]">
+            <div className="min-h-screen pb-12 bg-[var(--bg-page)]">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     {/* Breadcrumb */}
                     <nav className="flex items-center gap-2 text-sm font-semibold !text-slate-600 mb-6">
@@ -373,12 +273,13 @@ export default function PropertyDetailPage() {
                                     >
                                         <Heart className={`w-5 h-5 ${isFavorite ? 'fill-current' : ''}`} />
                                     </button>
-                                    <button
-                                        onClick={shareProperty}
-                                        className="p-2 rounded-full bg-black/20 backdrop-blur-md text-white hover:bg-black/40 transition-colors border border-white/10 shadow-sm"
-                                    >
-                                        <Share2 className="w-5 h-5" />
-                                    </button>
+                                    <ShareButtons
+                                        url={`/propiedades/${property.id}`}
+                                        title={property.title}
+                                        text={`Mirá esta propiedad: ${property.title}`}
+                                        source="propiedades"
+                                        triggerClassName="p-2 rounded-full bg-black/20 backdrop-blur-md text-white hover:bg-black/40 transition-colors border border-white/10 shadow-sm"
+                                    />
                                 </div>
                             </div>
 
@@ -394,9 +295,11 @@ export default function PropertyDetailPage() {
                                                 : 'opacity-70 hover:opacity-100'
                                                 }`}
                                         >
-                                            <img
+                                            <Image
                                                 src={img}
                                                 alt={`Vista ${index + 1}`}
+                                                width={800}
+                                                height={600}
                                                 className="w-full h-full object-cover"
                                             />
                                         </button>
@@ -683,9 +586,14 @@ export default function PropertyDetailPage() {
                                             className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 text-[var(--text-main)] placeholder-gray-400 focus:outline-none focus:border-[var(--primary-blue)] focus:ring-2 focus:ring-[var(--primary-blue)]/10 transition-all resize-none font-medium"
                                         />
                                     </div>
+                                    {formError && (
+                                        <p className="text-sm font-medium text-red-600 -mt-2">
+                                            No pudimos enviar tu consulta. Completá nombre, email y mensaje.
+                                        </p>
+                                    )}
                                     <button
                                         type="submit"
-                                        disabled={formSubmitted}
+                                        disabled={formSubmitted || formSending}
                                         className="w-full py-4 rounded-xl font-bold text-white transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-blue-500/30 uppercase tracking-wide text-sm"
                                         style={{
                                             background: formSubmitted
@@ -693,7 +601,9 @@ export default function PropertyDetailPage() {
                                                 : 'var(--primary-blue)',
                                         }}
                                     >
-                                        {formSubmitted ? (
+                                        {formSending ? (
+                                            'Enviando…'
+                                        ) : formSubmitted ? (
                                             <span className="flex items-center justify-center gap-2">
                                                 <Check className="w-5 h-5" />
                                                 ¡Mensaje Enviado!
@@ -723,7 +633,7 @@ export default function PropertyDetailPage() {
                         </div>
                     </div>
                 </div>
-            </main>
+            </div>
 
             {/* Fullscreen Gallery Modal */}
             <AnimatePresence>

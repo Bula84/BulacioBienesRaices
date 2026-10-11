@@ -2,8 +2,8 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Building, TrendingUp, Search, ArrowRight, ShieldCheck } from 'lucide-react';
-import Link from 'next/link';
+import { Building, TrendingUp, Search, ArrowRight } from 'lucide-react';
+import { submitContactMessage } from '@/lib/supabase';
 
 export default function TasacionesPage() {
     const [formData, setFormData] = useState({
@@ -14,12 +14,46 @@ export default function TasacionesPage() {
         address: '',
         details: ''
     });
+    const [estado, setEstado] = useState<'idle' | 'enviando' | 'ok' | 'error'>('idle');
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const sanitize = (str: string) => str.trim().replace(/<[^>]*>/g, '');
+
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        // Here you would typically send this to an API or email service
-        console.log('Form submitted:', formData);
-        alert('Solicitud enviada con éxito. Nos pondremos en contacto a la brevedad.');
+
+        const name = sanitize(formData.name);
+        const email = sanitize(formData.email);
+        const phone = sanitize(formData.phone);
+        const address = sanitize(formData.address);
+        const details = sanitize(formData.details);
+
+        if (!name || !email || !address) {
+            setEstado('error');
+            return;
+        }
+
+        setEstado('enviando');
+
+        const ok = await submitContactMessage({
+            name,
+            email,
+            phone,
+            subject: 'Tasación de inmueble',
+            source: 'tasacion',
+            message: [
+                `Solicitud de tasación`,
+                `Tipo de inmueble: ${formData.propertyType}`,
+                `Dirección: ${address}`,
+                details ? `Detalles: ${details}` : '',
+            ].filter(Boolean).join('\n'),
+        });
+
+        if (!ok) {
+            setEstado('error');
+            return;
+        }
+
+        setEstado('ok');
         setFormData({
             name: '',
             email: '',
@@ -220,12 +254,24 @@ export default function TasacionesPage() {
                                     ></textarea>
                                 </div>
 
+                                {estado === 'ok' && (
+                                    <div className="p-4 rounded-xl bg-teal-50 border border-teal-200 text-teal-800 text-sm font-medium">
+                                        ✅ Solicitud enviada con éxito. Nos pondremos en contacto a la brevedad.
+                                    </div>
+                                )}
+                                {estado === 'error' && (
+                                    <div className="p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm font-medium">
+                                        No pudimos enviar la solicitud. Verificá los campos obligatorios e intentá nuevamente.
+                                    </div>
+                                )}
+
                                 <button
                                     type="submit"
-                                    className="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-4 rounded-xl transition-colors shadow-lg shadow-teal-500/30 flex items-center justify-center gap-2"
+                                    disabled={estado === 'enviando'}
+                                    className="w-full bg-teal-600 hover:bg-teal-700 disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold py-4 rounded-xl transition-colors shadow-lg shadow-teal-500/30 flex items-center justify-center gap-2"
                                 >
-                                    Enviar Solicitud
-                                    <ArrowRight className="w-5 h-5" />
+                                    {estado === 'enviando' ? 'Enviando…' : 'Enviar Solicitud'}
+                                    {estado !== 'enviando' && <ArrowRight className="w-5 h-5" />}
                                 </button>
                                 <p className="text-xs text-center text-gray-500 mt-4">
                                     Sus datos están protegidos y no serán compartidos con terceros.

@@ -38,16 +38,34 @@ CREATE POLICY "Admins full access on servicios" ON servicios
   WITH CHECK (public.get_my_role() IN ('admin', 'superadmin'));
 
 -- =====================================================
--- VERIFICACIÓN
+-- VERIFICACIÓN 1: quién es quién
+-- IMPORTANTE: NO uses `SELECT public.get_my_role()` acá.
+-- El SQL Editor corre como service_role, sin auth.uid(), así
+-- que siempre devolvería NULL y te haría creer que algo falló.
+-- Mirá la tabla directamente:
+-- =====================================================
+SELECT u.email, r.role, r.created_at AS rol_desde
+FROM auth.users u
+LEFT JOIN public.user_roles r ON r.user_id = u.id
+ORDER BY r.role NULLS LAST, u.email;
+
+-- Esperás ver tu propio email con rol 'admin' o 'superadmin'.
+-- Si aparece 'pending', necesitás que un superadmin te apruebe
+-- desde /admin/usuarios (o cambia el rol a mano con el UPDATE de abajo).
+
+-- =====================================================
+-- VERIFICACIÓN 2: la política quedó bien creada
 -- Debería devolver UNA sola fila con cmd = ALL y
--- roles = {admin, superadmin}.
+-- roles = {admin, superadmin}. Si devolvé cero filas,
+-- volve a correr el CREATE POLICY de arriba.
 -- =====================================================
 SELECT policyname, cmd, roles, qual, with_check
 FROM pg_policies
 WHERE tablename = 'servicios';
 
 -- =====================================================
--- OPCIONAL: comprobar tu propio rol
--- Debería devolver 'admin' o 'superadmin'.
+-- OPCIONAL: si tu rol es 'pending' y ya querés darle
+-- permisos, promové tu usuario. Cambiá el email.
 -- =====================================================
-SELECT public.get_my_role() AS mi_rol;
+-- UPDATE public.user_roles SET role = 'admin'
+-- WHERE email = 'TU_EMAIL@example.com';

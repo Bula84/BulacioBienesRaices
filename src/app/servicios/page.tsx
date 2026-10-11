@@ -1,10 +1,10 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Wrench, Search } from 'lucide-react';
 import ServiceCard from '@/components/ServiceCard';
-import BannerAd from '@/components/BannerAd';
 import { Servicio, getServicios } from '@/lib/supabase';
 import { mockServicios } from '@/lib/mockServicios';
 
@@ -38,7 +38,7 @@ export default function ServiciosPage() {
                     setServices(data);
                     setFilteredServices(data);
                 }
-            } catch (error) {
+            } catch {
                 console.log('Using mock data');
             } finally {
                 setIsLoading(false);
@@ -189,20 +189,12 @@ export default function ServiciosPage() {
                     </motion.div>
                 )}
 
-                {/* Banner Advertising */}
-                <BannerAd
-                    title="Descuento en herramientas para matriculados"
-                    description="Si formas parte de nuestra red de servicios adheridos, conseguí un 20% de descuento en las herramientas seleccionadas de nuestro corralón asociado."
-                    imageUrl="https://images.unsplash.com/photo-1581147036324-c10842f9b86f?w=1200"
-                    linkUrl="/oportunidades"
-                    ctaText="Ver Promoción"
-                />
-
                 {/* Become a Pro CTA */}
                 <motion.div
                     initial={{ opacity: 0, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
+                    transition={{ delay: 0.1 }}
                     className="mt-20 relative overflow-hidden rounded-[2.5rem] p-10 md:p-14 text-center bg-white border border-gray-100 shadow-lg"
                 >
                     <h2 className="text-2xl md:text-4xl font-extrabold !text-slate-900 mb-4 font-headings tracking-tight">
@@ -212,14 +204,15 @@ export default function ServiciosPage() {
                         Únete a nuestro directorio y conecta con miles de clientes potenciales
                         que buscan servicios de calidad.
                     </p>
-                    <button
-                        className="px-8 py-3 rounded-xl font-bold transition-all duration-300 hover:scale-105 text-white shadow-lg shadow-blue-500/30"
+                    <Link
+                        href="/contacto"
+                        className="inline-block px-8 py-3 rounded-xl font-bold transition-all duration-300 hover:scale-105 text-white shadow-lg shadow-blue-500/30"
                         style={{
                             background: 'var(--primary-blue)',
                         }}
                     >
                         Registrarme como Profesional
-                    </button>
+                    </Link>
 
                     {/* Decorative elements */}
                     <div className="absolute top-0 right-0 w-64 h-64 bg-blue-50/50 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 -z-10" />

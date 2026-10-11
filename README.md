@@ -1,237 +1,142 @@
-# 🚀 Antigravity Enterprise
+# Bulacio Bienes Raíces
 
-**Plataforma Inmobiliaria de Próxima Generación**
+Plataforma inmobiliaria construida con **Next.js 16**, **Supabase** y **Google Gemini**.
 
-Una moderna plataforma inmobiliaria construida con Next.js 14, featuring un explorador de propiedades inmersivo con mapas 3D, gestión de contenido dinámico con Supabase, y una estética "Antigravity" única.
-
-![Next.js](https://img.shields.io/badge/Next.js-16-black)
-![TypeScript](https://img.shields.io/badge/TypeScript-5-blue)
-![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-38B2AC)
-![Supabase](https://img.shields.io/badge/Supabase-Ready-3ECF8E)
-
-## ✨ Características
-
-### 🏠 Explorador de Propiedades
-- **Vista Split**: Filtros (20%) | Lista (40%) | Mapa 3D (40%)
-- **Mapbox GL JS**: Mapa interactivo con vista 3D (pitch 45°)
-- **Sincronización**: Hover en cards activa `flyTo` en el mapa
-- **Animaciones**: Framer Motion con layout morphing
-- **Filtros Real-time**: Por operación, tipo y rango de precio
-
-### 📰 Blog Dinámico
-- Artículos gestionados desde Supabase
-- Cards con imagen, título, extracto y fecha
-- Página de detalle con artículos relacionados
-
-### 🔧 Marketplace de Servicios
-- Directorio de profesionales de mantenimiento
-- Filtrado por categorías
-- Sistema de rating con estrellas
-- Botones de contacto directo (WhatsApp, Email, Teléfono)
-
-### 🎛️ Panel de Administración
-- Dashboard con estadísticas
-- CRUD completo de propiedades
-- Editor de noticias
-- Gestión de profesionales
-
-### 🎨 Estética Antigravity
-- **Glassmorphism**: `backdrop-blur-xl` y bordes translúcidos
-- **Tema Cosmic**: Gradientes cyan-purple-pink
-- **Levitación**: Efecto hover con `translateY(-12px)`
-- **Bordes suaves**: `border-radius: 2.5rem`
-- **Animaciones fluidas**: Transiciones suaves en todo
-
-## 🛠️ Tech Stack
-
-- **Framework**: Next.js 14 (App Router)
-- **Lenguaje**: TypeScript
-- **Estilos**: Tailwind CSS 4
-- **State Management**: Zustand
-- **Animaciones**: Framer Motion
-- **Mapas**: Mapbox GL JS
-- **Base de Datos**: Supabase
-- **Iconos**: Lucide React
-
-## 🚀 Inicio Rápido
-
-### 1. Clonar e instalar dependencias
-
-```bash
-cd antigravity-enterprise
-npm install
-```
-
-### 2. Configurar variables de entorno
-
-Copia el archivo de ejemplo y configura tus credenciales:
-
-```bash
-cp .env.local.example .env.local
-```
-
-Edita `.env.local` con tus valores:
-
-```env
-NEXT_PUBLIC_SUPABASE_URL=tu_supabase_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=tu_supabase_anon_key
-NEXT_PUBLIC_MAPBOX_TOKEN=tu_mapbox_token
-```
-
-### 3. Configurar la base de datos (Supabase)
-
-1. Crea un proyecto en [Supabase](https://supabase.com)
-2. Ve al SQL Editor
-3. Ejecuta el contenido de `supabase-schema.sql`
-4. Esto creará las tablas y datos de ejemplo
-
-### 4. Ejecutar en desarrollo
-
-```bash
-npm run dev
-```
-
-Abre [http://localhost:3000](http://localhost:3000) en tu navegador.
-
-## 📁 Estructura del Proyecto
-
-```
-src/
-├── app/
-│   ├── globals.css          # Design system Antigravity
-│   ├── layout.tsx           # Layout principal
-│   ├── page.tsx             # Home
-│   ├── propiedades/         # Explorador de propiedades
-│   ├── nosotros/            # About us
-│   ├── noticias/            # Blog
-│   │   └── [id]/            # Detalle de artículo
-│   ├── servicios/           # Marketplace
-│   └── admin/               # Panel de administración
-│       ├── propiedades/     # CRUD propiedades
-│       ├── noticias/        # CRUD noticias
-│       └── servicios/       # CRUD servicios
-├── components/
-│   ├── Navbar.tsx           # Navegación glassmorphism
-│   ├── Footer.tsx           # Footer con links
-│   ├── PropertyCard.tsx     # Card de propiedad
-│   ├── PropertyFilters.tsx  # Panel de filtros
-│   ├── PropertyMap.tsx      # Mapa Mapbox 3D
-│   ├── NewsCard.tsx         # Card de noticia
-│   ├── ServiceCard.tsx      # Card de servicio
-│   └── StarRating.tsx       # Rating con estrellas
-├── lib/
-│   └── supabase.ts          # Cliente y funciones CRUD
-└── store/
-    └── propertyStore.ts     # Zustand stores
-```
-
-## 🎯 Rutas Principales
-
-| Ruta | Descripción |
-|------|-------------|
-| `/` | Home con hero, destacados y features |
-| `/propiedades` | Explorador split-view con mapa 3D |
-| `/nosotros` | Misión, visión, valores y equipo |
-| `/noticias` | Blog con artículos dinámicos |
-| `/noticias/[id]` | Detalle de artículo |
-| `/servicios` | Marketplace de profesionales |
-| `/admin` | Dashboard de administración |
-| `/admin/propiedades` | Gestión de propiedades |
-| `/admin/noticias` | Gestión de artículos |
-| `/admin/servicios` | Gestión de servicios |
-
-## 🗄️ Esquema de Base de Datos
-
-### Propiedades
-```sql
-CREATE TABLE propiedades (
-  id UUID PRIMARY KEY,
-  title TEXT NOT NULL,
-  price NUMERIC NOT NULL,
-  operation TEXT CHECK (operation IN ('venta', 'alquiler')),
-  type TEXT NOT NULL,
-  m2 INTEGER,
-  bedrooms INTEGER,
-  bathrooms INTEGER,
-  coords_lat NUMERIC,
-  coords_lng NUMERIC,
-  image_url TEXT,
-  address TEXT,
-  created_at TIMESTAMPTZ
-);
-```
-
-### Noticias
-```sql
-CREATE TABLE noticias (
-  id UUID PRIMARY KEY,
-  title TEXT NOT NULL,
-  content TEXT NOT NULL,
-  excerpt TEXT,
-  image_url TEXT,
-  author TEXT,
-  created_at TIMESTAMPTZ
-);
-```
-
-### Servicios
-```sql
-CREATE TABLE servicios (
-  id UUID PRIMARY KEY,
-  name TEXT NOT NULL,
-  skill_tags TEXT[],
-  contact TEXT,
-  phone TEXT,
-  email TEXT,
-  rating NUMERIC,
-  image_url TEXT,
-  category TEXT,
-  description TEXT,
-  created_at TIMESTAMPTZ
-);
-```
-
-## 🎨 Design Tokens
-
-El sistema de diseño Antigravity incluye:
-
-```css
-/* Colores principales */
---primary-900: #0a0a1a;    /* Background más oscuro */
---accent-cyan: #00d4ff;     /* Acento primario */
---accent-purple: #a855f7;   /* Acento secundario */
---accent-pink: #ec4899;     /* Acento terciario */
-
-/* Glassmorphism */
---glass-bg: rgba(255, 255, 255, 0.08);
---glass-border: rgba(255, 255, 255, 0.12);
---glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-
-/* Bordes */
---radius-xl: 2.5rem;        /* Cards principales */
---radius-lg: 2rem;          /* Botones grandes */
---radius-md: 1.25rem;       /* Inputs */
-```
-
-## 📱 Responsive Design
-
-- **Desktop**: Vista split completa con mapa
-- **Tablet**: Mapa colapsable
-- **Mobile**: Menú hamburguesa + botón flotante para mapa
-
-## 🔒 Notas de Seguridad
-
-El proyecto está configurado con datos mock para demostración. Para producción:
-
-1. Configura Row Level Security (RLS) en Supabase
-2. Implementa autenticación para el panel admin
-3. Valida inputs en el servidor
-4. Usa variables de entorno seguras
-
-## 📄 Licencia
-
-MIT License - úsalo como quieras para tu proyecto.
+> **Estado:** rebuild en curso — ver [`docs/PLAN-REBUILD.md`](docs/PLAN-REBUILD.md) para el plan completo.
 
 ---
 
-Desarrollado con 💜 usando la estética **Antigravity**
+## ✨ Qué incluye
+
+### Público
+| Ruta | Qué hace |
+|------|----------|
+| `/` | Portada: destacados, fondos de comercio, tasaciones y Gestión Legal |
+| `/propiedades` | Buscador con filtros (operación, tipo, precio) |
+| `/propiedades/[id]` | Ficha: galería, amenities, mapa, formulario y chat con agente IA |
+| `/fondos-de-comercio` | Listado de negocios en venta (`type = fondo_comercio`) |
+| `/tasaciones` | Solicitud de tasación → se guarda en la bandeja admin |
+| **`/gestion-legal`** | **Cobranza de mora extrajudicial/judicial + asesoramiento jurídico, con asistente IA** |
+| `/nosotros` · `/contacto` | Institucional y formulario de contacto |
+| `/login` · `/registro` | Autenticación (Supabase Auth) |
+| `/legal/terminos` · `/legal/privacidad` · `/legal/cookies` | Páginas legales |
+
+### Panel de administración (`/admin`, protegido por rol + middleware)
+| Ruta | Qué hace |
+|------|----------|
+| `/admin` | Dashboard con datos reales (propiedades, mensajes, casos legales) |
+| `/admin/propiedades` | CRUD de propiedades con galería, amenities y destacados |
+| `/admin/gestion-legal` | **Bandeja de casos de cobranza con cambio de estado** |
+| `/admin/publicaciones` | Publicación a Facebook / Instagram / TikTok |
+| `/admin/calculadora` | Ajuste de alquileres con **índices oficiales del BCRA** |
+| `/admin/configuracion` | Contacto, bandeja de mensajes y tokens de redes |
+| `/admin/usuarios` | Aprobación de usuarios (sólo superadmin) |
+| `/admin/servicios` | CRUD del directorio de profesionales — *módulo dormido* |
+
+### Módulo dormido: `/servicios`
+El directorio de profesionales **se conserva íntegro** (rutas, CRUD y tabla) para una futura
+implementación, pero está **fuera de la navegación pública** y con `noindex`.
+
+**Para reactivarlo:**
+1. Volver a agregar los links en `src/components/Navbar.tsx` y `src/components/Footer.tsx`
+2. Cambiar `robots.index` a `true` en `src/app/servicios/layout.tsx`
+
+---
+
+## 🛠️ Stack
+
+- **Framework**: Next.js 16 (App Router, Turbopack)
+- **Lenguaje**: TypeScript 5 · React 19
+- **Estilos**: Tailwind CSS 4
+- **Estado**: Zustand
+- **Base de datos**: Supabase (Postgres + RLS + Storage + Edge Functions)
+- **IA**: Google Gemini (chat de propiedades y asistente de Gestión Legal)
+- **Mapas**: Mapbox GL
+- **Iconos**: Lucide React
+
+---
+
+## 🚀 Puesta en marcha
+
+```bash
+npm install
+cp .env.local.example .env.local   # completar credenciales
+npm run dev
+```
+
+Variables de entorno:
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+NEXT_PUBLIC_MAPBOX_TOKEN=
+```
+
+### Base de datos
+
+1. Crear un proyecto en [Supabase](https://supabase.com)
+2. SQL Editor → pegar **todo** el contenido de [`supabase/schema.sql`](supabase/schema.sql)
+3. Registrarse en `/registro` (el script ya deja a `gerbula84@gmail.com` como superadmin)
+
+El schema crea 10 tablas: `user_roles`, `propiedades`, `servicios` *(dormido)*,
+`chat_conversations`, `legal_cases`, `site_config`, `contact_messages`,
+`social_media_config`, `publicaciones` y el bucket `media`.
+
+### Edge Functions
+
+```bash
+npx supabase functions deploy property-agent
+npx supabase functions deploy gestion-legal
+
+npx supabase secrets set GEMINI_API_KEY=...
+npx supabase secrets set RESEND_API_KEY=...      # notificación al asesor
+npx supabase secrets set LEGAL_NOTIFY_TO=asesor@...
+```
+
+---
+
+## 📁 Estructura
+
+```
+supabase/
+├── schema.sql                    # schema completo (ejecutar en el SQL Editor)
+└── functions/
+    ├── property-agent/           # chat IA del detalle de propiedad (Gemini)
+    ├── gestion-legal/            # asistente legal + derivación + email
+    └── publish-social-media/     # publicación a FB / IG / TikTok
+
+src/
+├── app/
+│   ├── api/indices/route.ts      # ICL (BCRA v4.0) + IPC (datos.gob.ar), cacheado 6h
+│   ├── gestion-legal/            # landing de cobranza de mora
+│   ├── admin/gestion-legal/      # bandeja de casos
+│   └── servicios/                # MÓDULO DORMIDO
+├── components/
+│   ├── LegalAssistant.tsx        # chat del asistente legal
+│   └── PropertyChat.tsx          # chat del agente inmobiliario
+├── context/AuthContext.tsx       # sesión + roles + cookie para el middleware
+├── lib/supabase.ts               # capa de datos (todo el acceso a DB)
+└── proxy.ts                      # middleware: headers + guardia de /admin
+```
+
+---
+
+## 🧪 Calidad
+
+```bash
+npm run lint    # ESLint — 0 errores, 0 warnings
+npx tsc --noEmit  # TypeScript — 0 errores
+npm run build   # Build de producción
+```
+
+---
+
+## 🔒 Seguridad
+
+- **Row Level Security** en las 10 tablas — es la barrera real
+- `src/proxy.ts` redirige `/admin` a `/login` si no hay cookie de sesión (primer filtro)
+- El panel además valida rol `admin`/`superadmin` en `src/app/admin/layout.tsx`
+- Headers de seguridad en toda respuesta (`X-Frame-Options`, `nosniff`, etc.)
+
+> La protección de `/admin` depende de RLS, no del middleware. Cualquier consulta
+> que un rol no autorizado no debería hacer está bloqueada en la base de datos.

@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 import {
     Target,
     Eye,
@@ -88,7 +89,7 @@ export default function NosotrosPage() {
                         </h1>
 
                         <p className="text-lg md:text-xl !text-slate-700 font-medium leading-relaxed mb-8">
-                            En Antigravity Enterprise, combinamos más de 15 años de experiencia en el sector
+                            En Bulacio Bienes Raíces, combinamos más de 15 años de experiencia en el sector
                             inmobiliario con tecnología de vanguardia para ofrecer una experiencia única.
                             Nuestro compromiso es hacer que encontrar tu hogar ideal sea tan emocionante como
                             debería ser.
@@ -116,9 +117,11 @@ export default function NosotrosPage() {
                         <div
                             className="rounded-[2.5rem] overflow-hidden aspect-[4/3] shadow-2xl"
                         >
-                            <img
+                            <Image
                                 src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=800"
-                                alt="Oficina Antigravity"
+                                alt="Oficina de Bulacio Bienes Raíces"
+                                width={800}
+                                height={600}
                                 className="w-full h-full object-cover"
                             />
                         </div>
@@ -267,9 +270,11 @@ export default function NosotrosPage() {
                                 <div
                                     className="relative mb-6 rounded-[2rem] overflow-hidden aspect-square mx-auto max-w-[280px] transition-all duration-300 shadow-lg group-hover:shadow-2xl"
                                 >
-                                    <img
+                                    <Image
                                         src={member.image}
                                         alt={member.name}
+                                        width={600}
+                                        height={600}
                                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                                     />
                                     <div

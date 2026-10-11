@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import Image from 'next/image';
 import {
     Plus,
-    Search,
     Trash2,
     X,
     Share2,
@@ -31,6 +31,7 @@ import {
 } from '@/lib/supabase';
 import { useAuth } from '@/context/AuthContext';
 import FileUploader from '@/components/FileUploader';
+import { linkConUTM } from '@/lib/site';
 
 // TikTok icon component
 const TikTokIcon = ({ className }: { className?: string }) => (
@@ -68,6 +69,9 @@ export default function AdminPublicacionesPage() {
         if (user) {
             loadData();
         }
+        // Recargamos cuando cambia el usuario o su rol; `loadData` lee esos
+        // valores del closure a propósito.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [user, isSuperAdmin]);
 
     const loadData = async () => {
@@ -188,11 +192,22 @@ export default function AdminPublicacionesPage() {
     const fillFromProperty = (propId: string) => {
         const prop = properties.find(p => p.id === propId);
         if (prop) {
+            const link = linkConUTM(`/propiedades/${prop.id}`, 'redes', 'social', 'propiedades');
             setFormData({
                 ...formData,
                 propiedad_id: propId,
                 title: `🏠 ${prop.operation === 'venta' ? 'EN VENTA' : 'EN ALQUILER'}: ${prop.title}`,
-                content: `📍 ${prop.address || ''}\n💰 USD ${prop.price.toLocaleString('es-AR')}${prop.operation === 'alquiler' ? '/mes' : ''}\n\n${prop.bedrooms ? `🛏️ ${prop.bedrooms} dormitorios\n` : ''}${prop.bathrooms ? `🚿 ${prop.bathrooms} baños\n` : ''}${prop.m2 ? `📐 ${prop.m2} m²\n` : ''}\n${prop.description || ''}\n\n📩 Más info por privado\n\n#inmobiliaria #propiedades #${prop.operation} #${prop.type?.toLowerCase().replace(' ', '')} #buenosaires`,
+                content:
+                    `📍 ${prop.address || prop.neighborhood || ''}\n` +
+                    `💰 USD ${prop.price.toLocaleString('es-AR')}${prop.operation === 'alquiler' ? '/mes' : ''}\n\n` +
+                    `${prop.bedrooms ? `🛏️ ${prop.bedrooms} dormitorios\n` : ''}` +
+                    `${prop.bathrooms ? `🚿 ${prop.bathrooms} baños\n` : ''}` +
+                    `${prop.m2 ? `📐 ${prop.m2} m²\n` : ''}\n` +
+                    `${prop.description || ''}\n\n` +
+                    `🔗 Ver ficha completa: ${link}\n\n` +
+                    `📩 Más info por privado\n\n` +
+                    `#inmobiliaria #propiedades #${prop.operation} ` +
+                    `#${prop.type?.toLowerCase().replace(/\s+/g, '')} #buenosaires`,
                 image_url: prop.image_url || '',
             });
         }
@@ -441,7 +456,7 @@ export default function AdminPublicacionesPage() {
                                     </label>
                                     {formData.image_url && (
                                         <div className="relative h-40 rounded-xl overflow-hidden border border-white/10 group">
-                                            <img src={formData.image_url} alt="Preview" className="w-full h-full object-cover" />
+                                            <Image src={formData.image_url} alt="Preview" width={800} height={600} className="w-full h-full object-cover" />
                                             <button
                                                 type="button"
                                                 onClick={() => setFormData({ ...formData, image_url: '' })}

@@ -5,7 +5,7 @@ import { Upload, X, Image as ImageIcon, Film, Loader2, CheckCircle, AlertCircle 
 import { uploadFile } from '@/lib/supabase';
 
 interface FileUploaderProps {
-    /** Folder path in storage (e.g. 'propiedades', 'oportunidades') */
+    /** Folder path in storage (e.g. 'propiedades', 'servicios') */
     folder: string;
     /** Callback when a file is successfully uploaded, receives the public URL */
     onUpload: (url: string) => void;

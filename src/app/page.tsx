@@ -15,8 +15,8 @@ import {
   ChevronLeft
 } from 'lucide-react';
 import PropertyCard from '@/components/PropertyCard';
+import PropertySearchBar from '@/components/PropertySearchBar';
 import { Propiedad, getPropiedades } from '@/lib/supabase';
-import ProjectCarousel from '@/components/ProjectCarousel';
 import BannerAd from '@/components/BannerAd';
 
 // Carousel Component
@@ -167,7 +167,9 @@ const features = [
 export default function HomePage() {
   const [featuredProperties, setFeaturedProperties] = useState<Propiedad[]>(mockProperties);
   const [featuredFondos, setFeaturedFondos] = useState<Propiedad[]>(mockFondos);
-  const [isLoading, setIsLoading] = useState(true);
+  // true mientras se muestren fichas de demostración (la base está vacía)
+  const [demoProps, setDemoProps] = useState(true);
+  const [demoFondos, setDemoFondos] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
   const carouselRef = useRef<HTMLDivElement>(null);
 
@@ -188,16 +190,20 @@ export default function HomePage() {
 
           setFeaturedProperties(p.length > 0 ? p.slice(0, 9) : mockProperties);
           setFeaturedFondos(f.length > 0 ? f.slice(0, 9) : mockFondos);
+          setDemoProps(p.length === 0);
+          setDemoFondos(f.length === 0);
         } else {
           setFeaturedProperties(mockProperties);
           setFeaturedFondos(mockFondos);
+          setDemoProps(true);
+          setDemoFondos(true);
         }
-      } catch (error) {
+      } catch {
         console.log('Using mock data');
         setFeaturedProperties(mockProperties);
         setFeaturedFondos(mockFondos);
-      } finally {
-        setIsLoading(false);
+        setDemoProps(true);
+        setDemoFondos(true);
       }
     };
 
@@ -312,11 +318,24 @@ export default function HomePage() {
               </Link>
 
               <Link
-                href="/nosotros"
+                href="/gestion-legal"
                 className="btn-secondary"
               >
-                Conocer Más
+                Gestión Legal y Cobranza
               </Link>
+            </motion.div>
+
+            {/* Buscador — elemento principal del hero */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.45 }}
+              className="mt-12"
+            >
+              <PropertySearchBar />
+              <p className="text-xs text-slate-500 mt-4 font-medium">
+                Vendé, alquilá o tasá con acompañamiento profesional.
+              </p>
             </motion.div>
           </div>
 
@@ -327,7 +346,7 @@ export default function HomePage() {
             transition={{ duration: 0.6, delay: 0.5 }}
             className="mt-24 grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto"
           >
-            {stats.map((stat, index) => {
+            {stats.map((stat) => {
               const Icon = stat.icon;
               return (
                 <div
@@ -379,6 +398,23 @@ export default function HomePage() {
           </div>
 
           {/* Properties Grid */}
+          {(demoProps || demoFondos) && (
+            <div className="mb-8 p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-800 text-sm font-medium flex flex-col sm:flex-row sm:items-center gap-3">
+              <span className="text-lg">🚧</span>
+              <p className="flex-1">
+                El catálogo todavía no tiene cargados inmuebles reales. Las fichas marcadas como
+                <strong> «Ejemplo»</strong> son de muestra y se reemplazan en cuanto se publiquen
+                propiedades desde el panel.
+              </p>
+              <a
+                href="/contacto"
+                className="shrink-0 px-4 py-2 rounded-lg bg-amber-500 text-amber-950 font-bold hover:bg-amber-400 transition-colors text-center"
+              >
+                Publicar mi propiedad
+              </a>
+            </div>
+          )}
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 overflow-hidden py-4 px-2">
             <AnimatePresence mode="popLayout">
               {getVisibleProperties().map((property, index) => (
@@ -390,7 +426,7 @@ export default function HomePage() {
                   exit={{ opacity: 0, scale: 0.9, x: -50 }}
                   transition={{ duration: 0.5 }}
                 >
-                  <PropertyCard property={property} index={index} />
+                  <PropertyCard property={property} index={index} esEjemplo={demoProps} />
                 </motion.div>
               ))}
             </AnimatePresence>
@@ -406,9 +442,6 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-
-      {/* Developments / Emprendimientos Carousel Section */}
-      <ProjectCarousel />
 
       {/* Features Section with Background Carousel */}
       <section className="relative min-h-[800px] flex items-center justify-center overflow-hidden py-24">
@@ -585,7 +618,7 @@ export default function HomePage() {
                   transition={{ duration: 0.5 }}
                   className="min-w-[320px] md:min-w-[400px] flex-shrink-0 snap-start"
                 >
-                  <PropertyCard property={fondo} index={index} />
+                  <PropertyCard property={fondo} index={index} esEjemplo={demoFondos} />
                 </motion.div>
               )) : (
                 <div className="w-full flex flex-col items-center justify-center py-10 text-slate-500">
@@ -606,15 +639,15 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Oportunidades Section */}
+      {/* Gestión Legal Section */}
       <section className="bg-white py-12">
         <div className="container mx-auto px-6">
           <BannerAd
-            title="Oportunidades y Ofertas Especiales"
-            description="Descubrí materiales de construcción, herramientas y sobrantes de obra directos de corralones y constructoras a precios irrepetibles."
-            imageUrl="https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=1200"
-            linkUrl="/oportunidades"
-            ctaText="Ver Oportunidades"
+            title="Gestión Legal y Cobranza de Mora"
+            description="Seguimiento y cobranza de deudas en mora en instancia extrajudicial y judicial, con asesoramiento jurídico integral para inmobiliarias y propietarios."
+            imageUrl="https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=1200"
+            linkUrl="/gestion-legal"
+            ctaText="Conocer el Servicio"
           />
         </div>
       </section>

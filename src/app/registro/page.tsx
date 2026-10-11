@@ -1,14 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Mail, Lock, UserPlus, AlertCircle, Eye, EyeOff, Sparkles, CheckCircle2 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 
 export default function RegistroPage() {
-    const router = useRouter();
     const { register, isConfigured } = useAuth();
 
     const [email, setEmail] = useState('');

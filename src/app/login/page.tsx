@@ -34,7 +34,8 @@ export default function LoginPage() {
             setError(result.error);
             setIsLoading(false);
         } else {
-            router.push('/');
+            const esAdmin = result.role === 'admin' || result.role === 'superadmin';
+            router.push(esAdmin ? '/admin' : '/');
         }
     };
 

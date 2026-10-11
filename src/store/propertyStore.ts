@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { Propiedad, getPropiedades } from '@/lib/supabase';
 
-interface PropertyFilters {
+export interface PropertyFilters {
     operation: string;
     type: string;
     minPrice: number;
@@ -63,7 +63,7 @@ export const usePropertyStore = create<PropertyStore>((set, get) => ({
                 propertyTypes: types,
                 isLoading: false
             });
-        } catch (error) {
+        } catch {
             set({
                 error: 'Error al cargar propiedades',
                 isLoading: false

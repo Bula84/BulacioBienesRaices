@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import Image from 'next/image';
 import {
     Plus,
-    Search,
     Edit,
     Trash2,
     X,
@@ -92,6 +92,10 @@ export default function AdminPropiedadesPage() {
         if (user) {
             loadProperties();
         }
+        // Recargamos cuando cambia el usuario o su rol; `loadProperties` lee
+        // esos valores del closure a propósito (no queremos re-ejecutarlo en
+        // cada render por cambios de estado internos del listado).
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [user, isSuperAdmin]);
 
     const loadProperties = async () => {
@@ -108,7 +112,7 @@ export default function AdminPropiedadesPage() {
             }
 
             setProperties(data.length > 0 ? data : []);
-        } catch (error) {
+        } catch {
             console.log('Error loading properties');
             setProperties([]);
         } finally {
@@ -204,7 +208,7 @@ export default function AdminPropiedadesPage() {
                     ...formData,
                     user_id: user.id,
                 };
-                const created = await createPropiedad(propertyData as any);
+                const created = await createPropiedad(propertyData as Parameters<typeof createPropiedad>[0]);
                 if (created) {
                     setProperties([created, ...properties]);
                 }
@@ -257,7 +261,7 @@ export default function AdminPropiedadesPage() {
         return isSuperAdmin || property.user_id === user?.id;
     };
 
-    const tabs = [
+    const tabs: { id: 'basic' | 'details' | 'amenities' | 'images' | 'contact'; label: string }[] = [
         { id: 'basic', label: 'Básico' },
         { id: 'details', label: 'Detalles' },
         { id: 'amenities', label: 'Amenities' },
@@ -478,7 +482,7 @@ export default function AdminPropiedadesPage() {
                                 {tabs.map((tab) => (
                                     <button
                                         key={tab.id}
-                                        onClick={() => setActiveTab(tab.id as any)}
+                                        onClick={() => setActiveTab(tab.id)}
                                         className={`px-4 py-2 rounded-lg text-sm font-bold whitespace-nowrap transition-all ${activeTab === tab.id
                                             ? 'bg-teal-50 text-[#0d9488]'
                                             : 'text-[var(--text-secondary)] hover:text-[var(--text-main)] hover:bg-gray-50'
@@ -818,7 +822,7 @@ export default function AdminPropiedadesPage() {
                                             </label>
                                             {formData.image_url && (
                                                 <div className="mb-3 relative h-48 rounded-xl overflow-hidden border border-gray-200 group">
-                                                    <img src={formData.image_url} alt="Preview" className="w-full h-full object-cover" />
+                                                    <Image src={formData.image_url} alt="Preview" width={800} height={600} className="w-full h-full object-cover" />
                                                     <button
                                                         type="button"
                                                         onClick={() => setFormData({ ...formData, image_url: '' })}
@@ -884,7 +888,7 @@ export default function AdminPropiedadesPage() {
                                             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mt-4">
                                                 {formData.images.map((url, index) => (
                                                     <div key={index} className="relative group aspect-video rounded-xl overflow-hidden border border-gray-200 bg-gray-50">
-                                                        <img src={url} alt={`Gallery ${index}`} className="w-full h-full object-cover" />
+                                                        <Image src={url} alt={`Gallery ${index}`} width={800} height={600} className="w-full h-full object-cover" />
                                                         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                                                             <button
                                                                 type="button"

@@ -4,14 +4,12 @@ import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import {
     Users,
-    Shield,
     ShieldCheck,
     Clock,
     Check,
     X,
     Trash2,
     RefreshCw,
-    Search,
     Crown
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
@@ -42,7 +40,17 @@ export default function UsuariosPage() {
     };
 
     useEffect(() => {
-        loadUsers();
+        // Carga inicial — `loading` ya arranca en true, así no hacemos
+        // setState síncrono dentro del effect.
+        let activo = true;
+        getAllUserRoles().then((data) => {
+            if (!activo) return;
+            setUsers(data);
+            setLoading(false);
+        });
+        return () => {
+            activo = false;
+        };
     }, []);
 
     const handleApprove = async (userId: string, newRole: 'admin' | 'superadmin') => {

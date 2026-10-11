@@ -15,9 +15,9 @@ import {
     ShieldAlert,
     Clock,
     Share2,
-    ShoppingBag,
     Settings,
-    Calculator
+    Calculator,
+    Scale
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 
@@ -26,10 +26,9 @@ const getNavItems = (isSuperAdmin: boolean) => {
     const items = [
         { href: '/admin', label: 'Dashboard', icon: LayoutDashboard, roles: ['admin', 'superadmin'] },
         { href: '/admin/propiedades', label: 'Propiedades', icon: HomeIcon, roles: ['admin', 'superadmin'] },
-        { href: '/admin/emprendimientos', label: 'Emprendimientos', icon: Building2, roles: ['admin', 'superadmin'] },
-        { href: '/admin/oportunidades', label: 'Oportunidades', icon: ShoppingBag, roles: ['admin', 'superadmin'] },
         { href: '/admin/servicios', label: 'Servicios', icon: Wrench, roles: ['admin', 'superadmin'] },
         { href: '/admin/publicaciones', label: 'Redes Sociales', icon: Share2, roles: ['admin', 'superadmin'] },
+        { href: '/admin/gestion-legal', label: 'Gestión Legal', icon: Scale, roles: ['admin', 'superadmin'] },
         { href: '/admin/calculadora', label: 'Calculadora', icon: Calculator, roles: ['admin', 'superadmin'] },
         { href: '/admin/configuracion', label: 'Configuración', icon: Settings, roles: ['admin', 'superadmin'] },
     ];
@@ -52,7 +51,7 @@ export default function AdminLayout({
     const pathname = usePathname();
     const router = useRouter();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-    const { user, loading, isAdmin, isSuperAdmin, isPending, logout, role } = useAuth();
+    const { user, loading, isAdmin, isSuperAdmin, isPending, logout } = useAuth();
 
     const adminNavItems = getNavItems(isSuperAdmin);
 

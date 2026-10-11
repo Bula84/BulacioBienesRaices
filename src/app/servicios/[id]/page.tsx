@@ -16,14 +16,13 @@ import {
     Play,
     CheckCircle2,
     Shield,
-    Star,
     X,
     ChevronLeft,
     ChevronRight
 } from 'lucide-react';
 import { getServicio, Servicio } from '@/lib/supabase';
 import { mockServicios } from '@/lib/mockServicios';
-import Navbar from '@/components/Navbar';
+import Image from 'next/image';
 import StarRating from '@/components/StarRating';
 
 export default function ServicioDetailPage() {
@@ -102,9 +101,7 @@ export default function ServicioDetailPage() {
 
     return (
         <>
-            <Navbar />
-
-            <main className="min-h-screen pt-24 pb-12 bg-[var(--bg-page)]">
+            <div className="min-h-screen pb-12 bg-[var(--bg-page)]">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     {/* Breadcrumb & Back button */}
                     <div className="flex flex-col sm:flex-row justify-between mb-6">
@@ -135,7 +132,7 @@ export default function ServicioDetailPage() {
 
                                 <div className="z-10 mt-6 md:mt-12 w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden border-4 border-white shadow-xl flex-shrink-0 bg-gray-100">
                                     {service.image_url ? (
-                                        <img src={service.image_url} alt={service.name} className="w-full h-full object-cover" />
+                                        <Image src={service.image_url} alt={service.name} width={800} height={600} className="w-full h-full object-cover" />
                                     ) : (
                                         <div className="w-full h-full flex items-center justify-center text-4xl font-bold text-gray-300">
                                             {service.name.charAt(0)}
@@ -250,7 +247,7 @@ export default function ServicioDetailPage() {
                                                     setIsGalleryOpen(true);
                                                 }}
                                             >
-                                                <img src={img} alt={`Trabajo ${idx + 1}`} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                                                <Image src={img} alt={`Trabajo ${idx + 1}`} width={800} height={600} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                                                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
                                             </div>
                                         ))}
@@ -318,7 +315,7 @@ export default function ServicioDetailPage() {
                         </div>
                     </div>
                 </div>
-            </main>
+            </div>
 
             {/* Fullscreen Gallery Modal */}
             <AnimatePresence>
