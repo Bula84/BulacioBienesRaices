@@ -1,15 +1,25 @@
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Analytics from "@/components/Analytics";
+import { SocialRail } from "@/components/SocialBand";
 import { AuthProvider } from "@/context/AuthContext";
 
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
   display: "swap",
+});
+
+// Serif editorial para display/títulos — "quiet luxury"
+const playfair = Playfair_Display({
+  subsets: ["latin"],
+  variable: "--font-display",
+  display: "swap",
+  weight: ["500", "600", "700"],
+  style: ["normal", "italic"],
 });
 
 export const metadata: Metadata = {
@@ -55,7 +65,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0D9488",
+  themeColor: "#0b1f3a",
   width: "device-width",
   initialScale: 1,
 };
@@ -74,11 +84,12 @@ export default function RootLayout({
         <meta name="referrer" content="strict-origin-when-cross-origin" />
       </head>
       <body
-        className={`${inter.variable} antialiased bg-[var(--bg-page)] text-[var(--text-main)] font-sans`}
+        className={`${inter.variable} ${playfair.variable} antialiased bg-[var(--bg-page)] text-[var(--text-main)] font-sans`}
       >
         <AuthProvider>
           <Analytics />
           <Navbar />
+          <SocialRail />
           <main className="min-h-screen pt-20">{children}</main>
           <Footer />
         </AuthProvider>

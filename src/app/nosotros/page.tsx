@@ -181,7 +181,8 @@ export default function NosotrosPage() {
                             className="p-10 rounded-[2rem] bg-white shadow-sm border border-gray-100"
                         >
                             <div
-                                className="w-14 h-14 rounded-2xl flex items-center justify-center mb-6 bg-teal-50 text-teal-600"
+                                className="w-14 h-14 rounded-2xl flex items-center justify-center mb-6"
+                                style={{ background: 'rgba(184, 134, 59, 0.12)', color: 'var(--accent-dark)' }}
                             >
                                 <Eye className="w-7 h-7" />
                             </div>

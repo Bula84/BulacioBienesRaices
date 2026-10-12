@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { Bed, Bath, Maximize, MapPin, ImageIcon } from 'lucide-react';
+import { Bed, Bath, Maximize, MapPin, ImageIcon, ArrowRight } from 'lucide-react';
 import { Propiedad } from '@/lib/supabase';
 import { usePropertyStore } from '@/store/propertyStore';
 
@@ -35,8 +35,14 @@ export default function PropertyCard({ property, index = 0, esEjemplo = false }:
                 }}
                 onMouseEnter={() => setHoveredProperty(property.id)}
                 onMouseLeave={() => setHoveredProperty(null)}
-                className={`group relative rounded-[var(--radius-card)] overflow-hidden cursor-pointer bg-white border border-gray-100 transition-all duration-300 hover:shadow-xl hover:-translate-y-2`}
+                className={`group relative rounded-[var(--radius-card)] overflow-hidden cursor-pointer bg-white border transition-all duration-300 hover:shadow-2xl hover:shadow-slate-900/10 hover:-translate-y-2`}
+                style={{ borderColor: '#e2e8f0' }}
             >
+                {/* Filete dorado al hover */}
+                <div
+                    className="absolute top-0 inset-x-0 h-1 z-20 scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left"
+                    style={{ background: 'var(--accent-color)' }}
+                />
                 {/* Image Container */}
                 <div className="relative h-64 overflow-hidden">
                     <div
@@ -54,21 +60,22 @@ export default function PropertyCard({ property, index = 0, esEjemplo = false }:
                     {/* Operation Badge */}
                     <div className="absolute top-4 left-4">
                         <span
-                            className={`px-3 py-1 text-xs font-bold uppercase tracking-wider rounded-full shadow-sm ${property.operation === 'venta'
-                                ? 'bg-[var(--primary-blue)] text-white'
-                                : 'bg-[var(--status-rent)] text-white'
+                            className={`px-3 py-1 text-[0.8125rem] font-bold uppercase tracking-wider rounded-full shadow-sm ${property.operation === 'venta'
+                                ? 'text-white'
+                                : 'text-white'
                                 }`}
+                            style={{ background: property.operation === 'venta' ? '#0b1f3a' : '#10B981' }}
                         >
                             {property.operation}
                         </span>
                     </div>
 
-                    {/* Price */}
+                    {/* Price — serif editorial */}
                     <div className="absolute bottom-4 left-4 text-white drop-shadow-md">
-                        <p className="text-2xl font-bold font-headings">
+                        <p className="text-3xl font-bold" style={{ fontFamily: 'var(--font-heading)' }}>
                             {formatPrice(property.price)}
                             {property.operation === 'alquiler' && (
-                                <span className="text-sm font-normal text-white/90 ml-1">/mes</span>
+                                <span className="text-base font-normal text-white/90 ml-1">/mes</span>
                             )}
                         </p>
                     </div>
@@ -131,12 +138,16 @@ export default function PropertyCard({ property, index = 0, esEjemplo = false }:
                     {/* Type Badge & CTA */}
                     <div className="mt-4 flex items-center justify-between">
                         <span
-                            className="inline-block px-3 py-1 text-xs font-semibold rounded-md uppercase tracking-wider text-[var(--text-secondary)] bg-gray-100"
+                            className="inline-block px-3 py-1 text-[0.8125rem] font-semibold rounded-md uppercase tracking-wider text-slate-600 bg-slate-100"
                         >
                             {property.type}
                         </span>
-                        <span className="text-xs font-bold text-[var(--primary-blue)] flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity transform translate-x-[-10px] group-hover:translate-x-0 duration-300">
-                            VER DETALLE →
+                        <span
+                            className="text-[0.8125rem] font-bold flex items-center gap-1 transition-all group-hover:gap-2"
+                            style={{ color: 'var(--accent-dark)' }}
+                        >
+                            VER DETALLE
+                            <ArrowRight className="w-3.5 h-3.5" />
                         </span>
                     </div>
                 </div>

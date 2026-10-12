@@ -90,13 +90,14 @@ export default function TasacionesPage() {
     return (
         <div className="min-h-screen bg-[var(--bg-page)] pt-20">
             {/* Hero Section */}
-            <section className="relative bg-[#0d9488] py-24 overflow-hidden">
+            <section className="relative py-24 overflow-hidden" style={{ background: 'linear-gradient(135deg, #0b1f3a 0%, #16345c 70%, #0b1f3a 100%)' }}>
                 <div className="absolute inset-0 z-0">
                     <div
                         className="absolute inset-0 bg-cover bg-center opacity-30 mix-blend-overlay"
                         style={{ backgroundImage: "url('https://images.unsplash.com/photo-1560518883-ce09059eeffa?q=80&w=2000&auto=format&fit=crop')" }}
                     />
-                    <div className="absolute inset-0 bg-gradient-to-r from-[#0d9488] via-[#0d9488]/90 to-transparent"></div>
+                    <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full opacity-25 blur-[120px]" style={{ background: 'var(--accent-color)' }} />
+                    <div className="absolute inset-0 opacity-[0.06] pattern-grid-lg"></div>
                 </div>
 
                 <div className="container relative z-10 mx-auto px-6">
@@ -104,7 +105,7 @@ export default function TasacionesPage() {
                         <motion.h1
                             initial={{ opacity: 0, y: 30 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className="text-4xl md:text-6xl font-extrabold !text-white mb-6 font-headings leading-tight"
+                            className="display-xl !text-white mb-6"
                         >
                             Tasaciones
                         </motion.h1>
@@ -112,7 +113,7 @@ export default function TasacionesPage() {
                             initial={{ opacity: 0, y: 30 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.1 }}
-                            className="text-lg md:text-2xl !text-teal-50 mb-8 font-medium"
+                            className="lead !text-slate-300 mb-8"
                         >
                             Conozca el valor real de su propiedad en el mercado actual. Nuestro equipo de tasadores certificados lo ayudará en el proceso.
                         </motion.p>
@@ -145,7 +146,7 @@ export default function TasacionesPage() {
                                         return (
                                             <div key={index} className="flex gap-4">
                                                 <div className="flex-shrink-0 mt-1">
-                                                    <div className="w-12 h-12 rounded-xl bg-teal-100 flex items-center justify-center text-teal-700">
+                                                    <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: 'rgba(184, 134, 59, 0.15)', color: 'var(--accent-dark)' }}>
                                                         <Icon className="w-6 h-6" />
                                                     </div>
                                                 </div>
@@ -167,7 +168,7 @@ export default function TasacionesPage() {
                             viewport={{ once: true }}
                             className="bg-white rounded-3xl p-8 md:p-10 shadow-2xl border border-gray-100 relative overflow-hidden"
                         >
-                            <div className="absolute top-0 right-0 w-32 h-32 bg-teal-50 rounded-bl-full -mr-10 -mt-10 opacity-50"></div>
+                            <div className="absolute top-0 right-0 w-32 h-32 rounded-bl-full -mr-10 -mt-10 opacity-50" style={{ background: 'rgba(184, 134, 59, 0.12)' }}></div>
 
                             <h3 className="text-2xl font-extrabold !text-slate-900 mb-2 font-headings relative z-10">Solicitar Tasación</h3>
                             <p className="font-medium !text-slate-700 mb-8 relative z-10 text-base">Un corredor inmobiliario matriculado se pondrá en contacto para visitarlo.</p>
@@ -182,7 +183,7 @@ export default function TasacionesPage() {
                                             value={formData.name}
                                             onChange={handleChange}
                                             required
-                                            className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:ring-2 focus:ring-teal-500 focus:border-transparent outline-none transition-all"
+                                            className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:ring-2 focus:ring-[var(--accent-color)] focus:border-transparent outline-none transition-all"
                                             placeholder="Juan Pérez"
                                         />
                                     </div>
@@ -194,7 +195,7 @@ export default function TasacionesPage() {
                                             value={formData.phone}
                                             onChange={handleChange}
                                             required
-                                            className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:ring-2 focus:ring-teal-500 focus:border-transparent outline-none transition-all"
+                                            className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:ring-2 focus:ring-[var(--accent-color)] focus:border-transparent outline-none transition-all"
                                             placeholder="+54 11 1234-5678"
                                         />
                                     </div>
@@ -209,7 +210,7 @@ export default function TasacionesPage() {
                                             value={formData.email}
                                             onChange={handleChange}
                                             required
-                                            className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:ring-2 focus:ring-teal-500 focus:border-transparent outline-none transition-all"
+                                            className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:ring-2 focus:ring-[var(--accent-color)] focus:border-transparent outline-none transition-all"
                                             placeholder="juan@email.com"
                                         />
                                     </div>
@@ -219,7 +220,7 @@ export default function TasacionesPage() {
                                             name="propertyType"
                                             value={formData.propertyType}
                                             onChange={handleChange}
-                                            className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:ring-2 focus:ring-teal-500 focus:border-transparent outline-none transition-all"
+                                            className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:ring-2 focus:ring-[var(--accent-color)] focus:border-transparent outline-none transition-all"
                                         >
                                             <option value="casa">Casa</option>
                                             <option value="departamento">Departamento</option>
@@ -237,7 +238,7 @@ export default function TasacionesPage() {
                                         name="address"
                                         value={formData.address}
                                         onChange={handleChange}
-                                        className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:ring-2 focus:ring-teal-500 focus:border-transparent outline-none transition-all"
+                                        className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:ring-2 focus:ring-[var(--accent-color)] focus:border-transparent outline-none transition-all"
                                         placeholder="Av. Ejemplo 1234, Ciudad..."
                                     />
                                 </div>
@@ -249,13 +250,13 @@ export default function TasacionesPage() {
                                         value={formData.details}
                                         onChange={handleChange}
                                         rows={4}
-                                        className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:ring-2 focus:ring-teal-500 focus:border-transparent outline-none transition-all resize-none"
+                                        className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-200 focus:ring-2 focus:ring-[var(--accent-color)] focus:border-transparent outline-none transition-all resize-none"
                                         placeholder="Características de la propiedad, cantidad de ambientes, superficie, dependencias, etc."
                                     ></textarea>
                                 </div>
 
                                 {estado === 'ok' && (
-                                    <div className="p-4 rounded-xl bg-teal-50 border border-teal-200 text-teal-800 text-sm font-medium">
+                                    <div className="p-4 rounded-xl border text-sm font-medium" style={{ background: 'rgba(184, 134, 59, 0.08)', borderColor: 'rgba(184, 134, 59, 0.3)', color: 'var(--accent-dark)' }}>
                                         ✅ Solicitud enviada con éxito. Nos pondremos en contacto a la brevedad.
                                     </div>
                                 )}
@@ -268,7 +269,8 @@ export default function TasacionesPage() {
                                 <button
                                     type="submit"
                                     disabled={estado === 'enviando'}
-                                    className="w-full bg-teal-600 hover:bg-teal-700 disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold py-4 rounded-xl transition-colors shadow-lg shadow-teal-500/30 flex items-center justify-center gap-2"
+                                    className="w-full disabled:opacity-60 disabled:cursor-not-allowed text-white font-bold py-4 rounded-xl transition-colors shadow-lg flex items-center justify-center gap-2"
+                                    style={{ background: 'var(--primary-blue)' }}
                                 >
                                     {estado === 'enviando' ? 'Enviando…' : 'Enviar Solicitud'}
                                     {estado !== 'enviando' && <ArrowRight className="w-5 h-5" />}

@@ -85,29 +85,30 @@ export default function ContactoPage() {
     };
 
 
-    const inputClass = "w-full px-4 py-3.5 rounded-xl bg-white border border-gray-200 text-[var(--text-main)] placeholder:text-gray-400 focus:outline-none focus:border-[#0d9488] focus:ring-2 focus:ring-[#0d9488]/20 transition-all text-sm font-medium";
+    const inputClass = "w-full px-4 py-3.5 rounded-xl bg-white border border-gray-200 text-[var(--text-main)] placeholder:text-gray-400 focus:outline-none focus:border-[var(--accent-color)] focus:ring-2 focus:ring-[#f3ead9] transition-all text-[0.9375rem] font-medium";
 
     return (
         <div className="min-h-screen bg-[var(--bg-page)] pt-20">
             {/* Hero */}
-            <section className="relative bg-gradient-to-br from-slate-800 via-slate-900 to-teal-900 py-20 overflow-hidden">
-                <div className="absolute inset-0 opacity-10">
-                    <div className="absolute top-20 left-20 w-72 h-72 bg-teal-500 rounded-full blur-[100px]" />
-                    <div className="absolute bottom-10 right-20 w-96 h-96 bg-[var(--primary-blue)] rounded-full blur-[120px]" />
+            <section className="relative py-20 overflow-hidden" style={{ background: 'linear-gradient(135deg, #0b1f3a 0%, #16345c 70%, #0b1f3a 100%)' }}>
+                <div className="absolute inset-0 opacity-30">
+                    <div className="absolute top-20 left-20 w-72 h-72 rounded-full blur-[100px]" style={{ background: 'var(--accent-color)' }} />
+                    <div className="absolute bottom-10 right-20 w-96 h-96 rounded-full blur-[120px]" style={{ background: 'var(--primary-hover)' }} />
                 </div>
+                <div className="absolute inset-0 opacity-[0.06] pattern-grid-lg" />
                 <div className="container relative z-10 mx-auto px-6 text-center">
                     <motion.div
                         initial={{ opacity: 0, y: 30 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.6 }}
                     >
-                        <div className="w-16 h-16 rounded-2xl bg-[#0d9488] flex items-center justify-center mx-auto mb-6 shadow-lg shadow-teal-500/30">
-                            <MessageCircle className="w-8 h-8 text-white" />
+                        <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg" style={{ background: 'var(--accent-color)' }}>
+                            <MessageCircle className="w-8 h-8" style={{ color: '#0b1f3a' }} />
                         </div>
-                        <h1 className="text-4xl md:text-6xl font-extrabold !text-white mb-4 font-headings leading-tight">
+                        <h1 className="display-xl !text-white mb-4">
                             Contactanos
                         </h1>
-                        <p className="text-lg md:text-xl !text-teal-100 max-w-2xl mx-auto font-medium">
+                        <p className="lead !text-slate-300 max-w-2xl mx-auto">
                             ¿Querés publicar en nuestra plataforma o tenés alguna consulta? Completá el formulario y te respondemos a la brevedad.
                         </p>
                     </motion.div>
@@ -136,7 +137,8 @@ export default function ContactoPage() {
                                     </p>
                                     <button
                                         onClick={() => setEnviado(false)}
-                                        className="px-6 py-3 rounded-xl font-bold text-white bg-[#0d9488] hover:bg-[#0f766e] transition-all"
+                                        className="px-6 py-3 rounded-xl font-bold text-white transition-all"
+                                        style={{ background: 'var(--primary-blue)' }}
                                     >
                                         Enviar otro mensaje
                                     </button>
@@ -195,8 +197,8 @@ export default function ContactoPage() {
                                         <button
                                             type="submit"
                                             disabled={enviando || cooldown}
-                                            className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-4 rounded-xl font-bold text-white transition-all duration-200 shadow-lg shadow-teal-500/20 disabled:opacity-50 disabled:cursor-not-allowed text-base"
-                                            style={{ background: cooldown ? '#64748b' : 'linear-gradient(135deg, #0d9488, #0f766e)' }}
+                                            className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-4 rounded-xl font-bold text-white transition-all duration-200 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed text-base"
+                                            style={{ background: cooldown ? '#64748b' : 'var(--primary-blue)' }}
                                         >
                                             <Send className="w-5 h-5" />
                                             {enviando ? 'Enviando...' : cooldown ? 'Espera 60s para reenviar' : 'Enviar Mensaje'}
@@ -219,8 +221,8 @@ export default function ContactoPage() {
                                 <div className="space-y-5">
                                     {contactInfo?.phone && (
                                         <a href={`tel:${contactInfo.phone}`} className="flex items-start gap-4 group">
-                                            <div className="w-10 h-10 rounded-xl bg-teal-50 flex items-center justify-center flex-shrink-0 group-hover:bg-teal-100 transition-colors">
-                                                <Phone className="w-5 h-5 text-[#0d9488]" />
+                                            <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors" style={{ background: 'rgba(184, 134, 59, 0.12)' }}>
+                                                <Phone className="w-5 h-5" style={{ color: 'var(--accent-dark)' }} />
                                             </div>
                                             <div>
                                                 <p className="text-sm font-bold text-[var(--text-main)]">Teléfono</p>
@@ -276,13 +278,13 @@ export default function ContactoPage() {
                             </div>
 
                             {/* CTA */}
-                            <div className="bg-gradient-to-br from-[#0d9488] to-[#0f766e] rounded-3xl p-8 text-white">
+                            <div className="rounded-3xl p-8 text-white" style={{ background: 'linear-gradient(135deg, #0b1f3a, #16345c)' }}>
                                 <Building2 className="w-10 h-10 mb-4 opacity-80" />
                                 <h3 className="text-lg font-bold mb-2">¿Querés publicar tu propiedad?</h3>
-                                <p className="text-sm text-teal-100 mb-4 leading-relaxed">
+                                <p className="text-sm text-slate-300 mb-4 leading-relaxed">
                                     Publicá tu propiedad o fondo de comercio en nuestra plataforma y llegá a miles de compradores e inversores.
                                 </p>
-                                <div className="text-xs text-teal-200 font-medium">
+                                <div className="text-[0.8125rem] font-medium" style={{ color: 'var(--accent-light)' }}>
                                     Seleccioná &quot;Quiero publicar en la plataforma&quot; en el formulario y contanos qué ofrecés.
                                 </div>
                             </div>

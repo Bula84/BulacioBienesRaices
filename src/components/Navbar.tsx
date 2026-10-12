@@ -74,18 +74,18 @@ export default function Navbar() {
                             <div
                                 className="w-10 h-10 rounded-xl flex items-center justify-center transition-transform group-hover:scale-105"
                                 style={{
-                                    background: 'linear-gradient(135deg, var(--primary-blue) 0%, #0f766e 100%)',
-                                    boxShadow: '0 4px 20px rgba(13, 148, 136, 0.3)',
+                                    background: 'linear-gradient(135deg, var(--primary-blue) 0%, #16345c 100%)',
+                                    boxShadow: '0 4px 20px rgba(11, 31, 58, 0.35), 0 0 0 1px rgba(184, 134, 59, 0.35)',
                                 }}
                             >
-                                <Building2 className="w-5 h-5 text-white" />
+                                <Building2 className="w-5 h-5" style={{ color: 'var(--accent-light)' }} />
                             </div>
                         </div>
                         <div className="hidden sm:block">
                             <span className="text-lg font-bold text-gradient block leading-tight" style={{ fontFamily: 'var(--font-heading)' }}>
                                 Bulacio Bienes Raíces
                             </span>
-                            <span className="text-xs text-[var(--text-secondary)] block -mt-0.5 font-medium">Tu hogar, tu refugio</span>
+                            <span className="text-[0.8125rem] text-[var(--text-secondary)] block -mt-0.5 font-medium">Tu hogar, tu refugio</span>
                         </div>
                     </Link>
 
@@ -95,11 +95,10 @@ export default function Navbar() {
                             <Link
                                 key={link.href}
                                 href={link.href}
-                                className="relative px-2.5 py-2 text-[var(--text-main)] hover:text-[var(--primary-blue)] font-semibold transition-colors duration-200 group rounded-lg hover:bg-teal-50/50"
+                                className="relative px-2.5 py-2 text-[var(--text-main)] hover:text-[var(--accent-dark)] font-semibold transition-colors duration-200 group rounded-lg hover:bg-[#f3ead9]/60"
                                 style={{
-                                    fontSize: '0.72rem',
-                                    letterSpacing: '0.3px',
-                                    textTransform: 'uppercase',
+                                    fontSize: '0.875rem',
+                                    letterSpacing: '0.2px',
                                 }}
                             >
                                 <span className="relative z-10 whitespace-nowrap">{link.label}</span>
@@ -118,13 +117,13 @@ export default function Navbar() {
                                     <div
                                         className="w-8 h-8 rounded-lg flex items-center justify-center"
                                         style={{
-                                            background: 'rgba(13, 148, 136, 0.1)',
-                                            border: '1px solid rgba(13, 148, 136, 0.2)',
+                                            background: 'rgba(184, 134, 59, 0.12)',
+                                            border: '1px solid rgba(184, 134, 59, 0.3)',
                                         }}
                                     >
-                                        <User className="w-4 h-4 text-[var(--primary-blue)]" />
+                                        <User className="w-4 h-4" style={{ color: 'var(--accent-dark)' }} />
                                     </div>
-                                    <span className="hidden 2xl:block text-xs text-[var(--text-secondary)] max-w-[130px] truncate">
+                                    <span className="hidden 2xl:block text-[0.8125rem] text-[var(--text-secondary)] max-w-[130px] truncate">
                                         {user.email}
                                     </span>
                                 </div>
@@ -132,7 +131,7 @@ export default function Navbar() {
                                 {isAdmin && (
                                     <Link
                                         href="/admin"
-                                        className="px-3 py-2 text-xs font-bold text-white bg-[var(--primary-blue)] rounded-lg hover:bg-[#0f766e] transition-colors uppercase tracking-wide"
+                                        className="px-3 py-2 text-[0.8125rem] font-bold text-white bg-[var(--primary-blue)] rounded-lg hover:bg-[var(--primary-hover)] transition-colors uppercase tracking-wide"
                                     >
                                         Admin
                                     </Link>
@@ -140,7 +139,7 @@ export default function Navbar() {
 
                                 <button
                                     onClick={handleLogout}
-                                    className="flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-[var(--text-secondary)] hover:text-red-500 transition-colors rounded-lg hover:bg-red-50"
+                                    className="flex items-center gap-1.5 px-3 py-2 text-[0.8125rem] font-medium text-[var(--text-secondary)] hover:text-red-500 transition-colors rounded-lg hover:bg-red-50"
                                 >
                                     <LogOut className="w-3.5 h-3.5" />
                                     <span className="hidden 2xl:inline">Salir</span>
@@ -150,7 +149,7 @@ export default function Navbar() {
                             <>
                                 <Link
                                     href="/login"
-                                    className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-[var(--text-main)] hover:text-[var(--primary-blue)] transition-colors uppercase tracking-wide rounded-lg hover:bg-gray-50"
+                                    className="flex items-center gap-1.5 px-3 py-2 text-[0.8125rem] font-semibold text-[var(--text-main)] hover:text-[var(--accent-dark)] transition-colors uppercase tracking-wide rounded-lg hover:bg-[#f3ead9]/60"
                                 >
                                     <LogIn className="w-4 h-4" />
                                     Ingresar
@@ -158,7 +157,7 @@ export default function Navbar() {
                                 <Link
                                     href="/propiedades"
                                     className="btn-primary"
-                                    style={{ padding: '0.45rem 1rem', fontSize: '0.72rem' }}
+                                    style={{ padding: '0.55rem 1.25rem', fontSize: '0.875rem' }}
                                 >
                                     Explorar
                                 </Link>
@@ -215,8 +214,8 @@ export default function Navbar() {
                                     <div
                                         className="flex items-center gap-3 p-4 rounded-2xl mb-6"
                                         style={{
-                                            background: 'rgba(13, 148, 136, 0.05)',
-                                            border: '1px solid rgba(13, 148, 136, 0.1)',
+                                            background: 'rgba(184, 134, 59, 0.08)',
+                                            border: '1px solid rgba(184, 134, 59, 0.2)',
                                         }}
                                     >
                                         <div
@@ -226,13 +225,13 @@ export default function Navbar() {
                                                 boxShadow: '0 2px 10px rgba(0,0,0,0.05)'
                                             }}
                                         >
-                                            <User className="w-5 h-5 text-[var(--primary-blue)]" />
+                                            <User className="w-5 h-5" style={{ color: 'var(--accent-dark)' }} />
                                         </div>
                                         <div className="flex-1 min-w-0">
                                             <p className="text-[var(--text-main)] text-sm font-medium truncate">
                                                 {user.email}
                                             </p>
-                                            <p className="text-[var(--primary-blue)] text-xs">Cuenta activa</p>
+                                            <p className="text-[0.8125rem] font-medium" style={{ color: 'var(--accent-dark)' }}>Cuenta activa</p>
                                         </div>
                                     </div>
                                 )}

@@ -74,7 +74,7 @@ export default function PropertySearchBar() {
     };
 
     const selectClass =
-        'w-full px-4 py-3.5 rounded-xl bg-white border border-slate-200 text-slate-800 text-sm font-semibold focus:outline-none focus:border-[var(--primary-blue)] focus:ring-2 focus:ring-teal-100 transition-all appearance-none cursor-pointer';
+        'w-full px-4 py-3.5 rounded-xl bg-white border border-slate-200 text-slate-800 text-[0.9375rem] font-semibold focus:outline-none focus:border-[var(--accent-color)] focus:ring-2 focus:ring-[#f3ead9] transition-all appearance-none cursor-pointer';
 
     return (
         <form
@@ -90,9 +90,10 @@ export default function PropertySearchBar() {
                         onClick={() => setOperation(o.v)}
                         className={`flex-1 md:flex-none px-5 py-2.5 rounded-lg text-sm font-bold transition-all ${
                             operation === o.v
-                                ? 'bg-white text-[var(--primary-blue)] shadow-sm'
+                                ? 'bg-white shadow-sm'
                                 : 'text-slate-500 hover:text-slate-700'
                         }`}
+                        style={operation === o.v ? { color: 'var(--accent-dark)' } : undefined}
                     >
                         {o.l}
                     </button>
@@ -145,8 +146,8 @@ export default function PropertySearchBar() {
             {/* Buscar */}
             <button
                 type="submit"
-                className="flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl md:rounded-full font-bold text-white text-sm transition-all hover:scale-105 shadow-lg shadow-teal-600/25 flex-shrink-0"
-                style={{ background: 'var(--primary-blue)' }}
+                className="flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl md:rounded-full font-bold text-white text-[0.9375rem] transition-all hover:scale-105 shadow-lg flex-shrink-0"
+                style={{ background: 'var(--primary-blue)', boxShadow: '0 8px 20px rgba(11, 31, 58, 0.3)' }}
             >
                 <Search className="w-5 h-5" />
                 Buscar

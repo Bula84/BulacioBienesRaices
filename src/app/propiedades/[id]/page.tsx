@@ -388,7 +388,7 @@ export default function PropertyDetailPage() {
                                         </div>
                                         <div>
                                             <p className="!text-slate-900 font-extrabold text-lg">{property.m2} m²</p>
-                                            <p className="text-xs font-bold !text-slate-600 uppercase tracking-wide">Superficie</p>
+                                            <p className="text-[0.8125rem] font-bold !text-slate-600 uppercase tracking-wide">Superficie</p>
                                         </div>
                                     </div>
                                     {property.bedrooms && (
@@ -398,7 +398,7 @@ export default function PropertyDetailPage() {
                                             </div>
                                             <div>
                                                 <p className="!text-slate-900 font-extrabold text-lg">{property.bedrooms}</p>
-                                                <p className="text-xs font-bold !text-slate-600 uppercase tracking-wide">Dormitorios</p>
+                                                <p className="text-[0.8125rem] font-bold !text-slate-600 uppercase tracking-wide">Dormitorios</p>
                                             </div>
                                         </div>
                                     )}
@@ -409,7 +409,7 @@ export default function PropertyDetailPage() {
                                             </div>
                                             <div>
                                                 <p className="!text-slate-900 font-extrabold text-lg">{property.bathrooms}</p>
-                                                <p className="text-xs font-bold !text-slate-600 uppercase tracking-wide">Baños</p>
+                                                <p className="text-[0.8125rem] font-bold !text-slate-600 uppercase tracking-wide">Baños</p>
                                             </div>
                                         </div>
                                     )}
@@ -420,7 +420,7 @@ export default function PropertyDetailPage() {
                                             </div>
                                             <div>
                                                 <p className="!text-slate-900 font-extrabold text-lg">{property.parking}</p>
-                                                <p className="text-xs font-bold !text-slate-600 uppercase tracking-wide">Cocheras</p>
+                                                <p className="text-[0.8125rem] font-bold !text-slate-600 uppercase tracking-wide">Cocheras</p>
                                             </div>
                                         </div>
                                     )}
@@ -477,31 +477,31 @@ export default function PropertyDetailPage() {
                                 <h2 className="text-2xl font-extrabold !text-slate-900 mb-6 font-headings">Detalles Adicionales</h2>
                                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-6">
                                     <div className="p-4 rounded-xl bg-gray-50 border border-gray-100">
-                                        <p className="font-bold !text-slate-600 text-xs uppercase tracking-wide mb-1">Tipo</p>
+                                        <p className="font-bold !text-slate-600 text-[0.8125rem] uppercase tracking-wide mb-1">Tipo</p>
                                         <p className="!text-slate-900 font-bold">{property.type}</p>
                                     </div>
                                     <div className="p-4 rounded-xl bg-gray-50 border border-gray-100">
-                                        <p className="font-bold !text-slate-600 text-xs uppercase tracking-wide mb-1">Superficie Total</p>
+                                        <p className="font-bold !text-slate-600 text-[0.8125rem] uppercase tracking-wide mb-1">Superficie Total</p>
                                         <p className="!text-slate-900 font-bold">{property.m2} m²</p>
                                     </div>
                                     {property.m2_covered && (
                                         <div className="p-4 rounded-xl bg-gray-50 border border-gray-100">
-                                            <p className="font-bold !text-slate-600 text-xs uppercase tracking-wide mb-1">Superficie Cubierta</p>
+                                            <p className="font-bold !text-slate-600 text-[0.8125rem] uppercase tracking-wide mb-1">Superficie Cubierta</p>
                                             <p className="!text-slate-900 font-bold">{property.m2_covered} m²</p>
                                         </div>
                                     )}
                                     {property.year_built && (
                                         <div className="p-4 rounded-xl bg-gray-50 border border-gray-100">
-                                            <p className="font-bold !text-slate-600 text-xs uppercase tracking-wide mb-1">Año Construcción</p>
+                                            <p className="font-bold !text-slate-600 text-[0.8125rem] uppercase tracking-wide mb-1">Año Construcción</p>
                                             <p className="!text-slate-900 font-bold">{property.year_built}</p>
                                         </div>
                                     )}
                                     <div className="p-4 rounded-xl bg-gray-50 border border-gray-100">
-                                        <p className="font-bold !text-slate-600 text-xs uppercase tracking-wide mb-1">ID Propiedad</p>
+                                        <p className="font-bold !text-slate-600 text-[0.8125rem] uppercase tracking-wide mb-1">ID Propiedad</p>
                                         <p className="!text-slate-900 font-bold">{property.id.slice(0, 8).toUpperCase()}</p>
                                     </div>
                                     <div className="p-4 rounded-xl bg-gray-50 border border-gray-100">
-                                        <p className="font-bold !text-slate-600 text-xs uppercase tracking-wide mb-1">Publicado</p>
+                                        <p className="font-bold !text-slate-600 text-[0.8125rem] uppercase tracking-wide mb-1">Publicado</p>
                                         <p className="!text-slate-900 font-bold">
                                             {new Date(property.created_at).toLocaleDateString('es-AR')}
                                         </p>

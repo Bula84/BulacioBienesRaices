@@ -180,7 +180,7 @@ export default function LegalAssistant({ onResumen, contexto }: Props) {
                             }
                         }}
                         placeholder="Escribí tu consulta..."
-                        className="flex-1 px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-[#0b1f3a] focus:ring-2 focus:ring-[#0b1f3a]/10 transition-all"
+                        className="flex-1 px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm text-slate-800 placeholder:text-slate-500 focus:outline-none focus:border-[#0b1f3a] focus:ring-2 focus:ring-[#0b1f3a]/10 transition-all"
                         disabled={sending}
                     />
                     <button
@@ -195,7 +195,7 @@ export default function LegalAssistant({ onResumen, contexto }: Props) {
                         <Send className={`w-4 h-4 ${input.trim() ? 'text-[#e3b872]' : 'text-slate-400'}`} />
                     </button>
                 </div>
-                <p className="text-center text-[10px] text-slate-400 mt-2 font-medium">
+                <p className="text-center text-[0.8125rem] text-slate-500 mt-2 font-medium">
                     Asistente IA · no sustituye el asesoramiento jurídico profesional
                 </p>
             </div>

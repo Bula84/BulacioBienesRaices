@@ -202,14 +202,14 @@ export default function PropertyChat({ property }: PropertyChatProps) {
                         whileHover={{ scale: 1.1 }}
                         whileTap={{ scale: 0.95 }}
                         onClick={handleOpen}
-                        className="fixed bottom-6 right-6 z-50 w-16 h-16 rounded-full flex items-center justify-center shadow-2xl shadow-teal-500/40 group"
+                        className="fixed bottom-6 right-6 z-50 w-16 h-16 rounded-full flex items-center justify-center shadow-2xl shadow-black/30 group"
                         style={{
-                            background: 'linear-gradient(135deg, #0d9488 0%, #0f766e 100%)',
+                            background: 'linear-gradient(135deg, #0b1f3a 0%, #16345c 100%)',
                         }}
                     >
-                        <MessageCircle className="w-7 h-7 text-white" />
+                        <MessageCircle className="w-7 h-7" style={{ color: 'var(--accent-light)' }} />
                         {/* Pulse animation */}
-                        <span className="absolute inset-0 rounded-full animate-ping opacity-20 bg-teal-400" />
+                        <span className="absolute inset-0 rounded-full animate-ping opacity-20" style={{ background: 'var(--accent-color)' }} />
                         {/* Label */}
                         <span className="absolute -top-10 right-0 bg-slate-800 text-white text-xs font-bold px-3 py-1.5 rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity shadow-lg">
                             💬 Consultá ahora
@@ -236,17 +236,17 @@ export default function PropertyChat({ property }: PropertyChatProps) {
                         <div
                             className="flex items-center gap-3 px-5 py-4 flex-shrink-0"
                             style={{
-                                background: 'linear-gradient(135deg, #0f766e 0%, #0d9488 100%)',
+                                background: 'linear-gradient(135deg, #0b1f3a 0%, #16345c 100%)',
                             }}
                         >
-                            <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                                <Bot className="w-5 h-5 text-white" />
+                            <div className="w-10 h-10 rounded-full bg-white/15 backdrop-blur-sm flex items-center justify-center">
+                                <Bot className="w-5 h-5" style={{ color: 'var(--accent-light)' }} />
                             </div>
                             <div className="flex-1">
                                 <h3 className="text-white font-bold text-sm">Asistente Bulacio Bienes Raíces</h3>
                                 <div className="flex items-center gap-1.5">
                                     <span className="w-2 h-2 rounded-full bg-emerald-300 animate-pulse" />
-                                    <span className="text-teal-100 text-xs font-medium">En línea</span>
+                                    <span className="text-slate-300 text-[0.8125rem] font-medium">En línea</span>
                                 </div>
                             </div>
                             <div className="flex items-center gap-1">
@@ -266,11 +266,11 @@ export default function PropertyChat({ property }: PropertyChatProps) {
                         </div>
 
                         {/* Property Tag */}
-                        <div className="px-4 py-2.5 bg-teal-50 border-b border-teal-100 flex-shrink-0">
-                            <p className="text-xs font-bold text-teal-700 truncate">
+                        <div className="px-4 py-2.5 border-b flex-shrink-0" style={{ background: 'rgba(184, 134, 59, 0.08)', borderColor: 'rgba(184, 134, 59, 0.25)' }}>
+                            <p className="text-[0.8125rem] font-bold truncate" style={{ color: 'var(--accent-dark)' }}>
                                 🏠 {property.title}
                             </p>
-                            <p className="text-xs text-teal-600">
+                            <p className="text-[0.8125rem]" style={{ color: 'var(--accent-dark)' }}>
                                 USD {property.price?.toLocaleString('es-AR')} · {property.operation === 'venta' ? 'Venta' : 'Alquiler'}
                             </p>
                         </div>
@@ -286,15 +286,16 @@ export default function PropertyChat({ property }: PropertyChatProps) {
                                     className={`flex gap-2 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
                                 >
                                     {msg.role === 'assistant' && (
-                                        <div className="w-7 h-7 rounded-full bg-teal-100 flex items-center justify-center flex-shrink-0 mt-1">
-                                            <Bot className="w-3.5 h-3.5 text-teal-700" />
+                                        <div className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 mt-1" style={{ background: 'rgba(184, 134, 59, 0.15)' }}>
+                                            <Bot className="w-3.5 h-3.5" style={{ color: 'var(--accent-dark)' }} />
                                         </div>
                                     )}
                                     <div
                                         className={`max-w-[75%] px-4 py-2.5 rounded-2xl text-sm leading-relaxed whitespace-pre-line ${msg.role === 'user'
-                                            ? 'bg-[#0d9488] text-white rounded-br-md'
+                                            ? 'text-white rounded-br-md'
                                             : 'bg-white text-[var(--text-main)] rounded-bl-md shadow-sm border border-gray-100'
                                             }`}
+                                        style={msg.role === 'user' ? { background: 'var(--primary-blue)' } : undefined}
                                     >
                                         {msg.content}
                                     </div>
@@ -313,8 +314,8 @@ export default function PropertyChat({ property }: PropertyChatProps) {
                                     animate={{ opacity: 1 }}
                                     className="flex gap-2 items-end"
                                 >
-                                    <div className="w-7 h-7 rounded-full bg-teal-100 flex items-center justify-center flex-shrink-0">
-                                        <Bot className="w-3.5 h-3.5 text-teal-700" />
+                                    <div className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: 'rgba(184, 134, 59, 0.15)' }}>
+                                        <Bot className="w-3.5 h-3.5" style={{ color: 'var(--accent-dark)' }} />
                                     </div>
                                     <div className="bg-white px-4 py-3 rounded-2xl rounded-bl-md shadow-sm border border-gray-100">
                                         <div className="flex gap-1.5">
@@ -339,7 +340,7 @@ export default function PropertyChat({ property }: PropertyChatProps) {
                                     onChange={(e) => setInput(e.target.value)}
                                     onKeyDown={handleKeyDown}
                                     placeholder="Escribí tu consulta..."
-                                    className="flex-1 px-4 py-2.5 rounded-xl bg-gray-50 border border-gray-200 text-sm text-[var(--text-main)] placeholder:text-gray-400 focus:outline-none focus:border-[#0d9488] focus:ring-2 focus:ring-teal-100 transition-all"
+                                    className="flex-1 px-4 py-2.5 rounded-xl bg-gray-50 border border-gray-200 text-sm text-[var(--text-main)] placeholder:text-gray-400 focus:outline-none focus:border-[var(--accent-color)] focus:ring-2 focus:ring-[#f3ead9] transition-all"
                                     disabled={sending}
                                 />
                                 <button
@@ -347,13 +348,13 @@ export default function PropertyChat({ property }: PropertyChatProps) {
                                     disabled={!input.trim() || sending}
                                     className="w-10 h-10 rounded-xl flex items-center justify-center transition-all disabled:opacity-30 hover:scale-105"
                                     style={{
-                                        background: input.trim() ? 'linear-gradient(135deg, #0d9488, #0f766e)' : '#e5e7eb',
+                                        background: input.trim() ? 'var(--primary-blue)' : '#e5e7eb',
                                     }}
                                 >
                                     <Send className={`w-4 h-4 ${input.trim() ? 'text-white' : 'text-gray-400'}`} />
                                 </button>
                             </div>
-                            <p className="text-center text-[10px] text-gray-400 mt-2 font-medium">
+                            <p className="text-center text-[0.8125rem] text-slate-500 mt-2 font-medium">
                                 Asistente IA · Bulacio Bienes Raíces
                             </p>
                         </div>

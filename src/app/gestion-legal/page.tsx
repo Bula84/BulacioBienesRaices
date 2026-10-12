@@ -18,6 +18,9 @@ import { submitLegalCase } from '@/lib/supabase';
 
 const INK = '#0b1f3a';
 const ACCENT = '#b8863b';
+/** Dorado oscuro: para usar sobre fondos claros (blanco / slate-50).
+ *  El dorado base (#b8863b) sobre blanco no llega al contraste AA para texto chico. */
+const ACCENT_DARK = '#7c5a22';
 
 const servicios = [
     {
@@ -144,7 +147,7 @@ export default function GestionLegalPage() {
                         {/* Wordmark sub-marca */}
                         <div className="inline-flex items-center gap-3 mb-8 px-4 py-2 rounded-full border border-white/15 bg-white/5 backdrop-blur-sm">
                             <Scale className="w-4 h-4" style={{ color: ACCENT }} />
-                            <span className="text-xs font-bold uppercase tracking-[0.2em] text-slate-200">
+                            <span className="eyebrow text-slate-200">
                                 Bulacio Bienes Raíces — <span style={{ color: ACCENT }}>Gestión Legal</span>
                             </span>
                         </div>
@@ -164,7 +167,7 @@ export default function GestionLegalPage() {
                         <div className="flex flex-col sm:flex-row gap-4">
                             <a
                                 href="#caso"
-                                className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl font-bold text-white transition-all hover:scale-105 shadow-xl"
+                                className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl font-bold text-[#0b1f3a] transition-all hover:scale-105 shadow-xl"
                                 style={{ background: ACCENT }}
                             >
                                 Contanos tu caso
@@ -186,8 +189,8 @@ export default function GestionLegalPage() {
                 <div className="container mx-auto px-6">
                     <div className="max-w-2xl mb-16">
                         <span
-                            className="text-xs font-bold uppercase tracking-[0.2em] mb-4 block"
-                            style={{ color: ACCENT }}
+                            className="eyebrow mb-4 block"
+                            style={{ color: ACCENT_DARK }}
                         >
                             Nuestros servicios
                         </span>
@@ -224,7 +227,7 @@ export default function GestionLegalPage() {
                                             <li key={p} className="flex items-start gap-2 text-sm text-slate-700">
                                                 <CheckCircle2
                                                     className="w-4 h-4 mt-0.5 flex-shrink-0"
-                                                    style={{ color: ACCENT }}
+                                                    style={{ color: ACCENT_DARK }}
                                                 />
                                                 {p}
                                             </li>
@@ -242,7 +245,7 @@ export default function GestionLegalPage() {
                 <div className="container mx-auto px-6">
                     <div className="text-center max-w-2xl mx-auto mb-16">
                         <span
-                            className="text-xs font-bold uppercase tracking-[0.2em] mb-4 block"
+                            className="eyebrow mb-4 block"
                             style={{ color: ACCENT }}
                         >
                             Cómo trabajamos
@@ -269,7 +272,7 @@ export default function GestionLegalPage() {
                                     {p.n}
                                 </span>
                                 <h3 className="text-white font-bold mb-2">{p.t}</h3>
-                                <p className="text-slate-400 text-sm leading-relaxed">{p.d}</p>
+                                <p className="text-slate-300 text-sm leading-relaxed">{p.d}</p>
                             </motion.div>
                         ))}
                     </div>
@@ -281,8 +284,8 @@ export default function GestionLegalPage() {
                 <div className="container mx-auto px-6">
                     <div className="text-center max-w-2xl mx-auto mb-14">
                         <span
-                            className="text-xs font-bold uppercase tracking-[0.2em] mb-4 block"
-                            style={{ color: ACCENT }}
+                            className="eyebrow mb-4 block"
+                            style={{ color: ACCENT_DARK }}
                         >
                             Iniciemos
                         </span>
@@ -298,7 +301,7 @@ export default function GestionLegalPage() {
                         {/* Asistente */}
                         <div className="order-2 lg:order-1">
                             <LegalAssistant onResumen={setResumen} />
-                            <p className="text-xs text-slate-500 mt-3 text-center">
+                            <p className="text-[0.8125rem] text-slate-500 mt-3 text-center">
                                 El asistente recopila los datos del caso. La derivación final la hace el asesor humano.
                             </p>
                         </div>
@@ -382,7 +385,7 @@ export default function GestionLegalPage() {
                                     </div>
 
                                     <div className="pt-2 border-t border-slate-100">
-                                        <p className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-4 mt-4">
+                                        <p className="text-[0.8125rem] font-bold uppercase tracking-wider text-slate-500 mb-4 mt-4">
                                             Datos del caso
                                         </p>
                                     </div>
@@ -496,7 +499,7 @@ export default function GestionLegalPage() {
                                         {!sending && <ArrowRight className="w-5 h-5" style={{ color: ACCENT }} />}
                                     </button>
 
-                                    <p className="text-xs text-slate-500 text-center leading-relaxed">
+                                    <p className="text-[0.8125rem] text-slate-500 text-center leading-relaxed">
                                         Al enviar aceptás que un asesor se comunique con vos. No compartimos tus datos
                                         con terceros.
                                     </p>
@@ -512,29 +515,29 @@ export default function GestionLegalPage() {
                 <div className="container mx-auto px-6">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
                         <div className="flex items-center justify-center md:justify-start gap-3">
-                            <Phone className="w-5 h-5" style={{ color: ACCENT }} />
+                            <Phone className="w-5 h-5" style={{ color: ACCENT_DARK }} />
                             <div>
-                                <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Teléfono</p>
+                                <p className="text-[0.8125rem] font-bold uppercase tracking-wider text-slate-500">Teléfono</p>
                                 <p className="text-slate-800 font-semibold">+54 11 1234-5678</p>
                             </div>
                         </div>
                         <div className="flex items-center justify-center md:justify-start gap-3">
-                            <Mail className="w-5 h-5" style={{ color: ACCENT }} />
+                            <Mail className="w-5 h-5" style={{ color: ACCENT_DARK }} />
                             <div>
-                                <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Email</p>
+                                <p className="text-[0.8125rem] font-bold uppercase tracking-wider text-slate-500">Email</p>
                                 <p className="text-slate-800 font-semibold">gestionlegal@bcbienesraices.com</p>
                             </div>
                         </div>
                         <div className="flex items-center justify-center md:justify-start gap-3">
-                            <Clock className="w-5 h-5" style={{ color: ACCENT }} />
+                            <Clock className="w-5 h-5" style={{ color: ACCENT_DARK }} />
                             <div>
-                                <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Horario</p>
+                                <p className="text-[0.8125rem] font-bold uppercase tracking-wider text-slate-500">Horario</p>
                                 <p className="text-slate-800 font-semibold">Lunes a Viernes 9:00 – 18:00</p>
                             </div>
                         </div>
                     </div>
 
-                    <p className="text-xs text-slate-400 mt-10 text-center max-w-3xl mx-auto leading-relaxed">
+                    <p className="text-[0.8125rem] text-slate-500 mt-10 text-center max-w-3xl mx-auto leading-relaxed">
                         La información provista por el asistente virtual tiene carácter orientativo y no constituye
                         asesoramiento jurídico. Toda estrategia de cobranza es definida por el profesional a cargo
                         luego de evaluar la documentación del caso.
