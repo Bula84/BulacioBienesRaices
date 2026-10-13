@@ -12,6 +12,10 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Supabase Edge Functions corren en Deno, no en Node/Next.
+    // Se despliegan con `supabase functions deploy` y quedan fuera
+    // del build; aplicarles reglas de Next.js da falsos positivos.
+    "supabase/functions/**",
   ]),
 ]);
 
